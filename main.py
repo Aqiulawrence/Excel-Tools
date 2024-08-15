@@ -140,13 +140,14 @@ def insert():
         with open('log.txt', 'a') as f:
             f.write(f'{get_time()} Insert Failed\n')
         return False
-    if set_value['auto_delete']:
+    if set_value['auto_delete']:  # 删除img文件夹
         shutil.rmtree(set_value['path'])
-        os.mkdir(set_value['path'])
-    if error_insert:
+    if error_insert and error_insert != 'STOP':
         messagebox.showwarning('警告', f'有{error_insert}个图片插入失败！其余插入成功。')
         with open('log.txt', 'a') as f:
             f.write(f'{get_time()} Insert Successfully but {error_insert} Failed\n')
+        return False
+    elif error_insert == 'STOP':
         return False
     messagebox.showinfo("提示", "插入完成！")
     with open('log.txt', 'a') as f:

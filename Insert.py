@@ -31,7 +31,11 @@ def insert_resized_image_to_excel(excel_path, image_path, cell_ref):
     ws = wb.active
 
     width = ws.column_dimensions[cell_ref[0]].width * 72 // 9 # 一个单元格高为13.5，像素为18
-    height = ws.row_dimensions[cell_ref[1]].height * 18 // 13.5 # 一个单元格为宽为9，像素为72
+    try:
+        height = ws.row_dimensions[cell_ref[1]].height * 18 // 13.5 # 一个单元格为宽为9，像素为72
+    except TypeError:
+        messagebox.showerror('错误', '请调整行高！当前行高过低，无法插入！')
+        return 'STOP'
 
     try:
         resized_img, img_width, img_height = resize_image(image_path, width, height)
@@ -68,9 +72,12 @@ def main(start_cell, excel_path, image_base_path=".\\img"):
     error_insert = 0
     for idx, image_name in enumerate(image_names):
         img_path = image_base_path + image_name
-        if not insert_resized_image_to_excel(excel_path, img_path, start_cell):
+        state = insert_resized_image_to_excel(excel_path, img_path, start_cell)
+        if not state:
             error_insert += 1
             print('Insert Failed')
+        elif state == 'STOP':
+            return 'STOP'
         else:
             print(f'Successfully inserte {img_path}')
         start_cell[1] += 1
