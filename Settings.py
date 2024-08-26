@@ -2,8 +2,13 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import filedialog
 import os
-import ast
+from ast import literal_eval
 import re
+import json
+import time
+
+def get_time():
+    return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
 
 # C:\Users\Admin\appdata\Local\Sam
 username = os.getenv("USERNAME")
@@ -16,7 +21,7 @@ def load():
     if os.path.exists(path):
         with open(path, 'r') as f:
             try:
-                data = ast.literal_eval(f.read())
+                data = literal_eval(f.read())
                 return data
             except: pass
     save(True)
@@ -37,7 +42,10 @@ def save(create=False):
         data['auto_backup'] = var3.get()
 
     with open(path, 'w') as f:
-        f.write(f'{str(data)}')
+        json.dump(data, f)
+
+    with open('log.txt', 'a') as f:
+        f.write(f'{get_time()} Current Settings: {data}\n')
 
 def select():
     file_path = filedialog.askdirectory()

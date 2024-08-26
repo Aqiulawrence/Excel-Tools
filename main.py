@@ -6,6 +6,7 @@ import Settings
 import MoveKey
 import ExcelSearch
 import PostData
+import ExcelCheck
 import tkinter as tk
 from tkinter import filedialog
 import shutil
@@ -18,24 +19,54 @@ import winsound
 import os
 import subprocess
 from threading import Thread
-import ast
+from ast import literal_eval
 import tkinterdnd2
 import json
 import time
 import socket
 import re
 
+update_content = '''
+1. 搜索后添加显示目标行其他数据，以及支持链接跳转文件。
+2. 修复了可能因Excel临时文件导致PermissionError而无法
+继续搜索其他Excel的bug。
+3. 添加了检查Sum函数的功能。
+4. 添加若干提示以增加用户体验。
+5. 切换置顶后可保留状态。
+6. 如遇bug请及时联系作者！
+'''
+
 username = os.getenv("USERNAME")
 dir = rf'C:\Users\{username}\appdata\Local\Sam'
 path = rf'C:\Users\{username}\appdata\Local\Sam\profile.ini'
 
-VERSION = "1.6"
+VERSION = "1.7"
 NEW = None # 最新版本
 id = None # 蓝奏云文件的id，爬取下载地址需要用到
 top = True # 窗口是否置顶
 
 if not os.path.exists(dir):
     os.makedirs(dir)
+
+def isFirstOpen(): # 获取是否为第一次打开程序
+    path = r'C:\Users\Admin\AppData\Local\Sam\record.ini'
+    if not os.path.exists(path):
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump({VERSION: True}, f)
+            return True
+    else:
+        with open(path, 'r', encoding='utf-8') as f:
+            try:
+                data = json.load(f)
+            except json.decoder.JSONDecodeError:
+                return False
+            if VERSION in data:
+                return False
+            else:
+                data[VERSION] = True
+                with open(path, 'w', encoding='utf-8') as f:
+                    json.dump(data, f)
+                return True
 
 def deleteOld(): # 删除旧版本
     if os.getcwd().endswith('dist'):
@@ -65,7 +96,7 @@ def update(auto=False):  # auto表示该函数是否为自动更新调用的
     global NEW, id
     NEW, id = CheckUpdate.check_update()
     if NEW == 0:
-        messagebox.showerror('错误', '无法连接至更新服务器！\n注：更新时请关闭VPN！')
+        messagebox.showerror('错误', '无法连接至更新服务器！请检查网络状态。')
     elif VERSION >= NEW:
         if not auto:
             messagebox.showinfo('提示', '当前程序为最新版本，无需更新。')
@@ -180,6 +211,18 @@ def excel_search():
         print(f'====================以上为 "{data}" 的搜索结果====================')
     messagebox.showinfo('提示', '搜索完成！请到命令行查看搜索结果。')
 
+def excel_check():
+    if os.path.isdir(var8.get()):
+        ExcelCheck.checkSum(var8.get())
+        print(f'====================以上为 "求和函数" 的检查结果====================')
+        messagebox.showinfo('提示', '检查完成！请到命令行查看检查结果。')
+        with open('log.txt', 'a') as f:
+            f.write(f'{get_time()} CheckSum Successfully\n')
+    else:
+        messagebox.showwarning('警告', '请选择一个文件夹而不是一个文件。')
+        with open('log.txt', 'a') as f:
+            f.write(f'{get_time()} CheckSum Failed - Choose a file\n')
+
 def exit_():
     with open('log.txt', 'a') as f:
         f.write(get_time() + ' Close Program\n')
@@ -190,7 +233,12 @@ def exit_():
     sys.exit()
 
 def about():
-    messagebox.showinfo("关于", f"当前版本：v{VERSION}\n最新版本：v{NEW}\n作者：Sam")
+    if NEW == None:
+        messagebox.showinfo("关于", f'当前版本：v{VERSION}\n最新版本：未知\n（当前自动更新已关闭，请点击 "关于->检查更新" 手动获取最新版本）\n作者：Sam')
+    elif NEW == 0:
+        messagebox.showinfo("关于", f'当前版本：v{VERSION}\n最新版本：未知（获取更新失败，请点击 "关于->检查更新" 重新获取更新）\n作者：Sam')
+    else:
+        messagebox.showinfo("关于", f"当前版本：v{VERSION}\n最新版本：v{NEW}\n作者：Sam")
 
 def postLog():
     with open('log.txt', 'r') as f:
@@ -206,6 +254,8 @@ def easydo(): # 一键操作
     insert()
 
 def settings():
+    with open('log.txt', 'a') as f:
+        f.write(f'{get_time()} Open Settings\n')
     save()
     root.destroy()
     Settings.main()
@@ -217,9 +267,10 @@ def load():
     if os.path.exists(path):
         with open(path, 'r') as f:
             try:
-                data = ast.literal_eval(f.read())
-                return data
-            except: pass
+                data = json.load(f)
+                return True
+            except json.decoder.JSONDecodeError:
+                with open(path, 'w'): pass
     else:
         with open(path, 'w') as f: pass
         return False
@@ -234,9 +285,10 @@ def save():
     data['move_end'] = var6.get()
     data['move_target'] = var7.get()
     data['search_file'] = var8.get()
+    data['isTop'] = top
 
     with open(path, 'w') as f:
-        f.write(f'{str(data)}')
+        json.dump(data, f)
 
 def top_switch():
     global top
@@ -274,7 +326,7 @@ def check_path(path):
     return True
 
 def main(check=True):
-    global root, t1, var1, var2, var3, var4, var5, var6, var7, var8, NEW, id, set_value
+    global root, t1, var1, var2, var3, var4, var5, var6, var7, var8, top, NEW, id, set_value
 
     deleteOld()
 
@@ -287,7 +339,6 @@ def main(check=True):
     root.title(f"Excel Tools by Sam v{VERSION}")
     root.geometry("515x405+400+200")
     root.resizable(width=False, height=False)
-    root.attributes("-topmost", top)
 
     var1 = tk.StringVar() # 文件
     var2 = tk.StringVar() # 开始
@@ -308,13 +359,17 @@ def main(check=True):
             var6.set(data['move_end'])
             var7.set(data['move_target'])
             var8.set(data['search_file'])
+            top = data['isTop']
         except KeyError:
             pass
+
+    if top:
+        root.attributes("-topmost", top)
 
     f1 = tk.Frame(root)
     f1.grid(row=0, column=0)
 
-    lb1 = tk.Label(f1, text="选择文件：", fg="red")
+    lb1 = tk.Label(f1, text="选择文件(可拖拽):", fg="red")
     lb1.grid(row=0, column=0, sticky=tk.W, padx=5)
     et1 = tk.Entry(f1, textvariable=var1, width=45, state="disabled")
     et1.grid(row=0, column=1, padx=5, sticky=tk.W)
@@ -387,8 +442,8 @@ def main(check=True):
     bt6 = tk.Button(lf5, text="移动", command=move_key)
     bt6.grid(row=3, column=0, padx=5, pady=5, columnspan=2)
 
-    # 数据搜索
-    lf6 = tk.LabelFrame(root, text='数据搜索')
+    # 数据搜索&函数检查
+    lf6 = tk.LabelFrame(root, text='数据搜索&函数检查(可拖拽)')
     lf6.grid(row=2, column=0, padx=5, sticky=tk.NW)
     lf6.drop_target_register(tkinterdnd2.DND_FILES)
     lf6.dnd_bind('<<Drop>>', on_drop2)
@@ -404,13 +459,16 @@ def main(check=True):
     bt8.grid(row=0, column=1, padx=5, pady=5, sticky=tk.N)
     bt9 = tk.Button(f4, text='搜索', command=excel_search)
     bt9.grid(row=0, column=2, padx=5, pady=5, sticky=tk.N)
+    bt10 = tk.Button(f4, text='检查', command=excel_check)
+    bt10.grid(row=0, column=3, padx=5, pady=5, sticky=tk.N)
 
     # 顶部Menu
     menubar = tk.Menu(root)
 
     about_menu = tk.Menu(menubar, tearoff=False)
     about_menu.add_command(label="关于", command=about)
-    about_menu.add_command(label='更新', command=update)
+    about_menu.add_command(label='检查更新', command=update)
+    about_menu.add_command(label='更新公告', command=lambda: messagebox.showinfo('更新内容', update_content))
     about_menu.add_command(label='官网', command=lambda:webbrowser.open(r'https://techxi.us.kg/'))
 
     set_menu = tk.Menu(menubar, tearoff=False)
@@ -432,12 +490,17 @@ def main(check=True):
         print('正在检查更新。')
         update(True)
 
+    if isFirstOpen():
+        messagebox.showinfo('更新内容', '注：请先关闭此更新公告再使用主程序！！\n'+update_content)
+
     root.mainloop()
+
     with open('log.txt', 'a') as f:
         f.write(get_time() + ' Close Program\n')
+
+    save()
     print('正在上传日志文件，请不要关闭程序！')
     postLog()
-    save()
     sys.exit()
 
 if __name__ == "__main__":
