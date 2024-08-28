@@ -12,7 +12,7 @@ def download_images(url, output_folder, num):
     while True:
         try:
             response = requests.get(url, verify=False)
-        except requests.exceptions.RequestException:
+        except:
             continue
         break
 
@@ -43,7 +43,7 @@ def download_images(url, output_folder, num):
         while True:
             try:
                 img_response = requests.get(data, stream=True, verify=False)
-            except requests.exceptions.SSLError:
+            except:
                 continue
             break
 
@@ -62,6 +62,17 @@ def download_images(url, output_folder, num):
         pass
     return False
 
+def searchName(key):
+    url = 'https://www.google.com/search?q='
+    while True:
+        try:
+            response = requests.get(url + key)
+        except:
+            continue
+        break
+    soup = BeautifulSoup(response.text, "html.parser")
+    print(soup.find_all('h3')[0].text)
+
 def main(data, output_directory=".\\img"):
     error_img = 0
     index = 1
@@ -75,3 +86,6 @@ def main(data, output_directory=".\\img"):
     if error_img:
         return error_img
     return 0
+
+if __name__ == '__main__':
+    searchName('208-70-72170')

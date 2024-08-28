@@ -12,6 +12,7 @@ from tkinter import filedialog
 import shutil
 import easygui
 from tkinter import messagebox
+import traceback
 import sys
 import requests
 import webbrowser
@@ -27,26 +28,34 @@ import socket
 import re
 
 update_content = '''
-1. 搜索后添加显示目标行其他数据，以及支持链接跳转文件。
-2. 修复了可能因Excel临时文件导致PermissionError而无法
-继续搜索其他Excel的bug。
-3. 添加了检查Sum函数的功能。
-4. 添加若干提示以增加用户体验。
-5. 切换置顶后可保留状态。
-6. 如遇bug请及时联系作者！
+==========1.7更新===========
+1. Excel搜索后将显示目标行其他数据，并生成跳转链接。
+2. 添加了检查Sum函数是否计算完全的功能。
+3. 使用窗口->切换置顶功能后可保留置顶状态。
+==========1.71更新==========
+1. 添加了谷歌搜索英文名功能。
+2. 添加了程序加载画面。
 '''
 
 username = os.getenv("USERNAME")
 dir = rf'C:\Users\{username}\appdata\Local\Sam'
 path = rf'C:\Users\{username}\appdata\Local\Sam\profile.ini'
 
-VERSION = "1.7"
+VERSION = "1.71"
 NEW = None # 最新版本
 id = None # 蓝奏云文件的id，爬取下载地址需要用到
 top = True # 窗口是否置顶
 
 if not os.path.exists(dir):
     os.makedirs(dir)
+
+SOLUTION_CONTENT = r'''当遇到程序闪退的情况，请尝试：
+1. 右键程序->以管理员身份运行
+2. 打开 "C:\Users\Admin\appdata\Local\Sam" 文件夹并删除文件夹内所有文件（Admin为你的用户名）
+3. 录制程序闪退时视频并发给作者Sam'''
+
+with open('程序闪退点我.txt', 'w', encoding='utf-8') as f:
+    f.write(SOLUTION_CONTENT)
 
 def isFirstOpen(): # 获取是否为第一次打开程序
     path = r'C:\Users\Admin\AppData\Local\Sam\record.ini'
@@ -153,14 +162,33 @@ def search():
         return False
 
     error_img = GoogleSearch.main(t1.get("1.0", tk.END).split("\n"), set_value['path'])
-    if error_img:
+    if error_img: # 有图片没搜到
         messagebox.showwarning('警告', f'{error_img}个键号图片无法被搜到，请检查键号是否有误！')
         with open('log.txt', 'a') as f:
             f.write(f'{get_time()} Search Successfully but {error_img} Not Found\n')
+
+        if messagebox.askyesno('搜索英文名', '是否继续搜索英文名？'):
+            for content in t1.get("1.0", tk.END).split("\n"):
+                if content == '' or content == '\n':
+                    continue
+                GoogleSearch.searchName(content)
+            messagebox.showinfo('提示', '英文名搜索完成。')
+            with open('log.txt', 'a') as f:
+                f.write(f'{get_time()} English_name Search Successfully\n')
+
         return False
-    messagebox.showinfo("提示", "搜索完成！")
+    # 正常状态
     with open('log.txt', 'a') as f:
         f.write(f'{get_time()} Search Successfully\n')
+
+    if messagebox.askyesno("提示", "搜索完成！是否继续搜索英文名？"):
+        for content in t1.get("1.0", tk.END).split("\n"):
+            if content == '' or content == '\n':
+                continue
+            GoogleSearch.searchName(content)
+        messagebox.showinfo('提示', '英文名搜索完成。')
+        with open('log.txt', 'a') as f:
+            f.write(f'{get_time()} English_name Search Successfully\n')
     return True
 
 def insert():
@@ -270,6 +298,7 @@ def load():
                 data = json.load(f)
                 return True
             except json.decoder.JSONDecodeError:
+                data = {}
                 with open(path, 'w'): pass
     else:
         with open(path, 'w') as f: pass
@@ -326,7 +355,7 @@ def check_path(path):
     return True
 
 def main(check=True):
-    global root, t1, var1, var2, var3, var4, var5, var6, var7, var8, top, NEW, id, set_value
+    global root, t1, var1, var2, var3, var4, var5, var6, var7, var8, top, NEW, id, set_value, data
 
     deleteOld()
 
@@ -350,6 +379,8 @@ def main(check=True):
     var8 = tk.StringVar() # 数据搜索目标文件
 
     if load():
+        if type(data) != dict:
+            data = {}
         try:
             var1.set(data['file'])
             var2.set(data['start1'])
@@ -505,8 +536,15 @@ def main(check=True):
 
 if __name__ == "__main__":
     try:
+        import pyi_splash
+        pyi_splash.update_text('Loading...')
+        pyi_splash.close()
+    except: pass
+
+    try:
         main()
-    except SystemExit:
-        pass
-    except KeyboardInterrupt:
-        pass
+    except SystemExit: pass
+    except KeyboardInterrupt: pass
+    except Exception:
+        traceback.print_exc()
+        input()
