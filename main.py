@@ -28,20 +28,16 @@ import socket
 import re
 
 update_content = '''
-==========1.7更新===========
-1. Excel搜索后将显示目标行其他数据，并生成跳转链接。
-2. 添加了检查Sum函数是否计算完全的功能。
-3. 使用窗口->切换置顶功能后可保留置顶状态。
-==========1.71更新==========
-1. 添加了谷歌搜索英文名功能。
-2. 添加了程序加载画面。
+1. 修改了搜索部分代码，可能可以解决搜索问题。
+2. 搜索失败生成debug.html用于分析。
+3. 优化了部分代码，提高用户体验。
 '''
 
 username = os.getenv("USERNAME")
 dir = rf'C:\Users\{username}\appdata\Local\Sam'
 path = rf'C:\Users\{username}\appdata\Local\Sam\profile.ini'
 
-VERSION = "1.71"
+VERSION = "1.72"
 NEW = None # 最新版本
 id = None # 蓝奏云文件的id，爬取下载地址需要用到
 top = True # 窗口是否置顶

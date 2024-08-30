@@ -1,29 +1,16 @@
-import requests  
-from bs4 import BeautifulSoup  
-import base64  
+import requests
+import base64
 import re
-from PIL import Image
 import os
+import time
+from bs4 import BeautifulSoup
+from PIL import Image
+
+headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:50.0) Gecko/20100101 Firefox/50.0'}
 
 def download_images(url, output_folder, num):
-    if not os.path.exists(output_folder):  
+    if not os.path.exists(output_folder):
         os.makedirs(output_folder)
-
-    while True:
-        try:
-            response = requests.get(url, verify=False)
-        except:
-            continue
-        break
-
-    response.encoding = "utf-8"
-    html = response.text
-
-    soup = BeautifulSoup(html, "html.parser")
-    img_tags = soup.find_all("img")
-
-    count = 1
-
     if num < 10:
         file_name = os.path.join(output_folder, f'00{num}.png')
     elif num < 100:
@@ -34,31 +21,49 @@ def download_images(url, output_folder, num):
         print('错误！搜寻的图片数量过大！请联系Sam来修改搜图数量上限！')
         return False
 
-    for img in img_tags:
-        if count >= 2:
-            break
-        data = img.attrs["src"]
-        if data[:4] != "http":
+    while True:
+        try:
+            response = requests.get(url, headers=headers, timeout=3)
+        except:
+            time.sleep(1)
             continue
-        while True:
-            try:
-                img_response = requests.get(data, stream=True, verify=False)
-            except:
-                continue
-            break
+        break
 
-        with open(file_name, 'wb') as handler:  
-            handler.write(img_response.content)
-            
-        with Image.open(file_name) as img:
-            if min(img.size[0], img.size[1]) < 100:
-                continue
-        count += 1
-        print(f"Downloaded image to {file_name}")
-        return True
+    html = response.text
+    soup = BeautifulSoup(html, "html.parser")
+    img_tags = soup.find_all("img")
+
+    with open('test.html', 'w', encoding='utf-8') as f:
+        f.write(html)
+
+    for img in img_tags:
+        try:
+            data = img.attrs["src"]
+        except Exception:
+            continue
+
+        if data[:4] == "http":
+            while True:
+                try:
+                    img_response = requests.get(data, headers=headers, timeout=3)
+                except:
+                    time.sleep(0.7)
+                    continue
+                break
+            with open(file_name, 'wb') as handler: # 先下载图片
+                handler.write(img_response.content)
+
+            with Image.open(file_name) as img: # 图片过小时下载新的图片
+                if min(img.size[0], img.size[1]) < 100:
+                    continue
+            print(f"Downloaded image to {file_name}")
+            return True
 
     print('No images found')
-    with open(file_name, 'w'):
+    with open('debug.html', 'w', encoding='utf-8') as f:
+        f.write(soup.prettify())
+
+    with open(file_name, 'w'): # 创建一个空文件，插入的时候不会篡位
         pass
     return False
 
@@ -66,8 +71,9 @@ def searchName(key):
     url = 'https://www.google.com/search?q='
     while True:
         try:
-            response = requests.get(url + key)
+            response = requests.get(url+key)
         except:
+            time.sleep(0.7)
             continue
         break
     soup = BeautifulSoup(response.text, "html.parser")
@@ -88,4 +94,4 @@ def main(data, output_directory=".\\img"):
     return 0
 
 if __name__ == '__main__':
-    searchName('208-70-72170')
+    main(['349-7059'])
