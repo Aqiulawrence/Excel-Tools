@@ -1,6 +1,13 @@
 import os
 from openpyxl import load_workbook
 from tkinter import messagebox
+from colorama import Fore, Style
+
+def red_text(text):
+    return Fore.RED+Style.BRIGHT+text+Style.RESET_ALL
+
+def blue_text(text):
+    return Fore.BLUE+Style.BRIGHT+text+Style.RESET_ALL
 
 REPLACE = {
     '%20': '+',
@@ -59,7 +66,7 @@ def find_data_in_multiple_excel(folder_path, data_to_find):
                             rep_path = f'file:///{rep(full_path, REPLACE)}'
                             if ' ' in rep_path:
                                 rep_path = '文件名包含特殊字符，无法生成链接'
-                            print(f'在 "{full_path}" 中的 "{cell.coordinate}" 找到 "{data_to_find}"，ctrl+左键点此打开文件：{rep_path}')
+                            print(f'在 "{blue_text(full_path)}" 中的 "{red_text(cell.coordinate)}" 找到 "{data_to_find}"')
                             print('当前行的内容：', end='')
                             for c in row:
                                 if c.value != None:

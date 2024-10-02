@@ -1,25 +1,22 @@
 import tkinter as tk
-from tkinter import messagebox
 from tkinter import filedialog
 import os
 from ast import literal_eval
-import re
 import json
 import time
 
 def get_time():
     return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
 
-# C:\Users\Admin\appdata\Local\Sam
-username = os.getenv("USERNAME")
-path = rf'C:\Users\{username}\appdata\Local\Sam\profile2.ini'
+CONFIG_DIR = rf'.\configs'
+CONFIG_FILE2 = rf'{CONFIG_DIR}\cf2.ini'
 set_value_len = 4
 
 def load():
     global data
     data = {}
-    if os.path.exists(path):
-        with open(path, 'r') as f:
+    if os.path.exists(CONFIG_FILE2):
+        with open(CONFIG_FILE2, 'r') as f:
             try:
                 data = literal_eval(f.read())
                 return data
@@ -41,7 +38,7 @@ def save(create=False):
         data['auto_delete'] = var2.get()
         data['auto_backup'] = var3.get()
 
-    with open(path, 'w') as f:
+    with open(CONFIG_FILE2, 'w') as f:
         json.dump(data, f)
 
     with open('log.txt', 'a') as f:

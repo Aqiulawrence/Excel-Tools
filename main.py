@@ -26,35 +26,35 @@ import json
 import time
 import socket
 import re
+import ctypes
+from colorama import Fore, Style
 
 update_content = '''
-1. 修改了搜索部分代码，可能可以解决搜索问题。
-2. 搜索失败生成debug.html用于分析。
-3. 优化了部分代码，提高用户体验。
+1. 新增文本框右键复制&粘贴。
+2. 更改了配置文件储存的位置。
+3. 为部分文字添加了颜色。
 '''
 
-username = os.getenv("USERNAME")
-dir = rf'C:\Users\{username}\appdata\Local\Sam'
-path = rf'C:\Users\{username}\appdata\Local\Sam\profile.ini'
+CONFIG_DIR = rf'.\configs' # 此常量仅在 main.py 和 Settings.py 出现
+CONFIG_FILE1 = rf'.\configs\cf1.ini' # 此文件作用是保存主窗口内输入框的值
 
-VERSION = "1.72"
+VERSION = "1.73"
 NEW = None # 最新版本
 id = None # 蓝奏云文件的id，爬取下载地址需要用到
 top = True # 窗口是否置顶
 
-if not os.path.exists(dir):
-    os.makedirs(dir)
+if not os.path.exists(CONFIG_DIR):
+    os.makedirs(CONFIG_DIR)
 
 SOLUTION_CONTENT = r'''当遇到程序闪退的情况，请尝试：
-1. 右键程序->以管理员身份运行
-2. 打开 "C:\Users\Admin\appdata\Local\Sam" 文件夹并删除文件夹内所有文件（Admin为你的用户名）
-3. 录制程序闪退时视频并发给作者Sam'''
+1. 右键程序->以管理员身份运行。
+2. 录制程序闪退时视频并发送至开发者。'''
 
 with open('程序闪退点我.txt', 'w', encoding='utf-8') as f:
     f.write(SOLUTION_CONTENT)
 
 def isFirstOpen(): # 获取是否为第一次打开程序
-    path = r'C:\Users\Admin\AppData\Local\Sam\record.ini'
+    path = rf'{CONFIG_DIR}\record.ini' # 这个文件只记录打开过的版本号
     if not os.path.exists(path):
         with open(path, 'w', encoding='utf-8') as f:
             json.dump({VERSION: True}, f)
@@ -267,9 +267,9 @@ def about():
 def postLog():
     with open('log.txt', 'r') as f:
         if PostData.postData(f.read(), 'log.txt', socket.gethostname()):
-            print('日志文件上传成功！')
+            print(blue_text('日志文件上传成功！'))
         else:
-            print('日志文件上传失败！')
+            print(red_text('日志文件上传失败！'))
 
 def easydo(): # 一键操作
     extract()
@@ -285,19 +285,19 @@ def settings():
     Settings.main()
     main(False)
 
-def load():
+def load(): # 加载上次填充的内容
     global data
     data = {}
-    if os.path.exists(path):
-        with open(path, 'r') as f:
+    if os.path.exists(CONFIG_FILE1):
+        with open(CONFIG_FILE1, 'r') as f:
             try:
                 data = json.load(f)
                 return True
             except json.decoder.JSONDecodeError:
                 data = {}
-                with open(path, 'w'): pass
+                with open(CONFIG_FILE1, 'w'): pass
     else:
-        with open(path, 'w') as f: pass
+        with open(CONFIG_FILE1, 'w') as f: pass
         return False
 
 def save():
@@ -312,7 +312,7 @@ def save():
     data['search_file'] = var8.get()
     data['isTop'] = top
 
-    with open(path, 'w') as f:
+    with open(CONFIG_FILE1, 'w') as f:
         json.dump(data, f)
 
 def top_switch():
@@ -350,8 +350,23 @@ def check_path(path):
         return False
     return True
 
-def main(check=True):
-    global root, t1, var1, var2, var3, var4, var5, var6, var7, var8, top, NEW, id, set_value, data
+def rc_popup(event): # 右键弹出粘贴菜单
+    rc_menu.post(event.x_root, event.y_root)
+
+def rc_paste(event=None):
+    t1.event_generate('<<Paste>>')
+
+def rc_copy(event=None):
+    t1.event_generate('<<Copy>>')
+
+def red_text(text):
+    return Fore.RED+Style.BRIGHT+text+Style.RESET_ALL
+
+def blue_text(text):
+    return Fore.BLUE+Style.BRIGHT+text+Style.RESET_ALL
+
+def main(check=True): # check为是否检查更新以及是否输出提示文本
+    global root, t1, var1, var2, var3, var4, var5, var6, var7, var8, top, NEW, id, set_value, data, t1, rc_menu
 
     deleteOld()
 
@@ -396,7 +411,7 @@ def main(check=True):
     f1 = tk.Frame(root)
     f1.grid(row=0, column=0)
 
-    lb1 = tk.Label(f1, text="选择文件(可拖拽):", fg="red")
+    lb1 = tk.Label(f1, text="选择文件:", fg="red")
     lb1.grid(row=0, column=0, sticky=tk.W, padx=5)
     et1 = tk.Entry(f1, textvariable=var1, width=45, state="disabled")
     et1.grid(row=0, column=1, padx=5, sticky=tk.W)
@@ -424,6 +439,7 @@ def main(check=True):
     t1 = tk.Text(lf1, width=22, height=12)
     t1.insert("1.0", "此处为待搜索的内容")
     t1.grid(row=2, column=0, columnspan=2, padx=10)
+    t1.bind('<Button-3>', rc_popup) # 绑定右键菜单
     bt2 = tk.Button(lf1, text="提取", command=extract)
     bt2.grid(row=3, column=0, columnspan=2, pady=5)
 
@@ -470,7 +486,7 @@ def main(check=True):
     bt6.grid(row=3, column=0, padx=5, pady=5, columnspan=2)
 
     # 数据搜索&函数检查
-    lf6 = tk.LabelFrame(root, text='数据搜索&函数检查(可拖拽)')
+    lf6 = tk.LabelFrame(root, text='数据搜索&函数检查(在上方文本框输入待搜索的内容)')
     lf6.grid(row=2, column=0, padx=5, sticky=tk.NW)
     lf6.drop_target_register(tkinterdnd2.DND_FILES)
     lf6.dnd_bind('<<Drop>>', on_drop2)
@@ -488,6 +504,11 @@ def main(check=True):
     bt9.grid(row=0, column=2, padx=5, pady=5, sticky=tk.N)
     bt10 = tk.Button(f4, text='检查', command=excel_check)
     bt10.grid(row=0, column=3, padx=5, pady=5, sticky=tk.N)
+
+    # 右键Menu
+    rc_menu = tk.Menu(root, tearoff=0)
+    rc_menu.add_command(label='复制', command=rc_copy)
+    rc_menu.add_command(label='粘贴', command=rc_paste)
 
     # 顶部Menu
     menubar = tk.Menu(root)
@@ -516,6 +537,12 @@ def main(check=True):
     if check and set_value['auto_update']:
         print('正在检查更新。')
         update(True)
+
+    if check:
+        if ctypes.windll.shell32.IsUserAnAdmin():
+            messagebox.showinfo('提示', '若非特殊情况，请勿使用管理员身份运行此程序！')
+        else:
+            print(blue_text('[提示]文件无需手动选择，可拖拽进入窗口！'))
 
     if isFirstOpen():
         messagebox.showinfo('更新内容', '注：请先关闭此更新公告再使用主程序！！\n'+update_content)
