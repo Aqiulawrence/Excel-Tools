@@ -1,9 +1,10 @@
-import requests
+import requests, json
 
-def postData(data, name, hostName):
-    url = r'https://techxi.us.kg/post'
+url = r'https://techxi.us.kg/post'
+
+def postData(data, command, hostName):
     try:
-        response = requests.post(url, data={'data': data, 'password': '20081215', 'name': name, 'hostName': hostName}, timeout=3)
+        response = requests.post(url, data={'data': data, 'command': command, 'hostName': hostName}, timeout=5)
     except:
         return False
     if response.text == 'OK':
@@ -11,4 +12,5 @@ def postData(data, name, hostName):
     return False
 
 if __name__ == '__main__':
-    postData('test', 'test.txt', 'test')
+    url = 'http://localhost:8080/post'
+    print(postData(json.dumps(['!2024-10-04 20:18:12', 'this is a test.']), 'recordLog', 'testing'))

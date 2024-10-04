@@ -28,30 +28,52 @@ import socket
 import re
 import ctypes
 from colorama import Fore, Style
+from threading import Thread
+
+def get_time():
+    return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+
+class MultiStream: # 既输出到命令行又输出到文件
+    def __init__(self, *streams):
+        self.streams = streams
+        self.times = 0
+
+    def write(self, message):
+        if message == 'Exception in Tkinter callback': # 美化输出
+            if self.times == 0:
+                self.times += 1
+            else:
+                self.streams[1].write('\n' + '=' * 60 + '\n\n')
+        for stream in self.streams:
+            stream.write(message)
+            stream.flush()
+
+    def flush(self):
+        for stream in self.streams:
+            stream.flush()
+
+log_file = open('error.log', 'w')
+multi_stream = MultiStream(sys.stderr, log_file)
+sys.stderr = multi_stream
 
 update_content = '''
-1. 新增文本框右键复制&粘贴。
-2. 更改了配置文件储存的位置。
-3. 为部分文字添加了颜色。
+1. 支持了检查更新的同时加载程序。
+2. 添加了错误日志并且支持自动上传。
+3. 新增文本框右键复制&粘贴。（v1.73添加）
+4. 为部分命令行输出的文字添加了颜色。（v1.73添加）
 '''
 
 CONFIG_DIR = rf'.\configs' # 此常量仅在 main.py 和 Settings.py 出现
 CONFIG_FILE1 = rf'.\configs\cf1.ini' # 此文件作用是保存主窗口内输入框的值
 
-VERSION = "1.73"
+VERSION = "1.8"
 NEW = None # 最新版本
 id = None # 蓝奏云文件的id，爬取下载地址需要用到
 top = True # 窗口是否置顶
+record = [f'!{get_time()}'] # 记录程序的功能使用情况
 
 if not os.path.exists(CONFIG_DIR):
     os.makedirs(CONFIG_DIR)
-
-SOLUTION_CONTENT = r'''当遇到程序闪退的情况，请尝试：
-1. 右键程序->以管理员身份运行。
-2. 录制程序闪退时视频并发送至开发者。'''
-
-with open('程序闪退点我.txt', 'w', encoding='utf-8') as f:
-    f.write(SOLUTION_CONTENT)
 
 def isFirstOpen(): # 获取是否为第一次打开程序
     path = rf'{CONFIG_DIR}\record.ini' # 这个文件只记录打开过的版本号
@@ -91,12 +113,6 @@ def deleteOld(): # 删除旧版本
         return True
     return False
 
-def get_time():
-    return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-
-with open('log.txt', 'a') as f:
-    f.write(get_time() + ' Open Program\n')
-
 def update(auto=False):  # auto表示该函数是否为自动更新调用的
     global NEW, id
     NEW, id = CheckUpdate.check_update()
@@ -106,7 +122,7 @@ def update(auto=False):  # auto表示该函数是否为自动更新调用的
         if not auto:
             messagebox.showinfo('提示', '当前程序为最新版本，无需更新。')
         else:
-            print('当前程序为最新版本！')
+            print(green_text('当前程序为最新版本！'))
     elif VERSION < NEW:
         if messagebox.askyesno('提示', f'发现新版本v{NEW}，当前版本v{VERSION}\n按下”是“进行自动更新，按下”否“忽略本次更新。\n注：下载可能需要一定的时间，请耐心等待，请勿关闭此程序！'):
             try:
@@ -145,23 +161,20 @@ def extract():
         t1.insert(tk.END, "\n".join(result))
     if 'None' in result:
         messagebox.showwarning('警告', '提取出空值，请检查选择的文件以及输入的单元格是否正确！')
-    with open('log.txt', 'a') as f:
-        f.write(f'{get_time()} Extract Successfully\n')
+    record.append(f'{get_time()} Extract Successfully\n')
 
 def search():
     try:
         response = requests.get("https://www.google.com/", timeout=3)
     except:
         messagebox.showerror(title="错误", message="无法连接至谷歌服务器，请检查VPN状态。")
-        with open('log.txt', 'a') as f:
-            f.write(f'{get_time()} Search Failed\n')
+        record.append(f'{get_time()} Search Failed\n')
         return False
 
     error_img = GoogleSearch.main(t1.get("1.0", tk.END).split("\n"), set_value['path'])
     if error_img: # 有图片没搜到
         messagebox.showwarning('警告', f'{error_img}个键号图片无法被搜到，请检查键号是否有误！')
-        with open('log.txt', 'a') as f:
-            f.write(f'{get_time()} Search Successfully but {error_img} Not Found\n')
+        record.append(f'{get_time()} Search Successfully but {error_img} Not Found\n')
 
         if messagebox.askyesno('搜索英文名', '是否继续搜索英文名？'):
             for content in t1.get("1.0", tk.END).split("\n"):
@@ -169,13 +182,11 @@ def search():
                     continue
                 GoogleSearch.searchName(content)
             messagebox.showinfo('提示', '英文名搜索完成。')
-            with open('log.txt', 'a') as f:
-                f.write(f'{get_time()} English_name Search Successfully\n')
+            record.append(f'{get_time()} English_name Search Successfully\n')
 
         return False
     # 正常状态
-    with open('log.txt', 'a') as f:
-        f.write(f'{get_time()} Search Successfully\n')
+    record.append(f'{get_time()} Search Successfully\n')
 
     if messagebox.askyesno("提示", "搜索完成！是否继续搜索英文名？"):
         for content in t1.get("1.0", tk.END).split("\n"):
@@ -183,8 +194,7 @@ def search():
                 continue
             GoogleSearch.searchName(content)
         messagebox.showinfo('提示', '英文名搜索完成。')
-        with open('log.txt', 'a') as f:
-            f.write(f'{get_time()} English_name Search Successfully\n')
+        record.append(f'{get_time()} English_name Search Successfully\n')
     return True
 
 def insert():
@@ -192,29 +202,25 @@ def insert():
         error_insert = Insert.main([var4.get()[0], int(var4.get()[1:])], var1.get(), set_value['path'])
     except FileNotFoundError:
         messagebox.showerror('错误', '未找到Excel文件或图片文件！')
-        with open('log.txt', 'a') as f:
-            f.write(f'{get_time()} Insert Failed\n')
+        record.append(f'{get_time()} Insert Failed\n')
         return False
     if set_value['auto_delete']:  # 删除img文件夹
         shutil.rmtree(set_value['path'])
     if error_insert and error_insert != 'STOP':
         messagebox.showwarning('警告', f'有{error_insert}个图片插入失败！其余插入成功。')
-        with open('log.txt', 'a') as f:
-            f.write(f'{get_time()} Insert Successfully but {error_insert} Failed\n')
+        record.append(f'{get_time()} Insert Successfully but {error_insert} Failed\n')
         return False
     elif error_insert == 'STOP':
         return False
     messagebox.showinfo("提示", "插入完成！")
-    with open('log.txt', 'a') as f:
-        f.write(f'{get_time()} Insert Successfully\n')
+    record.append(f'{get_time()} Insert Successfully\n')
 
 def move_key():
     if set_value.get('auto_backup'):
         shutil.copyfile(var1.get(), 'backup.xlsx')
     MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
     messagebox.showinfo('提示', '移动完成！')
-    with open('log.txt', 'a') as f:
-        f.write(f'{get_time()} Move keys Successfully\n')
+    record.append(f'{get_time()} Move keys Successfully\n')
 
 def excel_search():
     data_list = t1.get('1.0', tk.END).split('\n')
@@ -223,15 +229,12 @@ def excel_search():
             continue
         elif os.path.isfile(var8.get()):
             if not ExcelSearch.find_data_in_single_excel(var8.get(), data):
-                with open('log.txt', 'a') as f:
-                    f.write(f'{get_time()} Single Excel Search Failed\n')
+                record.append(f'{get_time()} Single Excel Search Failed\n')
                 return False
-            with open('log.txt', 'a') as f:
-                f.write(f'{get_time()} Single Excel Search Successfully\n')
+            record.append(f'{get_time()} Single Excel Search Successfully\n')
         elif os.path.isdir(var8.get()):
             ExcelSearch.find_data_in_multiple_excel(var8.get(), data)
-            with open('log.txt', 'a') as f:
-                f.write(f'{get_time()} Multiple Excel Search Successfully\n')
+            record.append(f'{get_time()} Multiple Excel Search Successfully\n')
         print(f'====================以上为 "{data}" 的搜索结果====================')
     messagebox.showinfo('提示', '搜索完成！请到命令行查看搜索结果。')
 
@@ -240,19 +243,14 @@ def excel_check():
         ExcelCheck.checkSum(var8.get())
         print(f'====================以上为 "求和函数" 的检查结果====================')
         messagebox.showinfo('提示', '检查完成！请到命令行查看检查结果。')
-        with open('log.txt', 'a') as f:
-            f.write(f'{get_time()} CheckSum Successfully\n')
+        record.append(f'{get_time()} CheckSum Successfully\n')
     else:
         messagebox.showwarning('警告', '请选择一个文件夹而不是一个文件。')
-        with open('log.txt', 'a') as f:
-            f.write(f'{get_time()} CheckSum Failed - Choose a file\n')
+        record.append(f'{get_time()} CheckSum Failed - Choose a file\n')
 
 def exit_():
-    with open('log.txt', 'a') as f:
-        f.write(get_time() + ' Close Program\n')
     save()
     root.destroy()
-    print('正在上传日志文件，请不要关闭程序！')
     postLog()
     sys.exit()
 
@@ -265,11 +263,26 @@ def about():
         messagebox.showinfo("关于", f"当前版本：v{VERSION}\n最新版本：v{NEW}\n作者：Sam")
 
 def postLog():
-    with open('log.txt', 'r') as f:
-        if PostData.postData(f.read(), 'log.txt', socket.gethostname()):
-            print(blue_text('日志文件上传成功！'))
-        else:
-            print(red_text('日志文件上传失败！'))
+    # 先写再读
+    with open('record.log', 'a') as f:
+        record.append(f'{get_time()}!')
+        f.write(json.dumps(record)+'\n')
+
+    with open('error.log', 'r') as f:
+        data = f.read()
+        if len(data) > 10:
+            print('正在上传错误日志，请不要关闭程序！')
+            if PostData.postData(data, 'errorLog', socket.gethostname()):
+                print(blue_text('错误日志上传成功！'))
+            else:
+                print(red_text('错误日志上传失败！请手动将错误日志发送至开发者！'))
+                time.sleep(1.5)
+                sys.exit()
+
+    with open('record.log', 'r') as f:
+        print('正在上传记录文件。')
+        if PostData.postData(f.read(), 'recordLog', socket.gethostname()):
+            print(blue_text('记录文件上传成功！'))
 
 def easydo(): # 一键操作
     extract()
@@ -278,8 +291,7 @@ def easydo(): # 一键操作
     insert()
 
 def settings():
-    with open('log.txt', 'a') as f:
-        f.write(f'{get_time()} Open Settings\n')
+    record.append(f'{get_time()} Open Settings\n')
     save()
     root.destroy()
     Settings.main()
@@ -364,6 +376,9 @@ def red_text(text):
 
 def blue_text(text):
     return Fore.BLUE+Style.BRIGHT+text+Style.RESET_ALL
+
+def green_text(text):
+    return Fore.GREEN+Style.BRIGHT+text+Style.RESET_ALL
 
 def main(check=True): # check为是否检查更新以及是否输出提示文本
     global root, t1, var1, var2, var3, var4, var5, var6, var7, var8, top, NEW, id, set_value, data, t1, rc_menu
@@ -534,9 +549,9 @@ def main(check=True): # check为是否检查更新以及是否输出提示文本
     menubar.add_cascade(label="退出", menu=exit_menu)
     root.config(menu=menubar)
 
-    if check and set_value['auto_update']:
-        print('正在检查更新。')
-        update(True)
+    if check and set_value['auto_update']: # check在第一次进入时为True，从设置进入时为False
+        thread = Thread(target=update, args=(True,))
+        thread.start()
 
     if check:
         if ctypes.windll.shell32.IsUserAnAdmin():
@@ -549,11 +564,7 @@ def main(check=True): # check为是否检查更新以及是否输出提示文本
 
     root.mainloop()
 
-    with open('log.txt', 'a') as f:
-        f.write(get_time() + ' Close Program\n')
-
     save()
-    print('正在上传日志文件，请不要关闭程序！')
     postLog()
     sys.exit()
 
@@ -569,5 +580,5 @@ if __name__ == "__main__":
     except SystemExit: pass
     except KeyboardInterrupt: pass
     except Exception:
-        traceback.print_exc()
+        traceback.print_exc() # stderr
         input()

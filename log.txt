@@ -1,4 +1,0 @@
-2024-10-01 21:32:09 Open Program
-2024-10-01 21:32:11 Open Settings
-2024-10-01 21:32:12 Current Settings: {'path': '.\\img', 'auto_update': 0, 'auto_delete': 0, 'auto_backup': 0}
-2024-10-01 21:32:14 Close Program

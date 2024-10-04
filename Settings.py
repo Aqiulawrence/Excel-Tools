@@ -41,9 +41,6 @@ def save(create=False):
     with open(CONFIG_FILE2, 'w') as f:
         json.dump(data, f)
 
-    with open('log.txt', 'a') as f:
-        f.write(f'{get_time()} Current Settings: {data}\n')
-
 def select():
     file_path = filedialog.askdirectory()
     if file_path:
