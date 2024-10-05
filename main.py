@@ -7,11 +7,10 @@ import MoveKey
 import ExcelSearch
 import PostData
 import ExcelCheck
+
 import tkinter as tk
-from tkinter import filedialog
 import shutil
 import easygui
-from tkinter import messagebox
 import traceback
 import sys
 import requests
@@ -19,16 +18,19 @@ import webbrowser
 import winsound
 import os
 import subprocess
-from threading import Thread
-from ast import literal_eval
 import tkinterdnd2
 import json
 import time
 import socket
 import re
 import ctypes
+
 from colorama import Fore, Style
 from threading import Thread
+from threading import Thread
+from ast import literal_eval
+from tkinter import messagebox
+from tkinter import filedialog
 
 def get_time():
     return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
@@ -147,6 +149,10 @@ def open_file3(): # 选择文件夹
         var8.set(file_path)
 
 def extract():
+    if not os.path.isfile(var1.get()):
+        messagebox.showerror('错误', '选择的文件不存在！')
+        record.append(f'{get_time()} Extract Failed - The selected file does not exist')
+        return False
     t1.delete("1.0", tk.END)
     result = Extract.main(var2.get(), var3.get(), var1.get())
     if type(result[0]) == list:
@@ -158,6 +164,7 @@ def extract():
     if 'None' in result:
         messagebox.showwarning('警告', '提取出空值，请检查选择的文件以及输入的单元格是否正确！')
     record.append(f'{get_time()} Extract Successfully')
+    return True
 
 def search():
     try:
@@ -203,7 +210,7 @@ def insert():
     if set_value['auto_delete']:  # 删除img文件夹
         shutil.rmtree(set_value['path'])
     if error_insert and error_insert != 'STOP':
-        messagebox.showwarning('警告', f'有{error_insert}个图片插入失败！其余插入成功。')
+        messagebox.showwarning('警告', f'有{error_insert}个图片插入失败！其余插入成功。\n注：请检查插入图片失败的键号是否正确！')
         record.append(f'{get_time()} Insert Successfully but {error_insert} Failed')
         return False
     elif error_insert == 'STOP':
@@ -212,8 +219,13 @@ def insert():
     record.append(f'{get_time()} Insert Successfully')
 
 def move_key():
+    if not os.path.isfile(var1.get()):
+        messagebox.showerror('错误', '选择的文件不存在！')
+        record.append(f'{get_time()} Move keys Failed - The selected file does not exist')
+        return False
     if set_value.get('auto_backup'):
         shutil.copyfile(var1.get(), 'backup.xlsx')
+        print(blue_text('Excel文件已成功备份到程序目录下的 "backup.xlsx"！'))
     MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
     messagebox.showinfo('提示', '移动完成！')
     record.append(f'{get_time()} Move keys Successfully')
@@ -242,7 +254,7 @@ def excel_check():
         record.append(f'{get_time()} CheckSum Successfully')
     else:
         messagebox.showwarning('警告', '请选择一个文件夹而不是一个文件。')
-        record.append(f'{get_time()} CheckSum Failed - Choose a file')
+        record.append(f'{get_time()} CheckSum Failed - Selected a file instead of a folder')
 
 def exit_():
     save()
@@ -284,13 +296,14 @@ def postLog():
             print(red_text('操作日志上传失败！'))
 
 def easydo(): # 一键操作
-    extract()
+    if not extract():
+        return
     if search() == 0:
         return
     insert()
 
 def settings():
-    record.append(f'{get_time()} Open Settings\n')
+    record.append(f'{get_time()} Open Settings')
     save()
     root.destroy()
     Settings.main()
