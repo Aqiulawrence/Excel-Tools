@@ -36,23 +36,19 @@ def get_time():
 class MultiStream: # 既输出到命令行又输出到文件
     def __init__(self, *streams):
         self.streams = streams
-        self.times = 0
+        self.isWrite = False
 
     def write(self, message):
-        if message == 'Exception in Tkinter callback': # 美化输出
-            if self.times == 0:
-                self.times += 1
-            else:
-                self.streams[1].write('\n' + '=' * 60 + '\n\n')
         for stream in self.streams:
             stream.write(message)
             stream.flush()
+        self.isWrite = True
 
     def flush(self):
         for stream in self.streams:
             stream.flush()
 
-log_file = open('error.log', 'w')
+log_file = open('error.log', 'a')
 multi_stream = MultiStream(sys.stderr, log_file)
 sys.stderr = multi_stream
 
@@ -161,20 +157,20 @@ def extract():
         t1.insert(tk.END, "\n".join(result))
     if 'None' in result:
         messagebox.showwarning('警告', '提取出空值，请检查选择的文件以及输入的单元格是否正确！')
-    record.append(f'{get_time()} Extract Successfully\n')
+    record.append(f'{get_time()} Extract Successfully')
 
 def search():
     try:
         response = requests.get("https://www.google.com/", timeout=3)
     except:
         messagebox.showerror(title="错误", message="无法连接至谷歌服务器，请检查VPN状态。")
-        record.append(f'{get_time()} Search Failed\n')
+        record.append(f'{get_time()} Search Failed')
         return False
 
     error_img = GoogleSearch.main(t1.get("1.0", tk.END).split("\n"), set_value['path'])
     if error_img: # 有图片没搜到
         messagebox.showwarning('警告', f'{error_img}个键号图片无法被搜到，请检查键号是否有误！')
-        record.append(f'{get_time()} Search Successfully but {error_img} Not Found\n')
+        record.append(f'{get_time()} Search Successfully but {error_img} Not Found')
 
         if messagebox.askyesno('搜索英文名', '是否继续搜索英文名？'):
             for content in t1.get("1.0", tk.END).split("\n"):
@@ -182,11 +178,11 @@ def search():
                     continue
                 GoogleSearch.searchName(content)
             messagebox.showinfo('提示', '英文名搜索完成。')
-            record.append(f'{get_time()} English_name Search Successfully\n')
+            record.append(f'{get_time()} English_name Search Successfully')
 
         return False
     # 正常状态
-    record.append(f'{get_time()} Search Successfully\n')
+    record.append(f'{get_time()} Search Successfully')
 
     if messagebox.askyesno("提示", "搜索完成！是否继续搜索英文名？"):
         for content in t1.get("1.0", tk.END).split("\n"):
@@ -194,7 +190,7 @@ def search():
                 continue
             GoogleSearch.searchName(content)
         messagebox.showinfo('提示', '英文名搜索完成。')
-        record.append(f'{get_time()} English_name Search Successfully\n')
+        record.append(f'{get_time()} English_name Search Successfully')
     return True
 
 def insert():
@@ -202,25 +198,25 @@ def insert():
         error_insert = Insert.main([var4.get()[0], int(var4.get()[1:])], var1.get(), set_value['path'])
     except FileNotFoundError:
         messagebox.showerror('错误', '未找到Excel文件或图片文件！')
-        record.append(f'{get_time()} Insert Failed\n')
+        record.append(f'{get_time()} Insert Failed')
         return False
     if set_value['auto_delete']:  # 删除img文件夹
         shutil.rmtree(set_value['path'])
     if error_insert and error_insert != 'STOP':
         messagebox.showwarning('警告', f'有{error_insert}个图片插入失败！其余插入成功。')
-        record.append(f'{get_time()} Insert Successfully but {error_insert} Failed\n')
+        record.append(f'{get_time()} Insert Successfully but {error_insert} Failed')
         return False
     elif error_insert == 'STOP':
         return False
     messagebox.showinfo("提示", "插入完成！")
-    record.append(f'{get_time()} Insert Successfully\n')
+    record.append(f'{get_time()} Insert Successfully')
 
 def move_key():
     if set_value.get('auto_backup'):
         shutil.copyfile(var1.get(), 'backup.xlsx')
     MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
     messagebox.showinfo('提示', '移动完成！')
-    record.append(f'{get_time()} Move keys Successfully\n')
+    record.append(f'{get_time()} Move keys Successfully')
 
 def excel_search():
     data_list = t1.get('1.0', tk.END).split('\n')
@@ -229,12 +225,12 @@ def excel_search():
             continue
         elif os.path.isfile(var8.get()):
             if not ExcelSearch.find_data_in_single_excel(var8.get(), data):
-                record.append(f'{get_time()} Single Excel Search Failed\n')
+                record.append(f'{get_time()} Single Excel Search Failed')
                 return False
-            record.append(f'{get_time()} Single Excel Search Successfully\n')
+            record.append(f'{get_time()} Single Excel Search Successfully')
         elif os.path.isdir(var8.get()):
             ExcelSearch.find_data_in_multiple_excel(var8.get(), data)
-            record.append(f'{get_time()} Multiple Excel Search Successfully\n')
+            record.append(f'{get_time()} Multiple Excel Search Successfully')
         print(f'====================以上为 "{data}" 的搜索结果====================')
     messagebox.showinfo('提示', '搜索完成！请到命令行查看搜索结果。')
 
@@ -243,10 +239,10 @@ def excel_check():
         ExcelCheck.checkSum(var8.get())
         print(f'====================以上为 "求和函数" 的检查结果====================')
         messagebox.showinfo('提示', '检查完成！请到命令行查看检查结果。')
-        record.append(f'{get_time()} CheckSum Successfully\n')
+        record.append(f'{get_time()} CheckSum Successfully')
     else:
         messagebox.showwarning('警告', '请选择一个文件夹而不是一个文件。')
-        record.append(f'{get_time()} CheckSum Failed - Choose a file\n')
+        record.append(f'{get_time()} CheckSum Failed - Choose a file')
 
 def exit_():
     save()
@@ -263,26 +259,29 @@ def about():
         messagebox.showinfo("关于", f"当前版本：v{VERSION}\n最新版本：v{NEW}\n作者：Sam")
 
 def postLog():
-    # 先写再读
+    print(yellow_text('正在上传日志，请不要关闭程序！'))
+    # 先处理文件
     with open('record.log', 'a') as f:
         record.append(f'{get_time()}!')
         f.write(json.dumps(record)+'\n')
 
-    with open('error.log', 'r') as f:
-        data = f.read()
-        if len(data) > 10:
-            print('正在上传错误日志，请不要关闭程序！')
+    if multi_stream.isWrite:
+        with open('error.log', 'a') as f:
+            f.write(f'----------Above {get_time()}----------\n\n')
+        with open('error.log', 'r') as f:
+            data = f.read()
             if PostData.postData(data, 'errorLog', socket.gethostname()):
                 print(blue_text('错误日志上传成功！'))
             else:
-                print(red_text('错误日志上传失败！请手动将错误日志发送至开发者！'))
-                time.sleep(1.5)
+                print(red_text('日志上传失败！'))
+                time.sleep(0.3)
                 sys.exit()
 
     with open('record.log', 'r') as f:
-        print('正在上传记录文件。')
         if PostData.postData(f.read(), 'recordLog', socket.gethostname()):
-            print(blue_text('记录文件上传成功！'))
+            print(blue_text('操作日志上传成功！'))
+        else:
+            print(red_text('操作日志上传失败！'))
 
 def easydo(): # 一键操作
     extract()
@@ -379,6 +378,9 @@ def blue_text(text):
 
 def green_text(text):
     return Fore.GREEN+Style.BRIGHT+text+Style.RESET_ALL
+
+def yellow_text(text):
+    return Fore.YELLOW+Style.BRIGHT+text+Style.RESET_ALL
 
 def main(check=True): # check为是否检查更新以及是否输出提示文本
     global root, t1, var1, var2, var3, var4, var5, var6, var7, var8, top, NEW, id, set_value, data, t1, rc_menu

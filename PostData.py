@@ -1,6 +1,7 @@
 import requests, json
 
-url = r'https://techxi.us.kg/post'
+url = 'http://localhost:8080/post'
+#url = r'https://techxi.us.kg/post'
 
 def postData(data, command, hostName):
     try:
