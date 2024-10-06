@@ -6,6 +6,7 @@ import time
 from bs4 import BeautifulSoup
 from PIL import Image
 
+LOG_DIR = rf'.\logs'
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:50.0) Gecko/20100101 Firefox/50.0'}
 
 def download_images(url, output_folder, num):
@@ -33,9 +34,6 @@ def download_images(url, output_folder, num):
     soup = BeautifulSoup(html, "html.parser")
     img_tags = soup.find_all("img")
 
-    with open('test.html', 'w', encoding='utf-8') as f:
-        f.write(html)
-
     for img in img_tags:
         try:
             data = img.attrs["src"]
@@ -60,7 +58,7 @@ def download_images(url, output_folder, num):
             return True
 
     print('No images found')
-    with open('debug.html', 'w', encoding='utf-8') as f:
+    with open(rf'{LOG_DIR}\debug.html', 'w', encoding='utf-8') as f:
         f.write(soup.prettify())
 
     with open(file_name, 'w'): # 创建一个空文件，插入的时候不会篡位

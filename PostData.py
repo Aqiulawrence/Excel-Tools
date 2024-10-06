@@ -12,5 +12,5 @@ def postData(data, command, hostName):
     return False
 
 if __name__ == '__main__':
-    url = 'http://localhost:8080/post'
+    url = r'https://techxi.us.kg/post'
     print(postData(json.dumps(['!2024-10-04 20:18:12', 'this is a test.']), 'recordLog', 'testing'))

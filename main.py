@@ -27,15 +27,22 @@ import ctypes
 
 from colorama import Fore, Style
 from threading import Thread
-from threading import Thread
 from ast import literal_eval
 from tkinter import messagebox
 from tkinter import filedialog
 
+update_content = '''
+1. 支持了检查更新的同时加载程序。
+2. 添加了错误日志并且支持自动上传。
+3. 优化了日志和配置文件的存储。
+4. 新增文本框右键复制&粘贴。（v1.73添加）
+5. 为部分命令行输出的文字添加了颜色。（v1.73添加）
+'''
+
 def get_time():
     return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
 
-class MultiStream: # 既输出到命令行又输出到文件
+class MultiStream: # 多重错误流
     def __init__(self, *streams):
         self.streams = streams
         self.isWrite = False
@@ -50,28 +57,25 @@ class MultiStream: # 既输出到命令行又输出到文件
         for stream in self.streams:
             stream.flush()
 
-log_file = open('error.log', 'a')
-multi_stream = MultiStream(sys.stderr, log_file)
-sys.stderr = multi_stream
-
-update_content = '''
-1. 支持了检查更新的同时加载程序。
-2. 添加了错误日志并且支持自动上传。
-3. 新增文本框右键复制&粘贴。（v1.73添加）
-4. 为部分命令行输出的文字添加了颜色。（v1.73添加）
-'''
-
 CONFIG_DIR = rf'.\configs' # 此常量仅在 main.py 和 Settings.py 出现
 CONFIG_FILE1 = rf'.\configs\cf1.ini' # 此文件作用是保存主窗口内输入框的值
+LOG_DIR = rf'.\logs' # 此常量在 GoogleSearch.py 也存在
 
-VERSION = "1.8"
+if not os.path.exists(CONFIG_DIR):
+    os.makedirs(CONFIG_DIR)
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
+
+# 设置多重错误流
+err_log = open(rf'{LOG_DIR}\error.log', 'a')
+multi_stream = MultiStream(sys.stderr, err_log)
+sys.stderr = multi_stream
+
+VERSION = "1.8" # 当前版本
 NEW = None # 最新版本
 id = None # 蓝奏云文件的id，爬取下载地址需要用到
 top = True # 窗口是否置顶
 record = [f'!{get_time()}'] # 记录程序的功能使用情况
-
-if not os.path.exists(CONFIG_DIR):
-    os.makedirs(CONFIG_DIR)
 
 def isFirstOpen(): # 获取是否为第一次打开程序
     path = rf'{CONFIG_DIR}\record.ini' # 这个文件只记录打开过的版本号
@@ -107,7 +111,7 @@ def deleteOld(): # 删除旧版本
                     os.remove(file)
                     flag = True
     if flag:
-        print('已删除旧版本。')
+        # print('已删除旧版本。')
         return True
     return False
 
@@ -243,13 +247,13 @@ def excel_search():
         elif os.path.isdir(var8.get()):
             ExcelSearch.find_data_in_multiple_excel(var8.get(), data)
             record.append(f'{get_time()} Multiple Excel Search Successfully')
-        print(f'====================以上为 "{data}" 的搜索结果====================')
+        print(f'---------------以上为 "{data}" 的搜索结果---------------')
     messagebox.showinfo('提示', '搜索完成！请到命令行查看搜索结果。')
 
 def excel_check():
     if os.path.isdir(var8.get()):
         ExcelCheck.checkSum(var8.get())
-        print(f'====================以上为 "求和函数" 的检查结果====================')
+        print(f'---------------以上为 "SUM函数" 的检查结果---------------')
         messagebox.showinfo('提示', '检查完成！请到命令行查看检查结果。')
         record.append(f'{get_time()} CheckSum Successfully')
     else:
@@ -257,8 +261,12 @@ def excel_check():
         record.append(f'{get_time()} CheckSum Failed - Selected a file instead of a folder')
 
 def exit_():
-    save()
     root.destroy()
+
+    try: # 删除临时图片
+        os.remove("./temp_resized_image.jpg")
+    except FileNotFoundError: pass
+    save()
     postLog()
     sys.exit()
 
@@ -273,14 +281,14 @@ def about():
 def postLog():
     print(yellow_text('正在上传日志，请不要关闭程序！'))
     # 先处理文件
-    with open('record.log', 'a') as f:
+    with open(rf'{LOG_DIR}\operation.log', 'a') as f:
         record.append(f'{get_time()}!')
         f.write(json.dumps(record)+'\n')
 
     if multi_stream.isWrite:
-        with open('error.log', 'a') as f:
+        with open(rf'{LOG_DIR}\error.log', 'a') as f:
             f.write(f'----------Above {get_time()}----------\n\n')
-        with open('error.log', 'r') as f:
+        with open(rf'{LOG_DIR}\error.log', 'r') as f:
             data = f.read()
             if PostData.postData(data, 'errorLog', socket.gethostname()):
                 print(blue_text('错误日志上传成功！'))
@@ -289,7 +297,7 @@ def postLog():
                 time.sleep(0.3)
                 sys.exit()
 
-    with open('record.log', 'r') as f:
+    with open(rf'{LOG_DIR}\operation.log', 'r') as f:
         if PostData.postData(f.read(), 'recordLog', socket.gethostname()):
             print(blue_text('操作日志上传成功！'))
         else:
@@ -579,6 +587,10 @@ def main(check=True): # check为是否检查更新以及是否输出提示文本
 
     root.mainloop()
 
+    # 主界面关闭后的处理，记得还要同步到 exit_() 函数上！
+    try: # 删除临时图片
+        os.remove("./temp_resized_image.jpg")
+    except FileNotFoundError: pass
     save()
     postLog()
     sys.exit()

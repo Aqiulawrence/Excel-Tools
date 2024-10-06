@@ -55,9 +55,9 @@ def main():
     root.attributes("-topmost", True)
 
     Svar1 = tk.StringVar() # 图片输出
-    var1 = tk.IntVar() # 自动更新
-    var2 = tk.IntVar() # 自动删除图片
-    var3 = tk.IntVar()
+    var1 = tk.IntVar() # 启用自动更新
+    var2 = tk.IntVar() # 插入后删除图片
+    var3 = tk.IntVar() # 移动前备份
 
     load()
     try:

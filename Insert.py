@@ -82,7 +82,10 @@ def main(start_cell, excel_path, image_base_path=".\\img"):
             print(f'Successfully inserte {img_path}')
         start_cell[1] += 1
 
-    os.remove("./temp_resized_image.jpg")
+    try:
+        os.remove("./temp_resized_image.jpg")
+    except FileNotFoundError: pass
+
     return error_insert
 
 if __name__ == '__main__':
