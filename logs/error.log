@@ -1,0 +1,320 @@
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\main.py", line 210, in insert
+    error_insert = Insert.main([var4.get()[0], int(var4.get()[1:])], var1.get(), set_value['path'])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\Insert.py", line 75, in main
+    state = insert_resized_image_to_excel(excel_path, img_path, start_cell)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\Insert.py", line 56, in insert_resized_image_to_excel
+    wb.save(excel_path)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\openpyxl\workbook\workbook.py", line 386, in save
+    save_workbook(self, filename)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\openpyxl\writer\excel.py", line 291, in save_workbook
+    archive = ZipFile(filename, 'w', ZIP_DEFLATED, allowZip64=True)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\zipfile\__init__.py", line 1331, in __init__
+    self.fp = io.open(file, filemode)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'C:/Users/Admin/Desktop/test.xlsx'
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\main.py", line 210, in insert
+    error_insert = Insert.main([var4.get()[0], int(var4.get()[1:])], var1.get(), set_value['path'])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\Insert.py", line 75, in main
+    state = insert_resized_image_to_excel(excel_path, img_path, start_cell)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\Insert.py", line 56, in insert_resized_image_to_excel
+    wb.save(excel_path)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\openpyxl\workbook\workbook.py", line 386, in save
+    save_workbook(self, filename)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\openpyxl\writer\excel.py", line 291, in save_workbook
+    archive = ZipFile(filename, 'w', ZIP_DEFLATED, allowZip64=True)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\zipfile\__init__.py", line 1331, in __init__
+    self.fp = io.open(file, filemode)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'C:/Users/Admin/Desktop/test.xlsx'
+----------Above 2025-01-23 19:42:33----------
+
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\main.py", line 211, in insert
+    error_insert = Insert.main([var4.get()[0], int(var4.get()[1:])], num, var1.get(), set_value['path'])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\Insert.py", line 76, in main
+    state = insert_resized_image_to_excel(excel_path, img_path, start_cell)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\Insert.py", line 56, in insert_resized_image_to_excel
+    wb.save(excel_path)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\openpyxl\workbook\workbook.py", line 386, in save
+    save_workbook(self, filename)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\openpyxl\writer\excel.py", line 291, in save_workbook
+    archive = ZipFile(filename, 'w', ZIP_DEFLATED, allowZip64=True)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\zipfile\__init__.py", line 1331, in __init__
+    self.fp = io.open(file, filemode)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'C:/Users/Admin/Desktop/test.xlsx'
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\main.py", line 211, in insert
+    error_insert = Insert.main([var4.get()[0], int(var4.get()[1:])], num, var1.get(), set_value['path'])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\Insert.py", line 79, in main
+    state = insert_resized_image_to_excel(excel_path, img_path, start_cell)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\Insert.py", line 56, in insert_resized_image_to_excel
+    wb.save(excel_path)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\openpyxl\workbook\workbook.py", line 386, in save
+    save_workbook(self, filename)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\openpyxl\writer\excel.py", line 291, in save_workbook
+    archive = ZipFile(filename, 'w', ZIP_DEFLATED, allowZip64=True)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\zipfile\__init__.py", line 1331, in __init__
+    self.fp = io.open(file, filemode)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'C:/Users/Admin/Desktop/test.xlsx'
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\main.py", line 320, in settings
+    main(False)
+  File "D:\Excel Project\main.py", line 590, in main
+    root.mainloop()
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1505, in mainloop
+    self.tk.mainloop(n)
+KeyboardInterrupt
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\main.py", line 319, in settings
+    Settings.main()
+  File "D:\Excel Project\Settings.py", line 89, in main
+    root.mainloop()
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1505, in mainloop
+    self.tk.mainloop(n)
+KeyboardInterrupt
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\main.py", line 320, in settings
+    main(False)
+  File "D:\Excel Project\main.py", line 590, in main
+    root.mainloop()
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1505, in mainloop
+    self.tk.mainloop(n)
+KeyboardInterrupt
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\main.py", line 211, in insert
+    error_insert = Insert.main([var4.get()[0], int(var4.get()[1:])], num, var1.get(), set_value['path'])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\Insert.py", line 79, in main
+    state = insert_resized_image_to_excel(excel_path, img_path, start_cell)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\Insert.py", line 56, in insert_resized_image_to_excel
+    wb.save(excel_path)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\openpyxl\workbook\workbook.py", line 386, in save
+    save_workbook(self, filename)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\openpyxl\writer\excel.py", line 291, in save_workbook
+    archive = ZipFile(filename, 'w', ZIP_DEFLATED, allowZip64=True)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\zipfile\__init__.py", line 1331, in __init__
+    self.fp = io.open(file, filemode)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'D:/Excel Project/test.xlsx'
+----------Above 2025-01-23 21:41:43----------
+
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\main.py", line 180, in search
+    error_img = GoogleSearch.main(t1.get("1.0", tk.END).split("\n"), set_value['filter'], set_value['path'])
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\GoogleSearch.py", line 106, in main
+    if not download_images(url_to_scrape, output_directory, index, is_filter):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\GoogleSearch.py", line 39, in download_images
+    print(blue_text('网站筛选已启用！'))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\GoogleSearch.py", line 11, in blue_text
+    return Fore.BLUE+Style.BRIGHT+text+Style.RESET_ALL
+           ^^^^
+NameError: name 'Fore' is not defined
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\main.py", line 211, in insert
+    error_insert = Insert.main([var4.get()[0], int(var4.get()[1:])], num, var1.get(), set_value['path'])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\Insert.py", line 80, in main
+    state = insert(excel_path, img_path, start_cell)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\Insert.py", line 64, in insert
+    wb.save(excel_path)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\openpyxl\workbook\workbook.py", line 386, in save
+    save_workbook(self, filename)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\openpyxl\writer\excel.py", line 291, in save_workbook
+    archive = ZipFile(filename, 'w', ZIP_DEFLATED, allowZip64=True)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\zipfile\__init__.py", line 1331, in __init__
+    self.fp = io.open(file, filemode)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'D:/Excel Project/test.xlsx'
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\main.py", line 210, in insert
+    num = int(var3.get()[1:]) - int(var2.get()[1:]) + 1 # 待插入的图片数量
+          ^^^^^^^^^^^^^^^^^^^
+ValueError: invalid literal for int() with base 10: ''
+----------Above 2025-01-24 10:23:16----------
+
+Traceback (most recent call last):
+  File "D:\Excel Project\main.py", line 622, in <module>
+    main()
+  File "D:\Excel Project\main.py", line 491, in main
+    scroll.grid(row=2, column=1, padx=10, side=tk.RIGHT, fill=tk.Y)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 2580, in grid_configure
+    self.tk.call(
+_tkinter.TclError: bad option "-side": must be -column, -columnspan, -in, -ipadx, -ipady, -padx, -pady, -row, -rowspan, or -sticky
+Traceback (most recent call last):
+  File "D:\Excel Project\main.py", line 622, in <module>
+    main()
+  File "D:\Excel Project\main.py", line 491, in main
+    scroll.grid(row=2, column=1, padx=10, side=tk.RIGHT, fill=tk.Y)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 2580, in grid_configure
+    self.tk.call(
+_tkinter.TclError: bad option "-side": must be -column, -columnspan, -in, -ipadx, -ipady, -padx, -pady, -row, -rowspan, or -sticky
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Excel Project\main.py", line 627, in <module>
+    input()
+  File "<frozen codecs>", line 319, in decode
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "D:\Excel Project\main.py", line 622, in <module>
+    main()
+  File "D:\Excel Project\main.py", line 491, in main
+    scroll.pack(padx=10, side=tk.RIGHT, fill=tk.Y)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 2483, in pack_configure
+    self.tk.call(
+_tkinter.TclError: cannot use geometry manager pack inside .!frame2.!labelframe which already has slaves managed by grid
+Traceback (most recent call last):
+  File "D:\Excel Project\main.py", line 622, in <module>
+    main()
+  File "D:\Excel Project\main.py", line 491, in main
+    scroll.pack(padx=10, side=tk.RIGHT, fill=tk.Y)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 2483, in pack_configure
+    self.tk.call(
+_tkinter.TclError: cannot use geometry manager pack inside .!frame2.!labelframe which already has slaves managed by grid
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Excel Project\main.py", line 627, in <module>
+    input()
+  File "<frozen codecs>", line 319, in decode
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "D:\Excel Project\main.py", line 622, in <module>
+    main()
+  File "D:\Excel Project\main.py", line 491, in main
+    scroll.grid(row=2, column=1, padx=10, sticky=tk.E, fill=tk.Y)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 2580, in grid_configure
+    self.tk.call(
+_tkinter.TclError: bad option "-fill": must be -column, -columnspan, -in, -ipadx, -ipady, -padx, -pady, -row, -rowspan, or -sticky
+Traceback (most recent call last):
+  File "D:\Excel Project\main.py", line 622, in <module>
+    main()
+  File "D:\Excel Project\main.py", line 491, in main
+    scroll.grid(row=2, column=1, padx=10, sticky=tk.E, fill=tk.Y)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 2580, in grid_configure
+    self.tk.call(
+_tkinter.TclError: bad option "-fill": must be -column, -columnspan, -in, -ipadx, -ipady, -padx, -pady, -row, -rowspan, or -sticky
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Excel Project\main.py", line 627, in <module>
+    input()
+  File "<frozen codecs>", line 319, in decode
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "D:\Excel Project\main.py", line 621, in <module>
+    main()
+  File "D:\Excel Project\main.py", line 490, in main
+    scroll.grid(row=2, column=1, padx=10, sticky=tk.ns)
+                                                 ^^^^^
+AttributeError: module 'tkinter' has no attribute 'ns'
+Traceback (most recent call last):
+  File "D:\Excel Project\main.py", line 621, in <module>
+    main()
+  File "D:\Excel Project\main.py", line 490, in main
+    scroll.grid(row=2, column=1, padx=10, sticky=tk.ns)
+                                                 ^^^^^
+AttributeError: module 'tkinter' has no attribute 'ns'. Did you mean: 'NS'?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Excel Project\main.py", line 626, in <module>
+    input()
+  File "<frozen codecs>", line 319, in decode
+KeyboardInterrupt
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\main.py", line 191, in search
+    error_img = GoogleSearch.main(t1.get("1.0", tk.END).split("\n"), set_value['filter'], set_value['path'])
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\GoogleSearch.py", line 140, in main
+    if not download_images(url_to_scrape, output_directory, index, is_filter):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\GoogleSearch.py", line 77, in download_images
+    for black in blacklist:
+TypeError: 'NoneType' object is not iterable
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "D:\Excel Project\main.py", line 246, in move_key
+    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
+  File "D:\Excel Project\MoveKey.py", line 9, in main
+    now = start[0]
+          ~~~~~^^^
+IndexError: string index out of range

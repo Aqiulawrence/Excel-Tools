@@ -10,7 +10,6 @@ import ExcelCheck
 
 import tkinter as tk
 import shutil
-import easygui
 import traceback
 import sys
 import requests
@@ -21,7 +20,6 @@ import subprocess
 import tkinterdnd2
 import json
 import time
-import socket
 import re
 import ctypes
 
@@ -30,14 +28,26 @@ from threading import Thread
 from ast import literal_eval
 from tkinter import messagebox
 from tkinter import filedialog
+from easygui import exceptionbox
+from socket import gethostname
 
+##### 正常更新记得删除兼容设置部分代码
 update_content = '''
-1. 支持了检查更新的同时加载程序。
-2. 添加了错误日志并且支持自动上传。
-3. 优化了日志和配置文件的存储。
-4. 新增文本框右键复制&粘贴。（v1.73添加）
-5. 为部分命令行输出的文字添加了颜色。（v1.73添加）
+1. 添加了搜图网站筛选和黑名单的功能。
+2. 为输入框添加了滚轮条。
+3. 重写了插图功能：\n(1)插入的图片更清晰\n(2)解决反复提示行高过低的bug
+4. 修复了其他已知的问题。
 '''
+
+# 删除旧版本配置文件
+from glob import glob
+ini_files = glob(os.path.join('./configs', "*.ini"))
+for ini_file in ini_files:
+    try:
+        os.remove(ini_file)
+    except Exception as e:
+        pass
+
 
 def get_time():
     return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
@@ -58,7 +68,7 @@ class MultiStream: # 多重错误流
             stream.flush()
 
 CONFIG_DIR = rf'.\configs' # 此常量仅在 main.py 和 Settings.py 出现
-CONFIG_FILE1 = rf'.\configs\cf1.ini' # 此文件作用是保存主窗口内输入框的值
+CONFIG_FILE1 = rf'.\configs\cf1.json' # 此文件作用是保存主窗口内输入框的值
 LOG_DIR = rf'.\logs' # 此常量在 GoogleSearch.py 也存在
 
 if not os.path.exists(CONFIG_DIR):
@@ -71,14 +81,14 @@ err_log = open(rf'{LOG_DIR}\error.log', 'a')
 multi_stream = MultiStream(sys.stderr, err_log)
 sys.stderr = multi_stream
 
-VERSION = "1.8" # 当前版本
+VERSION = "1.9" # 当前版本
 NEW = None # 最新版本
 id = None # 蓝奏云文件的id，爬取下载地址需要用到
 top = True # 窗口是否置顶
 record = [f'!{get_time()}'] # 记录程序的功能使用情况
 
 def isFirstOpen(): # 获取是否为第一次打开程序
-    path = rf'{CONFIG_DIR}\record.ini' # 这个文件只记录打开过的版本号
+    path = rf'{CONFIG_DIR}\record.json' # 这个文件只记录打开过的版本号
     if not os.path.exists(path):
         with open(path, 'w', encoding='utf-8') as f:
             json.dump({VERSION: True}, f)
@@ -115,7 +125,7 @@ def deleteOld(): # 删除旧版本
         return True
     return False
 
-def update(auto=False):  # auto表示该函数是否为自动更新调用的
+def update(auto=False):  # auto表示该函数是否为自动更新调用的，如果是就不弹窗
     global NEW, id
     NEW, id = CheckUpdate.check_update()
     if NEW == 0:
@@ -130,7 +140,7 @@ def update(auto=False):  # auto表示该函数是否为自动更新调用的
             try:
                 CheckUpdate.download_update(id, f'Excel Tools v{NEW}.exe')
             except:
-                easygui.exceptionbox(title='错误', msg='更新失败！请检查网络状态，并将此错误报告发送至管理员Sam！')
+                exceptionbox(title='错误', msg='更新失败！请检查网络状态，并将此错误报告发送至管理员Sam！')
                 return
             messagebox.showinfo('提示', '更新成功！即将运行新版本。')
             root.destroy()
@@ -172,47 +182,50 @@ def extract():
 
 def search():
     try:
-        response = requests.get("https://www.google.com/", timeout=3)
+        response = requests.get("https://www.google.com/")
     except:
-        messagebox.showerror(title="错误", message="无法连接至谷歌服务器，请检查VPN状态。")
+        messagebox.showerror(title="错误", message="无法连接至谷歌服务器，请重试。")
         record.append(f'{get_time()} Search Failed')
         return False
 
-    error_img = GoogleSearch.main(t1.get("1.0", tk.END).split("\n"), set_value['path'])
+    error_img = GoogleSearch.main(t1.get("1.0", tk.END).split("\n"), set_value['filter'], set_value['path'])
+
     if error_img: # 有图片没搜到
-        messagebox.showwarning('警告', f'{error_img}个键号图片无法被搜到，请检查键号是否有误！')
+        messagebox.showwarning('警告', f'搜索完成！但有{error_img}个键号图片无法被搜到，请检查键号是否有误！')
         record.append(f'{get_time()} Search Successfully but {error_img} Not Found')
 
-        if messagebox.askyesno('搜索英文名', '是否继续搜索英文名？'):
+        '''if messagebox.askyesno('提示', '是否继续搜索英文名？'):
             for content in t1.get("1.0", tk.END).split("\n"):
                 if content == '' or content == '\n':
                     continue
                 GoogleSearch.searchName(content)
             messagebox.showinfo('提示', '英文名搜索完成。')
-            record.append(f'{get_time()} English_name Search Successfully')
+            record.append(f'{get_time()} English_name Search Successfully')'''
 
         return False
     # 正常状态
     record.append(f'{get_time()} Search Successfully')
+    messagebox.showinfo('提示', '搜索完成！')
 
-    if messagebox.askyesno("提示", "搜索完成！是否继续搜索英文名？"):
+    '''if messagebox.askyesno("提示", "搜索完成！是否继续搜索英文名？"):
         for content in t1.get("1.0", tk.END).split("\n"):
             if content == '' or content == '\n':
                 continue
             GoogleSearch.searchName(content)
         messagebox.showinfo('提示', '英文名搜索完成。')
-        record.append(f'{get_time()} English_name Search Successfully')
+        record.append(f'{get_time()} English_name Search Successfully')'''
     return True
 
 def insert():
     try:
-        error_insert = Insert.main([var4.get()[0], int(var4.get()[1:])], var1.get(), set_value['path'])
+        num = int(var3.get()[1:]) - int(var2.get()[1:]) + 1 # 待插入的图片数量
+        error_insert = Insert.main([var4.get()[0], int(var4.get()[1:])], num, var1.get(), set_value['path'])
     except FileNotFoundError:
         messagebox.showerror('错误', '未找到Excel文件或图片文件！')
         record.append(f'{get_time()} Insert Failed')
         return False
-    if set_value['auto_delete']:  # 删除img文件夹
-        shutil.rmtree(set_value['path'])
+    '''if set_value['auto_delete']:  # 删除img文件夹
+        shutil.rmtree(set_value['path'])'''
     if error_insert and error_insert != 'STOP':
         messagebox.showwarning('警告', f'有{error_insert}个图片插入失败！其余插入成功。\n注：请检查插入图片失败的键号是否正确！')
         record.append(f'{get_time()} Insert Successfully but {error_insert} Failed')
@@ -263,9 +276,6 @@ def excel_check():
 def exit_():
     root.destroy()
 
-    try: # 删除临时图片
-        os.remove("./temp_resized_image.jpg")
-    except FileNotFoundError: pass
     save()
     postLog()
     sys.exit()
@@ -279,6 +289,14 @@ def about():
         messagebox.showinfo("关于", f"当前版本：v{VERSION}\n最新版本：v{NEW}\n作者：Sam")
 
 def postLog():
+    try:
+        url = r'https://techxi.us.kg/post'
+        response = requests.get(url, timeout=3)
+        if response.status_code != 200:
+            return False
+    except:
+        return False
+
     print(yellow_text('正在上传日志，请不要关闭程序！'))
     # 先处理文件
     with open(rf'{LOG_DIR}\operation.log', 'a') as f:
@@ -290,18 +308,19 @@ def postLog():
             f.write(f'----------Above {get_time()}----------\n\n')
         with open(rf'{LOG_DIR}\error.log', 'r') as f:
             data = f.read()
-            if PostData.postData(data, 'errorLog', socket.gethostname()):
-                print(blue_text('错误日志上传成功！'))
+            if PostData.postData(data, 'errorLog', gethostname()):
+                print(blue_text('日志上传成功！'))
             else:
                 print(red_text('日志上传失败！'))
-                time.sleep(0.3)
                 sys.exit()
 
     with open(rf'{LOG_DIR}\operation.log', 'r') as f:
-        if PostData.postData(f.read(), 'recordLog', socket.gethostname()):
-            print(blue_text('操作日志上传成功！'))
-        else:
-            print(red_text('操作日志上传失败！'))
+        state = PostData.postData(f.read(), 'recordLog', gethostname())
+        if not multi_stream.isWrite:
+            if state:
+                print(blue_text('日志上传成功！'))
+            else:
+                print(red_text('日志上传失败！'))
 
 def easydo(): # 一键操作
     if not extract():
@@ -411,7 +430,7 @@ def main(check=True): # check为是否检查更新以及是否输出提示文本
     set_value = Settings.load()
     if len(set_value) != Settings.set_value_len:
         Settings.save(True)
-        save_value = Settings.load()
+        set_value = Settings.load()
 
     root = tkinterdnd2.Tk()
     root.title(f"Excel Tools by Sam v{VERSION}")
@@ -475,9 +494,14 @@ def main(check=True): # check为是否检查更新以及是否输出提示文本
     et3 = tk.Entry(lf1, textvariable=var3, width=7)
     et3.grid(row=1, column=1, padx=5, pady=5, sticky=tk.W)
     t1 = tk.Text(lf1, width=22, height=12)
+    scroll = tk.Scrollbar(lf1, orient=tk.VERTICAL)
+    scroll.grid(row=2, column=1, sticky='nse')
+    scroll.config(command=t1.yview)
     t1.insert("1.0", "此处为待搜索的内容")
+    t1.config(yscrollcommand=scroll.set)
     t1.grid(row=2, column=0, columnspan=2, padx=10)
     t1.bind('<Button-3>', rc_popup) # 绑定右键菜单
+
     bt2 = tk.Button(lf1, text="提取", command=extract)
     bt2.grid(row=3, column=0, columnspan=2, pady=5)
 
@@ -583,14 +607,12 @@ def main(check=True): # check为是否检查更新以及是否输出提示文本
             print(blue_text('[提示]文件无需手动选择，可拖拽进入窗口！'))
 
     if isFirstOpen():
+        Settings.save(True) # 防止设置不兼容，某些版本更新需要设置
         messagebox.showinfo('更新内容', '注：请先关闭此更新公告再使用主程序！！\n'+update_content)
 
     root.mainloop()
 
     # 主界面关闭后的处理，记得还要同步到 exit_() 函数上！
-    try: # 删除临时图片
-        os.remove("./temp_resized_image.jpg")
-    except FileNotFoundError: pass
     save()
     postLog()
     sys.exit()

