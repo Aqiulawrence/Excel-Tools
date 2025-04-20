@@ -84,7 +84,7 @@ def main():
     cb1.grid(row=0, column=0, sticky=tk.NW, padx=5, pady=5)
     cb2 = tk.Checkbutton(f1, text='搜图启用网站筛选（效果未知）', variable=var2)
     cb2.grid(row=1, column=0, sticky=tk.NW, padx=5, pady=5)
-    cb3 = tk.Checkbutton(f1, text='移动键号前备份文件', variable=var3)
+    cb3 = tk.Checkbutton(f1, text='移动件号前备份文件', variable=var3)
     cb3.grid(row=2, column=0, sticky=tk.NW, padx=5, pady=5)
 
     root.mainloop()

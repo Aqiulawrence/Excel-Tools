@@ -33,13 +33,11 @@ from socket import gethostname
 
 ##### 正常更新记得删除兼容设置部分代码
 update_content = '''
-1. 添加了搜图网站筛选和黑名单的功能。
-2. 为输入框添加了滚轮条。
-3. 重写了插图功能：\n(1)插入的图片更清晰\n(2)解决反复提示行高过低的bug
-4. 修复了其他已知的问题。
+1. 优化了搜索显示。
 '''
 
-# 删除旧版本配置文件
+'''
+# 删除旧版本配置文件，兼容部分代码
 from glob import glob
 ini_files = glob(os.path.join('./configs', "*.ini"))
 for ini_file in ini_files:
@@ -47,7 +45,7 @@ for ini_file in ini_files:
         os.remove(ini_file)
     except Exception as e:
         pass
-
+'''
 
 def get_time():
     return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
@@ -81,7 +79,7 @@ err_log = open(rf'{LOG_DIR}\error.log', 'a')
 multi_stream = MultiStream(sys.stderr, err_log)
 sys.stderr = multi_stream
 
-VERSION = "1.9" # 当前版本
+VERSION = "2.0" # 当前版本
 NEW = None # 最新版本
 id = None # 蓝奏云文件的id，爬取下载地址需要用到
 top = True # 窗口是否置顶
@@ -191,7 +189,7 @@ def search():
     error_img = GoogleSearch.main(t1.get("1.0", tk.END).split("\n"), set_value['filter'], set_value['path'])
 
     if error_img: # 有图片没搜到
-        messagebox.showwarning('警告', f'搜索完成！但有{error_img}个键号图片无法被搜到，请检查键号是否有误！')
+        messagebox.showwarning('警告', f'搜索完成！但有{error_img}个件号图片无法被搜到，请检查件号是否有误！')
         record.append(f'{get_time()} Search Successfully but {error_img} Not Found')
 
         '''if messagebox.askyesno('提示', '是否继续搜索英文名？'):
@@ -227,7 +225,7 @@ def insert():
     '''if set_value['auto_delete']:  # 删除img文件夹
         shutil.rmtree(set_value['path'])'''
     if error_insert and error_insert != 'STOP':
-        messagebox.showwarning('警告', f'有{error_insert}个图片插入失败！其余插入成功。\n注：请检查插入图片失败的键号是否正确！')
+        messagebox.showwarning('警告', f'有{error_insert}个图片插入失败！其余插入成功。\n注：请检查插入图片失败的件号是否正确！')
         record.append(f'{get_time()} Insert Successfully but {error_insert} Failed')
         return False
     elif error_insert == 'STOP':
@@ -250,7 +248,7 @@ def move_key():
 def excel_search():
     data_list = t1.get('1.0', tk.END).split('\n')
     for data in data_list:
-        if data == '':
+        if data.strip() == '':
             continue
         elif os.path.isfile(var8.get()):
             if not ExcelSearch.find_data_in_single_excel(var8.get(), data):
@@ -289,19 +287,20 @@ def about():
         messagebox.showinfo("关于", f"当前版本：v{VERSION}\n最新版本：v{NEW}\n作者：Sam")
 
 def postLog():
-    try:
-        url = r'https://techxi.us.kg/post'
-        response = requests.get(url, timeout=3)
-        if response.status_code != 200:
-            return False
-    except:
-        return False
-
-    print(yellow_text('正在上传日志，请不要关闭程序！'))
+    # print(yellow_text('正在上传日志，请不要关闭程序！'))
     # 先处理文件
     with open(rf'{LOG_DIR}\operation.log', 'a') as f:
         record.append(f'{get_time()}!')
         f.write(json.dumps(record)+'\n')
+
+    try:
+        # 网站已废弃，暂时关闭postlog功能，何时恢复未知...（检查注释）
+        return False
+        response = requests.get(r'http://techxi.us.kg/post', timeout=3)
+        if response.status_code != 200:
+            return False
+    except:
+        return False
 
     if multi_stream.isWrite:
         with open(rf'{LOG_DIR}\error.log', 'a') as f:
@@ -441,9 +440,9 @@ def main(check=True): # check为是否检查更新以及是否输出提示文本
     var2 = tk.StringVar() # 开始
     var3 = tk.StringVar() # 结束
     var4 = tk.StringVar() # 插入开始
-    var5 = tk.StringVar() # 移动键号开始
-    var6 = tk.StringVar() # 移动键号结束
-    var7 = tk.StringVar() # 移动键号目标
+    var5 = tk.StringVar() # 移动件号开始
+    var6 = tk.StringVar() # 移动件号结束
+    var7 = tk.StringVar() # 移动件号目标
     var8 = tk.StringVar() # 数据搜索目标文件
 
     if load():
@@ -529,8 +528,8 @@ def main(check=True): # check为是否检查更新以及是否输出提示文本
     bt5 = tk.Button(lf4, text="一键操作", command=easydo)
     bt5.grid(padx=27, pady=5)
 
-    # 移动键号
-    lf5 = tk.LabelFrame(f3, text="移动键号")
+    # 移动件号
+    lf5 = tk.LabelFrame(f3, text="移动件号")
     lf5.grid(row=0, column=1, padx=5, sticky=tk.N, rowspan=2)
     lb6 = tk.Label(lf5, text="开始：", fg="red")
     lb6.grid(row=0, column=0, sticky=tk.E)
@@ -579,7 +578,7 @@ def main(check=True): # check为是否检查更新以及是否输出提示文本
     about_menu.add_command(label="关于", command=about)
     about_menu.add_command(label='检查更新', command=update)
     about_menu.add_command(label='更新公告', command=lambda: messagebox.showinfo('更新内容', update_content))
-    about_menu.add_command(label='官网', command=lambda:webbrowser.open(r'https://techxi.us.kg/'))
+    about_menu.add_command(label='官网', command=lambda:webbrowser.open(r'https://aqiulawrence.github.io/'))
 
     set_menu = tk.Menu(menubar, tearoff=False)
     set_menu.add_command(label="设置", command=settings)
@@ -607,7 +606,7 @@ def main(check=True): # check为是否检查更新以及是否输出提示文本
             print(blue_text('[提示]文件无需手动选择，可拖拽进入窗口！'))
 
     if isFirstOpen():
-        Settings.save(True) # 防止设置不兼容，某些版本更新需要设置
+        # Settings.save(True) # 防止设置不兼容，某些版本更新需要设置，属于兼容部分代码
         messagebox.showinfo('更新内容', '注：请先关闭此更新公告再使用主程序！！\n'+update_content)
 
     root.mainloop()

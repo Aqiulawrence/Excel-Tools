@@ -59,3 +59,4 @@ def download_update(id, name):
 
 if __name__ == '__main__':
     NEW, id = check_update()
+    download_update(id, f'Excel Tools v{NEW}.exe')

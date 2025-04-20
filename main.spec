@@ -5,7 +5,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\tkinterdnd2', 'tkinterdnd2')],
+    datas=[('C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\tkinterdnd2', 'tkinterdnd2')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

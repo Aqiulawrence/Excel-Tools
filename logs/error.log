@@ -318,3 +318,92 @@ Traceback (most recent call last):
     now = start[0]
           ~~~~~^^^
 IndexError: string index out of range
+Traceback (most recent call last):
+  File "D:\My Projects\Excel Project\main.py", line 629, in <module>
+    postLog()
+  File "D:\My Projects\Excel Project\main.py", line 293, in postLog
+    response = requests.get(r'localhost:8080/post', timeout=3)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\requests\sessions.py", line 697, in send
+    adapter = self.get_adapter(url=request.url)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\requests\sessions.py", line 792, in get_adapter
+    raise InvalidSchema(f"No connection adapters were found for {url!r}")
+requests.exceptions.InvalidSchema: No connection adapters were found for 'localhost:8080/post'
+Traceback (most recent call last):
+  File "D:\My Projects\Excel Project\main.py", line 629, in <module>
+    postLog()
+  File "D:\My Projects\Excel Project\main.py", line 293, in postLog
+    response = requests.get(r'localhost:8080/post', timeout=3)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\requests\sessions.py", line 697, in send
+    adapter = self.get_adapter(url=request.url)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\requests\sessions.py", line 792, in get_adapter
+    raise InvalidSchema(f"No connection adapters were found for {url!r}")
+requests.exceptions.InvalidSchema: No connection adapters were found for 'localhost:8080/post'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\My Projects\Excel Project\main.py", line 634, in <module>
+    input()
+  File "<frozen codecs>", line 319, in decode
+KeyboardInterrupt
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel Project\main.py", line 246, in move_key
+    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
+  File "D:\My Projects\Excel Project\MoveKey.py", line 9, in main
+    now = start[0]
+          ~~~~~^^^
+IndexError: string index out of range
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1968, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel Project\main.py", line 246, in move_key
+    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
+  File "D:\My Projects\Excel Project\MoveKey.py", line 9, in main
+    now = start[0]
+          ~~~~~^^^
+IndexError: string index out of range
+----------Above 2025-02-04 23:05:07----------
+
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel Project\main.py", line 264, in excel_search
+    messagebox.showinfo('提示', '搜索完成！请到命令行查看搜索结果。')
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\messagebox.py", line 88, in showinfo
+    return _show(title, message, INFO, OK, **options)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\messagebox.py", line 76, in _show
+    res = Message(**options).show()
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\commondialog.py", line 45, in show
+    s = master.tk.call(self.command, *master._options(self.options))
+KeyboardInterrupt
