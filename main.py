@@ -124,6 +124,7 @@ def deleteOld(): # 删除旧版本
     return False
 
 # 更新函数要大改了，现在没时间了，明天再来改，改之前更新功能是废的！！！！
+### 要先提醒用户先打开vpn再使用！！！
 def update(auto=False):  # auto表示该函数是否为自动更新调用的，如果是就不弹窗
     global NEW, id
     NEW, id = CheckUpdate.check_update()
