@@ -22,7 +22,9 @@ import json
 import time
 import re
 import ctypes
+import threading
 
+from concurrent.futures import ThreadPoolExecutor
 from colorama import Fore, Style
 from threading import Thread
 from ast import literal_eval
@@ -31,20 +33,9 @@ from tkinter import filedialog
 from easygui import exceptionbox
 from socket import gethostname
 
-##### 正常更新记得删除兼容设置部分代码
 update_content = '''
 1. 优化了搜索显示。
-'''
-
-'''
-# 删除旧版本配置文件，兼容部分代码
-from glob import glob
-ini_files = glob(os.path.join('./configs', "*.ini"))
-for ini_file in ini_files:
-    try:
-        os.remove(ini_file)
-    except Exception as e:
-        pass
+2. 修改了更新部分代码。
 '''
 
 def get_time():
@@ -81,7 +72,7 @@ sys.stderr = multi_stream
 
 VERSION = "2.0" # 当前版本
 NEW = None # 最新版本
-id = None # 蓝奏云文件的id，爬取下载地址需要用到
+id = None # 蓝奏云文件的id，爬取下载地址需要用到，目前已废弃
 top = True # 窗口是否置顶
 record = [f'!{get_time()}'] # 记录程序的功能使用情况
 
@@ -123,9 +114,19 @@ def deleteOld(): # 删除旧版本
         return True
     return False
 
-# 更新函数要大改了，现在没时间了，明天再来改，改之前更新功能是废的！！！！
-### 要先提醒用户先打开vpn再使用！！！
-def update(auto=False):  # auto表示该函数是否为自动更新调用的，如果是就不弹窗
+def start_update():
+    thread = Thread(target=update)
+    thread.start()
+
+def update(auto=False):
+    global NEW
+    state = CheckUpdate.update(VERSION) # 返回值有三种：0表示获取更新失败（没开VPN）、1表示新版本下载完了、版本号
+    if state == 1: # 更新成功
+        messagebox.showinfo('提示', '更新成功！请您运行新版本。')
+    else:
+        NEW = state
+
+def old_update(auto=False):  # auto表示该函数是否为自动更新调用的，如果是就不弹窗
     global NEW, id
     NEW, id = CheckUpdate.check_update()
     if NEW == 0:
@@ -281,10 +282,8 @@ def exit_():
     sys.exit()
 
 def about():
-    if NEW == None:
-        messagebox.showinfo("关于", f'当前版本：v{VERSION}\n最新版本：未知\n（当前自动更新已关闭，请点击 "关于->检查更新" 手动获取最新版本）\n作者：Sam')
-    elif NEW == 0:
-        messagebox.showinfo("关于", f'当前版本：v{VERSION}\n最新版本：未知（获取更新失败，请点击 "关于->检查更新" 重新获取更新）\n作者：Sam')
+    if not NEW:
+        messagebox.showinfo("关于", f'当前版本：v{VERSION}\n最新版本：未知（请点击 "关于->检查更新" 获取更新）\n作者：Sam')
     else:
         messagebox.showinfo("关于", f"当前版本：v{VERSION}\n最新版本：v{NEW}\n作者：Sam")
 
@@ -578,7 +577,7 @@ def main(check=True): # check为是否检查更新以及是否输出提示文本
 
     about_menu = tk.Menu(menubar, tearoff=False)
     about_menu.add_command(label="关于", command=about)
-    about_menu.add_command(label='检查更新', command=update)
+    about_menu.add_command(label='检查更新', command=start_update)
     about_menu.add_command(label='更新公告', command=lambda: messagebox.showinfo('更新内容', update_content))
     about_menu.add_command(label='官网', command=lambda:webbrowser.open(r'https://aqiulawrence.github.io/'))
 

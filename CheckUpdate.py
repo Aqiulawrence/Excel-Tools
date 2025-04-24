@@ -1,20 +1,88 @@
 import requests
-import json
-import re
+import os
+import time
 
-prefix = r'https://aqiulawrence.github.io/downloads/'
+from colorama import Fore, Style
+from tqdm import tqdm
 
-def check_update():
-    response = requests.get('https://api.github.com/repos/aqiulawrence/aqiulawrence.github.io/contents/downloads')
-    name = json.loads(response.text)[0]['name']
-    return name
+def red_text(text):
+    return Fore.RED+Style.BRIGHT+text+Style.RESET_ALL
 
-def download_update(name):
-    response = requests.get(prefix+name)
-    with open('111.exe', 'wb') as f:
-        f.write(response.content)
+def blue_text(text):
+    return Fore.BLUE+Style.BRIGHT+text+Style.RESET_ALL
 
-if __name__ == '__main__':
-    name = check_update()
-    print(name)
-    download_update(name)
+owner = "Aqiulawrence"
+repo = "Excel-Tools"
+
+def update(ver, owner=owner, repo=repo, output_dir="./", token=None):
+    headers = {
+        "User-Agent": "Mozilla/5.0",
+        "Accept": "application/vnd.github.v3+json"
+    }
+
+    if token:
+        headers["Authorization"] = f"token {token}"
+
+    api_url = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
+    response = requests.get(api_url, headers=headers)
+
+    release = response.json()
+    new = release['tag_name'][1:]
+
+    if new == ver:
+        print('当前为最新版本。')
+        return new
+
+    print(blue_text(f'发现新版本v{new}，正在进行后台更新！'))
+
+    max_retries = 3
+    retry_count = 0
+    base_delay = 12
+    while retry_count < max_retries:
+        try:
+            # 查找.exe文件
+            exe_assets = [asset for asset in release.get("assets", [])
+                          if asset["name"].lower().endswith(".exe")]
+
+            if not exe_assets:
+                raise Exception("未找到.exe文件！请提醒Sam检查Github Release！")
+
+            # 下载第一个找到的.exe文件(如果有多个，可以修改这里)
+            exe_asset = exe_assets[0]
+            download_url = exe_asset["browser_download_url"]
+            file_name = exe_asset["name"]
+            file_path = os.path.join(output_dir, file_name)
+
+            #### 修改下文件名！！.替换成空格
+
+            response = requests.get(download_url, headers=headers, stream=True)
+            total_size = int(response.headers.get('content-length', 0))
+            with open(file_path, 'wb') as file, tqdm(
+                    desc=file_path,
+                    total=total_size,
+                    unit='iB',
+                    unit_scale=True,
+                    unit_divisor=1024,
+            ) as bar:
+                for data in response.iter_content(chunk_size=1024):
+                    size = file.write(data)
+                    bar.update(size)
+
+            print(blue_text('下载更新成功！请您运行新版本。'))
+            return 1
+
+        except requests.exceptions.SSLError:
+            retry_count += 1
+            if retry_count == max_retries:
+                print(red_text('更新失败！请重试。'))
+                return new
+
+            time.sleep(base_delay)
+            # delay = base_delay * (2 ** (retry_count - 1)) # 指数退避
+
+        except requests.exceptions.ConnectionError: # 未开启代理
+            print(red_text('更新失败！请 "开启VPN" 并在 "关于->检查更新" 中重试。'))
+            return 0
+
+if __name__ == "__main__":
+    update('2.0')

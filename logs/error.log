@@ -407,3 +407,998 @@ Traceback (most recent call last):
   File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\commondialog.py", line 45, in show
     s = master.tk.call(self.command, *master._options(self.options))
 KeyboardInterrupt
+Exception in thread Thread-1 (update):
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1041, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 992, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tool\main.py", line 137, in update
+    if messagebox.askyesno('ÌáÊ¾', f'·¢ÏÖÐÂ°æ±¾v{NEW}£¬µ±Ç°°æ±¾v{VERSION}\n°´ÏÂ¡±ÊÇ¡°½øÐÐ×Ô¶¯¸üÐÂ£¬°´ÏÂ¡±·ñ¡°ºöÂÔ±¾´Î¸üÐÂ¡£\n×¢£ºÏÂÔØ¿ÉÄÜÐèÒªÒ»¶¨µÄÊ±¼ä£¬ÇëÄÍÐÄµÈ´ý£¬ÇëÎð¹Ø±Õ´Ë³ÌÐò£¡'):
+       ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\messagebox.py", line 114, in askyesno
+    s = _show(title, message, QUESTION, YESNO, **options)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\messagebox.py", line 76, in _show
+    res = Message(**options).show()
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\commondialog.py", line 45, in show
+    s = master.tk.call(self.command, *master._options(self.options))
+RuntimeError: main thread is not in main loop
+Excel Tools v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]Excel Tools v2.0.exe:   0%|          | 16.0k/25.8M [00:00<08:10, 55.1kiB/s]Excel Tools v2.0.exe:   0%|          | 80.0k/25.8M [00:00<02:23, 188kiB/s] Excel Tools v2.0.exe:   0%|          | 112k/25.8M [00:00<02:11, 206kiB/s] Excel Tools v2.0.exe:   1%|          | 144k/25.8M [00:00<02:12, 203kiB/s]Excel Tools v2.0.exe:   1%|          | 176k/25.8M [00:00<01:58, 227kiB/s]Excel Tools v2.0.exe:   1%|          | 208k/25.8M [00:01<01:55, 233kiB/s]Excel Tools v2.0.exe:   1%|          | 240k/25.8M [00:01<02:47, 160kiB/s]Excel Tools v2.0.exe:   1%|1         | 319k/25.8M [00:01<01:42, 262kiB/s]Excel Tools v2.0.exe:   1%|1         | 352k/25.8M [00:01<01:58, 225kiB/s]Excel Tools v2.0.exe:   1%|1         | 383k/25.8M [00:01<01:56, 229kiB/s]Excel Tools v2.0.exe:   2%|1         | 415k/25.8M [00:02<02:12, 201kiB/s]Excel Tools v2.0.exe:   2%|1         | 438k/25.8M [00:02<02:57, 150kiB/s]Excel Tools v2.0.exe:   2%|1         | 479k/25.8M [00:02<02:49, 156kiB/s]Excel Tools v2.0.exe:   2%|2         | 543k/25.8M [00:02<02:23, 184kiB/s]Excel Tools v2.0.exe:   2%|2         | 575k/25.8M [00:03<02:29, 178kiB/s]Excel Tools v2.0.exe:   2%|2         | 607k/25.8M [00:03<02:39, 166kiB/s]Excel Tools v2.0.exe:   2%|2         | 639k/25.8M [00:03<02:30, 175kiB/s]Excel Tools v2.0.exe:   2%|2         | 657k/25.8M [00:03<02:29, 177kiB/s]Excel Tools v2.0.exe:   3%|2         | 687k/25.8M [00:03<02:21, 186kiB/s]Excel Tools v2.0.exe:   3%|2         | 719k/25.8M [00:03<02:16, 192kiB/s]Excel Tools v2.0.exe:   3%|2         | 751k/25.8M [00:04<02:11, 200kiB/s]Excel Tools v2.0.exe:   3%|2         | 783k/25.8M [00:04<02:09, 203kiB/s]Excel Tools v2.0.exe:   3%|3         | 804k/25.8M [00:04<02:14, 196kiB/s]Excel Tools v2.0.exe:   3%|3         | 831k/25.8M [00:04<02:13, 196kiB/s]Excel Tools v2.0.exe:   3%|3         | 863k/25.8M [00:04<02:22, 183kiB/s]Excel Tools v2.0.exe:   3%|3         | 895k/25.8M [00:04<02:31, 173kiB/s]Excel Tools v2.0.exe:   4%|3         | 927k/25.8M [00:05<02:22, 184kiB/s]Excel Tools v2.0.exe:   4%|3         | 946k/25.8M [00:05<02:31, 172kiB/s]Excel Tools v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]Excel Tools v2.0.exe:   0%|          | 32.0k/25.8M [00:00<02:30, 180kiB/s]Excel Tools v2.0.exe:   0%|          | 50.0k/25.8M [00:00<04:41, 96.1kiB/s]Excel Tools v2.0.exe:   0%|          | 111k/25.8M [00:00<02:28, 181kiB/s]  Excel Tools v2.0.exe:   1%|          | 159k/25.8M [00:01<03:00, 149kiB/s]Excel Tools v2.0.exe:   1%|          | 255k/25.8M [00:01<02:06, 212kiB/s]Excel Tools v2.0.exe:   1%|1         | 335k/25.8M [00:01<01:31, 291kiB/s]Excel Tools v2.0.exe:   1%|1         | 372k/25.8M [00:01<01:37, 273kiB/s]Excel Tools v2.0.exe:   2%|1         | 404k/25.8M [00:01<01:37, 274kiB/s]Excel Tools v2.0.exe:   2%|1         | 435k/25.8M [00:01<01:47, 248kiB/s]Excel Tools v2.0.exe:   2%|1         | 462k/25.8M [00:02<01:46, 250kiB/s]Excel Tools v2.0.exe:   2%|1         | 489k/25.8M [00:02<01:45, 251kiB/s]Excel Tools v2.0.exe:   2%|1         | 515k/25.8M [00:02<01:53, 233kiB/s]Excel Tools v2.0.exe:   2%|2         | 543k/25.8M [00:02<02:07, 208kiB/s]Excel Tools v2.0.exe:   2%|2         | 575k/25.8M [00:02<01:55, 229kiB/s]Excel Tools v2.0.exe:   2%|2         | 607k/25.8M [00:02<01:45, 251kiB/s]Excel Tools v2.0.exe:   2%|2         | 633k/25.8M [00:02<01:48, 244kiB/s]Excel Tools v2.0.exe:   3%|2         | 665k/25.8M [00:02<01:43, 254kiB/s]Excel Tools v2.0.exe:   3%|2         | 697k/25.8M [00:03<01:48, 242kiB/s]Excel Tools v2.0.exe:   3%|2         | 729k/25.8M [00:03<01:42, 257kiB/s]Excel Tools v2.0.exe:   3%|2         | 761k/25.8M [00:03<01:45, 249kiB/s]Excel Tools v2.0.exe:   3%|2         | 793k/25.8M [00:03<01:52, 234kiB/s]Excel Tools v2.0.exe:   3%|3         | 825k/25.8M [00:03<01:42, 256kiB/s]Excel Tools v2.0.exe:   3%|3         | 851k/25.8M [00:03<01:42, 257kiB/s]Excel Tools v2.0.exe:   3%|3         | 877k/25.8M [00:03<01:44, 251kiB/s]Excel Tools v2.0.exe:   3%|3         | 905k/25.8M [00:04<03:01, 144kiB/s]Excel Tools v2.0.exe:   4%|3         | 985k/25.8M [00:04<01:47, 243kiB/s]Exception in thread Thread-2 (download_update):
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connection.py", line 198, in _new_conn
+    sock = connection.create_connection(
+        (self._dns_host, self.port),
+    ...<2 lines>...
+        socket_options=self.socket_options,
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\util\connection.py", line 85, in create_connection
+    raise err
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\util\connection.py", line 73, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+TimeoutError: timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+        conn,
+    ...<10 lines>...
+        **response_kw,
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 488, in _make_request
+    raise new_e
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 464, in _make_request
+    self._validate_conn(conn)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 1093, in _validate_conn
+    conn.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connection.py", line 704, in connect
+    self.sock = sock = self._new_conn()
+                       ~~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connection.py", line 207, in _new_conn
+    raise ConnectTimeoutError(
+    ...<2 lines>...
+    ) from e
+urllib3.exceptions.ConnectTimeoutError: (<urllib3.connection.HTTPSConnection object at 0x000001FD25466C10>, 'Connection to aqiulawrence.github.io timed out. (connect timeout=3)')
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 667, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001FD25466C10>, 'Connection to aqiulawrence.github.io timed out. (connect timeout=3)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1041, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 992, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tool\CheckUpdate.py", line 12, in download_update
+    response = requests.get(url, timeout=3)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 688, in send
+    raise ConnectTimeout(e, request=request)
+requests.exceptions.ConnectTimeout: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001FD25466C10>, 'Connection to aqiulawrence.github.io timed out. (connect timeout=3)'))
+Exception in thread Thread-2 (download_update):
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connection.py", line 198, in _new_conn
+    sock = connection.create_connection(
+        (self._dns_host, self.port),
+    ...<2 lines>...
+        socket_options=self.socket_options,
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\util\connection.py", line 85, in create_connection
+    raise err
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\util\connection.py", line 73, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+TimeoutError: timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+        conn,
+    ...<10 lines>...
+        **response_kw,
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 488, in _make_request
+    raise new_e
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 464, in _make_request
+    self._validate_conn(conn)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 1093, in _validate_conn
+    conn.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connection.py", line 704, in connect
+    self.sock = sock = self._new_conn()
+                       ~~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connection.py", line 207, in _new_conn
+    raise ConnectTimeoutError(
+    ...<2 lines>...
+    ) from e
+urllib3.exceptions.ConnectTimeoutError: (<urllib3.connection.HTTPSConnection object at 0x000001DE17286C10>, 'Connection to aqiulawrence.github.io timed out. (connect timeout=3)')
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 667, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001DE17286C10>, 'Connection to aqiulawrence.github.io timed out. (connect timeout=3)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1041, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 992, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tool\CheckUpdate.py", line 13, in download_update
+    response = requests.get(url, timeout=3)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 688, in send
+    raise ConnectTimeout(e, request=request)
+requests.exceptions.ConnectTimeout: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001DE17286C10>, 'Connection to aqiulawrence.github.io timed out. (connect timeout=3)'))
+Exception in thread Thread-1 (update):
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1041, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 992, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tool\main.py", line 133, in update
+    NEW = name[-7:-4]
+          ^^^^
+NameError: name 'name' is not defined
+Exception in thread Thread-1 (update):
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1041, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 992, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tool\main.py", line 132, in update
+    future = executor.submit(worker)
+                             ^^^^^^
+NameError: name 'worker' is not defined
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tool\main.py", line 132, in update
+    future = executor.submit(worker)
+                             ^^^^^^
+NameError: name 'worker' is not defined
+Exception in thread Thread-1 (update):
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1041, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 992, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tool\main.py", line 134, in update
+    NEW = name[-7:-4]
+          ^^^^
+NameError: name 'name' is not defined
+Exception in thread Thread-1 (update):
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1041, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 992, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tool\main.py", line 147, in update
+    future = executor.submit(CheckUpdate.download_update(), prefix+name, name)
+                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+TypeError: download_update() missing 2 required positional arguments: 'url' and 'filename'
+Excel Tools v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]Excel Tools v2.0.exe:   0%|          | 1.00k/25.8M [00:00<2:14:04, 3.37kiB/s]Excel Tools v2.0.exe:   0%|          | 65.0k/25.8M [00:00<03:54, 115kiB/s]   Excel Tools v2.0.exe:   0%|          | 97.0k/25.8M [00:01<04:25, 102kiB/s]Excel Tools v2.0.exe:   0%|          | 113k/25.8M [00:01<05:32, 81.2kiB/s]Excel Tools v2.0.exe:   0%|          | 129k/25.8M [00:01<07:07, 63.0kiB/s]Excel Tools v2.0.exe:   1%|          | 145k/25.8M [00:04<21:22, 21.0kiB/s]Excel Tools v2.0.exe:   1%|          | 161k/25.8M [00:05<25:09, 17.8kiB/s]Excel Tools v2.0.exe:   1%|          | 177k/25.8M [00:06<29:14, 15.3kiB/s]Excel Tools v2.0.exe:   1%|          | 193k/25.8M [00:07<25:16, 17.7kiB/s]Excel Tools v2.0.exe:   1%|          | 209k/25.8M [00:08<25:53, 17.3kiB/s]Excel Tools v2.0.exe:   1%|          | 225k/25.8M [00:12<49:37, 9.02kiB/s]Excel Tools v2.0.exe:   1%|          | 241k/25.8M [00:12<39:51, 11.2kiB/s]Excel Tools v2.0.exe:   1%|          | 257k/25.8M [00:13<32:27, 13.8kiB/s]Excel Tools v2.0.exe:   1%|1         | 273k/25.8M [00:14<27:17, 16.4kiB/s]Excel Tools v2.0.exe:   1%|1         | 289k/25.8M [00:14<23:51, 18.7kiB/s]Excel Tools v2.0.exe:   1%|1         | 305k/25.8M [00:16<31:07, 14.3kiB/s]Excel Tools v2.0.exe:   1%|1         | 321k/25.8M [00:17<28:14, 15.8kiB/s]Excel Tools v2.0.exe:   1%|1         | 337k/25.8M [00:19<37:59, 11.7kiB/s]Excel Tools v2.0.exe:   1%|1         | 353k/25.8M [00:20<33:41, 13.2kiB/s]Excel Tools v2.0.exe:   1%|1         | 369k/25.8M [00:21<34:47, 12.8kiB/s]Excel Tools v2.0.exe:   1%|1         | 385k/25.8M [00:22<31:53, 13.9kiB/s]Excel Tools v2.0.exe:   2%|1         | 401k/25.8M [00:23<25:58, 17.1kiB/s]Excel Tools v2.0.exe:   2%|1         | 417k/25.8M [00:24<30:52, 14.4kiB/s]Excel Tools v2.0.exe:   2%|1         | 433k/25.8M [00:26<34:59, 12.7kiB/s]Excel Tools v2.0.exe:   2%|1         | 449k/25.8M [00:27<35:27, 12.5kiB/s]Excel Tools v2.0.exe:   2%|1         | 465k/25.8M [00:29<37:54, 11.7kiB/s]Excel Tools v2.0.exe:   2%|1         | 481k/25.8M [00:31<48:28, 9.14kiB/s]Excel Tools v2.0.exe:   2%|1         | 497k/25.8M [00:35<1:00:27, 7.32kiB/s]Excel Tools v2.0.exe:   2%|1         | 513k/25.8M [00:39<1:20:43, 5.48kiB/s]Excel Tools v2.0.exe:   2%|2         | 529k/25.8M [00:40<1:04:38, 6.84kiB/s]Excel Tools v2.0.exe:   2%|2         | 545k/25.8M [00:42<57:44, 7.65kiB/s]  Excel Tools v2.0.exe:   2%|2         | 561k/25.8M [00:44<53:29, 8.26kiB/s]Excel Tools v2.0.exe:   2%|2         | 577k/25.8M [00:46<57:37, 7.66kiB/s]Excel Tools v2.0.exe:   2%|2         | 593k/25.8M [00:51<1:19:24, 5.56kiB/s]Excel Tools v2.0.exe:   2%|2         | 609k/25.8M [00:52<1:07:21, 6.54kiB/s]Excel Tools v2.0.exe:   2%|2         | 625k/25.8M [00:53<55:46, 7.90kiB/s]  Excel Tools v2.0.exe:   2%|2         | 641k/25.8M [00:54<44:12, 9.96kiB/s]Excel Tools v2.0.exe:   2%|2         | 657k/25.8M [00:55<36:15, 12.1kiB/s]Excel Tools v2.0.exe:   3%|2         | 673k/25.8M [00:56<33:03, 13.3kiB/s]Excel Tools v2.0.exe:   3%|2         | 689k/25.8M [00:57<30:44, 14.3kiB/s]Excel Tools v2.0.exe:   3%|2         | 705k/25.8M [00:58<28:16, 15.5kiB/s]Excel Tools v2.0.exe:   3%|2         | 721k/25.8M [00:59<35:29, 12.4kiB/s]Excel Tools v2.0.exe:   3%|2         | 737k/25.8M [01:05<1:05:50, 6.66kiB/s]Excel Tools v2.0.exe:   3%|2         | 753k/25.8M [01:10<1:29:04, 4.92kiB/s]Excel Tools v2.0.exe:   3%|2         | 769k/25.8M [01:11<1:08:32, 6.39kiB/s]Excel Tools v2.0.exe:   3%|2         | 785k/25.8M [01:12<1:01:16, 7.14kiB/s]Excel Tools v2.0.exe:   3%|3         | 801k/25.8M [01:15<1:00:35, 7.22kiB/s]Excel Tools v2.0.exe:   3%|3         | 817k/25.8M [01:16<51:38, 8.47kiB/s]  Excel Tools v2.0.exe:   3%|3         | 833k/25.8M [01:17<44:59, 9.71kiB/s]Excel Tools v2.0.exe:   3%|3         | 849k/25.8M [01:18<38:04, 11.5kiB/s]Excel Tools v2.0.exe:   3%|3         | 865k/25.8M [01:19<39:34, 11.0kiB/s]Excel Tools v2.0.exe:   3%|3         | 881k/25.8M [01:20<35:05, 12.4kiB/s]Excel Tools v2.0.exe:   3%|3         | 897k/25.8M [01:22<40:03, 10.9kiB/s]Excel Tools v2.0.exe:   3%|3         | 913k/25.8M [01:23<33:03, 13.2kiB/s]Excel Tools v2.0.exe:   4%|3         | 929k/25.8M [01:30<1:22:19, 5.29kiB/s]Excel Tools v2.0.exe:   4%|3         | 945k/25.8M [01:32<1:13:59, 5.88kiB/s]Excel Tools v2.0.exe:   4%|3         | 961k/25.8M [01:34<1:02:18, 6.98kiB/s]Excel Tools v2.0.exe:   4%|3         | 977k/25.8M [01:37<1:11:55, 6.04kiB/s]Excel Tools v2.0.exe:   4%|3         | 993k/25.8M [01:39<1:04:42, 6.71kiB/s]Excel Tools v2.0.exe:   4%|3         | 0.99M/25.8M [01:42<1:05:44, 6.60kiB/s]Excel Tools v2.0.exe:   4%|3         | 1.00M/25.8M [01:43<53:20, 8.13kiB/s]  Excel Tools v2.0.exe:   4%|3         | 1.02M/25.8M [01:44<45:31, 9.52kiB/s]Excel Tools v2.0.exe:   4%|3         | 1.03M/25.8M [01:46<49:06, 8.82kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.05M/25.8M [01:47<44:07, 9.81kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.06M/25.8M [01:48<37:16, 11.6kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.08M/25.8M [01:49<38:30, 11.2kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.09M/25.8M [01:50<31:14, 13.8kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.11M/25.8M [01:52<41:23, 10.4kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.13M/25.8M [01:54<40:11, 10.7kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.14M/25.8M [01:54<33:01, 13.1kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.16M/25.8M [01:56<32:18, 13.3kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.17M/25.8M [01:56<27:46, 15.5kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.19M/25.8M [01:57<24:08, 17.8kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.20M/25.8M [01:58<30:00, 14.3kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.22M/25.8M [01:59<26:17, 16.4kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.24M/25.8M [02:01<30:47, 14.0kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.25M/25.8M [02:02<35:15, 12.2kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.27M/25.8M [02:05<44:13, 9.70kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.28M/25.8M [02:07<47:13, 9.08kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.30M/25.8M [02:08<37:35, 11.4kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.31M/25.8M [02:08<32:38, 13.1kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.33M/25.8M [02:09<26:54, 15.9kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.34M/25.8M [02:10<23:32, 18.2kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.36M/25.8M [02:10<21:27, 19.9kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.38M/25.8M [02:12<32:06, 13.3kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.39M/25.8M [02:15<41:12, 10.4kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.41M/25.8M [02:15<34:20, 12.4kiB/s]Excel Tools v2.0.exe:   6%|5         | 1.42M/25.8M [02:16<29:44, 14.3kiB/s]Excel Tools v2.0.exe:   6%|5         | 1.44M/25.8M [02:17<26:29, 16.1kiB/s]Excel Tools v2.0.exe:   6%|5         | 1.45M/25.8M [02:18<25:43, 16.6kiB/s]Excel Tools v2.0.exe:   6%|5         | 1.47M/25.8M [02:21<39:52, 10.7kiB/s]Excel Tools v2.0.exe:   6%|5         | 1.49M/25.8M [02:22<41:09, 10.3kiB/s]Excel Tools v2.0.exe:   6%|5         | 1.50M/25.8M [02:23<37:03, 11.5kiB/s]Excel Tools v2.0.exe:   6%|5         | 1.52M/25.8M [02:25<37:19, 11.4kiB/s]Excel Tools v2.0.exe:   6%|5         | 1.53M/25.8M [02:26<33:25, 12.7kiB/s]Excel Tools v2.0.exe:   6%|5         | 1.55M/25.8M [02:27<33:33, 12.6kiB/s]Excel Tools v2.0.exe:   6%|6         | 1.56M/25.8M [02:27<26:14, 16.2kiB/s]
+Excel Tools v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s][A
+Excel Tools v2.0.exe:   0%|          | 40.0k/25.8M [00:00<01:17, 349kiB/s][AExcel Tools v2.0.exe:   6%|6         | 1.58M/25.8M [02:30<41:04, 10.3kiB/s]
+Excel Tools v2.0.exe:   0%|          | 113k/25.8M [00:00<00:50, 537kiB/s] [A
+Excel Tools v2.0.exe:   2%|1         | 417k/25.8M [00:00<00:16, 1.62MiB/s][A
+Excel Tools v2.0.exe:   3%|2         | 721k/25.8M [00:00<00:13, 1.99MiB/s][A
+Excel Tools v2.0.exe:   6%|5         | 1.47M/25.8M [00:00<00:06, 3.88MiB/s][A
+Excel Tools v2.0.exe:   7%|7         | 1.85M/25.8M [00:00<00:06, 3.60MiB/s][A
+Excel Tools v2.0.exe:  11%|#         | 2.77M/25.8M [00:00<00:04, 4.95MiB/s][A
+Excel Tools v2.0.exe:  14%|#3        | 3.55M/25.8M [00:00<00:04, 5.74MiB/s][A
+Excel Tools v2.0.exe:  17%|#6        | 4.36M/25.8M [00:01<00:03, 6.29MiB/s][A
+Excel Tools v2.0.exe:  20%|#9        | 5.14M/25.8M [00:01<00:03, 6.73MiB/s][A
+Excel Tools v2.0.exe:  23%|##3       | 5.97M/25.8M [00:01<00:02, 7.23MiB/s][A
+Excel Tools v2.0.exe:  26%|##5       | 6.67M/25.8M [00:01<00:03, 6.51MiB/s][A
+Excel Tools v2.0.exe:  29%|##9       | 7.59M/25.8M [00:01<00:02, 7.18MiB/s][A
+Excel Tools v2.0.exe:  33%|###3      | 8.61M/25.8M [00:01<00:02, 8.13MiB/s][A
+Excel Tools v2.0.exe:  36%|###6      | 9.41M/25.8M [00:01<00:02, 6.85MiB/s][A
+Excel Tools v2.0.exe:  42%|####2     | 10.9M/25.8M [00:01<00:01, 9.00MiB/s][A
+Excel Tools v2.0.exe:  46%|####5     | 11.8M/25.8M [00:01<00:01, 8.55MiB/s][A
+Excel Tools v2.0.exe:  50%|#####     | 13.0M/25.8M [00:02<00:01, 9.63MiB/s][A
+Excel Tools v2.0.exe:  55%|#####4    | 14.1M/25.8M [00:02<00:01, 9.96MiB/s][A
+Excel Tools v2.0.exe:  59%|#####8    | 15.2M/25.8M [00:02<00:01, 10.3MiB/s][A
+Excel Tools v2.0.exe:  63%|######2   | 16.2M/25.8M [00:02<00:01, 10.1MiB/s][A
+Excel Tools v2.0.exe:  66%|######6   | 17.2M/25.8M [00:02<00:01, 6.65MiB/s][A
+Excel Tools v2.0.exe:  73%|#######3  | 18.9M/25.8M [00:02<00:00, 9.12MiB/s][A
+Excel Tools v2.0.exe:  78%|#######7  | 20.0M/25.8M [00:02<00:00, 9.54MiB/s][A
+Excel Tools v2.0.exe:  82%|########1 | 21.1M/25.8M [00:03<00:00, 9.97MiB/s][A
+Excel Tools v2.0.exe:  86%|########6 | 22.2M/25.8M [00:03<00:00, 10.1MiB/s][A
+Excel Tools v2.0.exe:  90%|######### | 23.3M/25.8M [00:03<00:00, 10.5MiB/s][A
+Excel Tools v2.0.exe:  95%|#########4| 24.4M/25.8M [00:03<00:00, 10.6MiB/s][A
+Excel Tools v2.0.exe:  99%|#########8| 25.5M/25.8M [00:03<00:00, 10.3MiB/s][AExcel Tools v2.0.exe: 100%|##########| 25.8M/25.8M [00:03<00:00, 7.82MiB/s]
+Excel Tools v2.0.exe:   6%|6         | 1.59M/25.8M [02:35<1:02:32, 6.77kiB/s]Excel Tools v2.0.exe:   6%|6         | 1.61M/25.8M [02:35<48:59, 8.64kiB/s]  Excel Tools v2.0.exe:   6%|6         | 1.63M/25.8M [02:36<40:16, 10.5kiB/s]Excel Tools v2.0.exe:   6%|6         | 1.64M/25.8M [02:37<36:44, 11.5kiB/s]Excel Tools v2.0.exe:   6%|6         | 1.66M/25.8M [02:38<33:02, 12.8kiB/s]Excel Tools v2.0.exe:   6%|6         | 1.67M/25.8M [02:40<39:13, 10.8kiB/s]Excel Tools v2.0.exe:   7%|6         | 1.69M/25.8M [02:43<47:07, 8.95kiB/s]Excel Tools v2.0.exe:   7%|6         | 1.70M/25.8M [02:44<38:52, 10.8kiB/s]Excel Tools v2.0.exe:   7%|6         | 1.72M/25.8M [02:47<49:04, 8.58kiB/s]Excel Tools v2.0.exe:   7%|6         | 1.74M/25.8M [02:49<51:18, 8.20kiB/s]Exception in thread Thread-1 (update):
+urllib3.exceptions.SSLError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 667, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1041, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 992, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tool\main.py", line 148, in update
+    if future.result():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 456, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "D:\My Projects\Excel-Tool\CheckUpdate.py", line 11, in download_update
+    response = requests.get(url, stream=True)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 698, in send
+    raise SSLError(e, request=request)
+requests.exceptions.SSLError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+Exception in Tkinter callback
+urllib3.exceptions.SSLError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 667, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tool\main.py", line 148, in update
+    if future.result():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 456, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "D:\My Projects\Excel-Tool\CheckUpdate.py", line 11, in download_update
+    response = requests.get(url, stream=True)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 698, in send
+    raise SSLError(e, request=request)
+requests.exceptions.SSLError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+Exception in Tkinter callback
+urllib3.exceptions.SSLError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 667, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tool\main.py", line 148, in update
+    if future.result():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 456, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "D:\My Projects\Excel-Tool\CheckUpdate.py", line 11, in download_update
+    response = requests.get(url, stream=True)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 698, in send
+    raise SSLError(e, request=request)
+requests.exceptions.SSLError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+Excel Tools v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]Excel Tools v2.0.exe:   0%|          | 1.00k/25.8M [00:00<1:10:29, 6.40kiB/s]Excel Tools v2.0.exe:   0%|          | 9.00k/25.8M [00:00<28:34, 15.8kiB/s]  Excel Tools v2.0.exe:   0%|          | 48.0k/25.8M [00:00<06:17, 71.5kiB/s]Excel Tools v2.0.exe:   0%|          | 64.0k/25.8M [00:01<07:12, 62.4kiB/s]Excel Tools v2.0.exe:   0%|          | 80.0k/25.8M [00:02<20:16, 22.2kiB/s]Excel Tools v2.0.exe:   0%|          | 96.0k/25.8M [00:04<23:36, 19.0kiB/s]Excel Tools v2.0.exe:   0%|          | 112k/25.8M [00:04<21:23, 21.0kiB/s] Excel Tools v2.0.exe:   0%|          | 128k/25.8M [00:05<18:11, 24.7kiB/s]Excel Tools v2.0.exe:   1%|          | 144k/25.8M [00:05<19:32, 23.0kiB/s]Excel Tools v2.0.exe:   1%|          | 160k/25.8M [00:06<17:00, 26.4kiB/s]Excel Tools v2.0.exe:   1%|          | 176k/25.8M [00:09<41:43, 10.7kiB/s]Excel Tools v2.0.exe:   1%|          | 192k/25.8M [00:11<40:43, 11.0kiB/s]Excel Tools v2.0.exe:   1%|          | 207k/25.8M [00:12<37:37, 11.9kiB/s]Excel Tools v2.0.exe:   1%|          | 223k/25.8M [00:13<34:05, 13.1kiB/s]Excel Tools v2.0.exe:   1%|          | 239k/25.8M [00:13<29:26, 15.2kiB/s]Excel Tools v2.0.exe:   1%|          | 255k/25.8M [00:14<25:46, 17.3kiB/s]Excel Tools v2.0.exe:   1%|1         | 271k/25.8M [00:15<27:27, 16.3kiB/s]Excel Tools v2.0.exe:   1%|1         | 287k/25.8M [00:16<25:38, 17.4kiB/s]Excel Tools v2.0.exe:   1%|1         | 303k/25.8M [00:17<26:08, 17.1kiB/s]Excel Tools v2.0.exe:   1%|1         | 319k/25.8M [00:18<24:28, 18.2kiB/s]Excel Tools v2.0.exe:   1%|1         | 335k/25.8M [00:20<33:24, 13.3kiB/s]Excel Tools v2.0.exe:   1%|1         | 351k/25.8M [00:21<36:55, 12.1kiB/s]Exception in thread Thread-1 (update):
+urllib3.exceptions.SSLError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 667, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1041, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 992, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tool\main.py", line 146, in update
+    if future.result():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 456, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "D:\My Projects\Excel-Tool\CheckUpdate.py", line 11, in download_update
+    response = requests.get(url, stream=True)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 698, in send
+    raise SSLError(e, request=request)
+requests.exceptions.SSLError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+Exception in thread Thread-1 (update):
+urllib3.exceptions.SSLError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 667, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1041, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 992, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tool\main.py", line 147, in update
+    if future.result():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 456, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "D:\My Projects\Excel-Tool\CheckUpdate.py", line 11, in download_update
+    response = requests.get(url, stream=True, verify=False)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 698, in send
+    raise SSLError(e, request=request)
+requests.exceptions.SSLError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+Excel Tools v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]Excel Tools v2.0.exe:   0%|          | 33.0k/25.8M [00:00<01:25, 316kiB/s]Excel Tools v2.0.exe:   0%|          | 97.0k/25.8M [00:00<00:53, 501kiB/s]Excel Tools v2.0.exe:   1%|          | 257k/25.8M [00:00<00:31, 849kiB/s] Excel Tools v2.0.exe:   2%|2         | 545k/25.8M [00:00<00:20, 1.29MiB/s]Excel Tools v2.0.exe:   4%|4         | 1.05M/25.8M [00:00<00:11, 2.30MiB/s]Excel Tools v2.0.exe:   8%|7         | 2.06M/25.8M [00:00<00:05, 4.46MiB/s]Excel Tools v2.0.exe:  10%|#         | 2.58M/25.8M [00:01<00:07, 3.38MiB/s]Excel Tools v2.0.exe:  17%|#6        | 4.38M/25.8M [00:01<00:03, 6.73MiB/s]Excel Tools v2.0.exe:  20%|##        | 5.19M/25.8M [00:01<00:03, 6.33MiB/s]Excel Tools v2.0.exe:  24%|##4       | 6.27M/25.8M [00:01<00:03, 6.24MiB/s]Excel Tools v2.0.exe:  33%|###2      | 8.47M/25.8M [00:01<00:01, 9.10MiB/s]Excel Tools v2.0.exe:  38%|###7      | 9.75M/25.8M [00:01<00:01, 9.31MiB/s]Excel Tools v2.0.exe:  43%|####2     | 11.1M/25.8M [00:01<00:01, 8.85MiB/s]Excel Tools v2.0.exe:  51%|#####1    | 13.2M/25.8M [00:02<00:01, 11.4MiB/s]Excel Tools v2.0.exe:  56%|#####5    | 14.4M/25.8M [00:02<00:01, 11.4MiB/s]Excel Tools v2.0.exe:  60%|######    | 15.5M/25.8M [00:02<00:00, 11.2MiB/s]Excel Tools v2.0.exe:  65%|######4   | 16.7M/25.8M [00:02<00:00, 11.4MiB/s]Excel Tools v2.0.exe:  69%|######8   | 17.8M/25.8M [00:02<00:00, 11.3MiB/s]Excel Tools v2.0.exe:  73%|#######3  | 18.9M/25.8M [00:02<00:00, 9.33MiB/s]Excel Tools v2.0.exe:  81%|########1 | 20.9M/25.8M [00:02<00:00, 12.2MiB/s]Excel Tools v2.0.exe:  86%|########6 | 22.2M/25.8M [00:02<00:00, 12.5MiB/s]Excel Tools v2.0.exe:  91%|#########1| 23.6M/25.8M [00:02<00:00, 12.9MiB/s]Excel Tools v2.0.exe:  96%|#########6| 24.9M/25.8M [00:03<00:00, 12.9MiB/s]Excel Tools v2.0.exe: 100%|##########| 25.8M/25.8M [00:03<00:00, 8.44MiB/s]
+Exception in thread Thread-1 (update):
+urllib3.exceptions.SSLError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 667, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1041, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 992, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tool\main.py", line 147, in update
+    if future.result():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 456, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "D:\My Projects\Excel-Tool\CheckUpdate.py", line 13, in download_update
+    response = requests.get(url, stream=True, verify=False, headers=headers)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 698, in send
+    raise SSLError(e, request=request)
+requests.exceptions.SSLError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+Exception in Tkinter callback
+urllib3.exceptions.SSLError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 667, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tool\main.py", line 147, in update
+    if future.result():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 456, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "D:\My Projects\Excel-Tool\CheckUpdate.py", line 13, in download_update
+    response = requests.get(url, stream=True, verify=False, headers=headers)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 698, in send
+    raise SSLError(e, request=request)
+requests.exceptions.SSLError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+Excel Tools v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]Excel Tools v2.0.exe:   0%|          | 13.0k/25.8M [00:00<07:22, 61.2kiB/s]Excel Tools v2.0.exe:   0%|          | 62.0k/25.8M [00:00<03:55, 115kiB/s] Excel Tools v2.0.exe:   0%|          | 94.0k/25.8M [00:01<05:03, 88.8kiB/s]Excel Tools v2.0.exe:   0%|          | 126k/25.8M [00:01<04:28, 100kiB/s]  Excel Tools v2.0.exe:   1%|          | 158k/25.8M [00:01<04:55, 91.1kiB/s]Excel Tools v2.0.exe:   1%|          | 174k/25.8M [00:01<05:02, 89.0kiB/s]Excel Tools v2.0.exe:   1%|          | 190k/25.8M [00:02<06:47, 66.0kiB/s]Excel Tools v2.0.exe:   1%|          | 206k/25.8M [00:02<07:35, 59.0kiB/s]Excel Tools v2.0.exe:   1%|          | 222k/25.8M [00:03<08:14, 54.2kiB/s]Excel Tools v2.0.exe:   1%|          | 238k/25.8M [00:03<08:06, 55.1kiB/s]Excel Tools v2.0.exe:   1%|          | 254k/25.8M [00:03<08:50, 50.5kiB/s]Excel Tools v2.0.exe:   1%|1         | 270k/25.8M [00:04<09:06, 49.1kiB/s]Excel Tools v2.0.exe:   1%|1         | 286k/25.8M [00:04<10:08, 44.0kiB/s]Excel Tools v2.0.exe:   1%|1         | 302k/25.8M [00:05<11:22, 39.2kiB/s]Excel Tools v2.0.exe:   1%|1         | 318k/25.8M [00:05<11:15, 39.6kiB/s]Excel Tools v2.0.exe:   1%|1         | 334k/25.8M [00:05<11:10, 39.9kiB/s]Excel Tools v2.0.exe:   1%|1         | 350k/25.8M [00:06<13:56, 31.9kiB/s]Excel Tools v2.0.exe:   1%|1         | 366k/25.8M [00:07<18:15, 24.4kiB/s]Excel Tools v2.0.exe:   1%|1         | 382k/25.8M [00:08<19:49, 22.4kiB/s]Excel Tools v2.0.exe:   2%|1         | 398k/25.8M [00:09<21:50, 20.3kiB/s]Excel Tools v2.0.exe:   2%|1         | 414k/25.8M [00:10<23:27, 18.9kiB/s]Excel Tools v2.0.exe:   2%|1         | 430k/25.8M [00:11<24:01, 18.5kiB/s]Excel Tools v2.0.exe:   2%|1         | 446k/25.8M [00:12<24:05, 18.4kiB/s]Excel Tools v2.0.exe:   2%|1         | 462k/25.8M [00:13<22:03, 20.1kiB/s]Excel Tools v2.0.exe:   2%|1         | 478k/25.8M [00:13<19:34, 22.6kiB/s]Excel Tools v2.0.exe:   2%|1         | 494k/25.8M [00:14<20:11, 21.9kiB/s]Excel Tools v2.0.exe:   2%|1         | 510k/25.8M [00:15<23:52, 18.5kiB/s]Excel Tools v2.0.exe:   2%|1         | 526k/25.8M [00:17<28:56, 15.3kiB/s]Excel Tools v2.0.exe:   2%|2         | 542k/25.8M [00:18<28:05, 15.7kiB/s]Excel Tools v2.0.exe:   2%|2         | 558k/25.8M [00:18<24:18, 18.2kiB/s]Excel Tools v2.0.exe:   2%|2         | 574k/25.8M [00:19<20:59, 21.0kiB/s]Excel Tools v2.0.exe:   2%|2         | 590k/25.8M [00:19<19:08, 23.0kiB/s]Excel Tools v2.0.exe:   2%|2         | 606k/25.8M [00:20<19:00, 23.2kiB/s]Excel Tools v2.0.exe:   2%|2         | 622k/25.8M [00:20<16:26, 26.8kiB/s]Excel Tools v2.0.exe:   2%|2         | 638k/25.8M [00:21<15:16, 28.8kiB/s]Excel Tools v2.0.exe:   2%|2         | 654k/25.8M [00:22<23:03, 19.1kiB/s]Excel Tools v2.0.exe:   3%|2         | 670k/25.8M [00:23<25:24, 17.3kiB/s]Excel Tools v2.0.exe:   3%|2         | 686k/25.8M [00:24<22:36, 19.4kiB/s]Excel Tools v2.0.exe:   3%|2         | 702k/25.8M [00:25<21:55, 20.0kiB/s]Excel Tools v2.0.exe:   3%|2         | 718k/25.8M [00:25<18:00, 24.4kiB/s]Excel Tools v2.0.exe:   3%|2         | 734k/25.8M [00:26<17:52, 24.5kiB/s]Excel Tools v2.0.exe:   3%|2         | 750k/25.8M [00:26<16:22, 26.8kiB/s]Excel Tools v2.0.exe:   3%|2         | 766k/25.8M [00:27<15:11, 28.8kiB/s]Excel Tools v2.0.exe:   3%|2         | 782k/25.8M [00:28<18:09, 24.1kiB/s]Excel Tools v2.0.exe:   3%|3         | 798k/25.8M [00:28<16:26, 26.6kiB/s]Excel Tools v2.0.exe:   3%|3         | 814k/25.8M [00:29<17:05, 25.6kiB/s]Excel Tools v2.0.exe:   3%|3         | 830k/25.8M [00:29<16:22, 26.7kiB/s]Excel Tools v2.0.exe:   3%|3         | 846k/25.8M [00:30<16:09, 27.0kiB/s]Excel Tools v2.0.exe:   3%|3         | 862k/25.8M [00:30<15:08, 28.8kiB/s]Excel Tools v2.0.exe:   3%|3         | 878k/25.8M [00:31<14:43, 29.6kiB/s]Excel Tools v2.0.exe:   3%|3         | 894k/25.8M [00:32<14:48, 29.4kiB/s]Excel Tools v2.0.exe:   3%|3         | 910k/25.8M [00:32<16:09, 27.0kiB/s]Excel Tools v2.0.exe:   4%|3         | 926k/25.8M [00:34<23:12, 18.8kiB/s]Excel Tools v2.0.exe:   4%|3         | 942k/25.8M [00:35<26:17, 16.6kiB/s]Excel Tools v2.0.exe:   4%|3         | 958k/25.8M [00:36<27:29, 15.8kiB/s]Excel Tools v2.0.exe:   4%|3         | 974k/25.8M [00:37<26:01, 16.7kiB/s]Excel Tools v2.0.exe:   4%|3         | 990k/25.8M [00:38<24:42, 17.6kiB/s]Excel Tools v2.0.exe:   4%|3         | 0.98M/25.8M [00:38<21:55, 19.8kiB/s]Excel Tools v2.0.exe:   4%|3         | 1.00M/25.8M [00:39<20:17, 21.4kiB/s]Excel Tools v2.0.exe:   4%|3         | 1.01M/25.8M [00:40<24:17, 17.8kiB/s]Excel Tools v2.0.exe:   4%|3         | 1.03M/25.8M [00:41<23:54, 18.1kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.04M/25.8M [00:42<23:21, 18.5kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.06M/25.8M [00:43<21:02, 20.6kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.08M/25.8M [00:43<18:00, 24.0kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.09M/25.8M [00:44<16:17, 26.5kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.11M/25.8M [00:44<16:05, 26.8kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.12M/25.8M [00:45<17:46, 24.3kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.14M/25.8M [00:46<16:56, 25.5kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.15M/25.8M [00:46<17:54, 24.1kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.17M/25.8M [00:47<19:29, 22.1kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.19M/25.8M [00:48<19:32, 22.0kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.20M/25.8M [00:49<22:03, 19.5kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.22M/25.8M [00:50<19:46, 21.7kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.23M/25.8M [00:51<22:26, 19.1kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.25M/25.8M [00:52<23:08, 18.6kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.26M/25.8M [00:53<25:37, 16.8kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.28M/25.8M [00:54<24:04, 17.8kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.29M/25.8M [00:54<22:47, 18.8kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.31M/25.8M [00:55<24:02, 17.8kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.33M/25.8M [00:57<26:02, 16.4kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.34M/25.8M [00:58<27:29, 15.6kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.36M/25.8M [00:59<25:27, 16.8kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.37M/25.8M [00:59<21:27, 19.9kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.39M/25.8M [01:00<20:56, 20.4kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.40M/25.8M [01:01<20:45, 20.6kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.42M/25.8M [01:02<24:00, 17.8kiB/s]Excel Tools v2.0.exe:   6%|5         | 1.44M/25.8M [01:03<23:47, 17.9kiB/s]Excel Tools v2.0.exe:   6%|5         | 1.45M/25.8M [01:04<25:17, 16.8kiB/s]Excel Tools v2.0.exe:   6%|5         | 1.47M/25.8M [01:05<25:48, 16.5kiB/s]Excel Tools v2.0.exe:   6%|5         | 1.48M/25.8M [01:05<21:32, 19.8kiB/s]Excel Tools v2.0.exe:   6%|5         | 1.50M/25.8M [01:06<19:33, 21.7kiB/s]Excel Tools v2.0.exe:   6%|5         | 1.51M/25.8M [01:06<17:58, 23.6kiB/s]Excel Tools v2.0.exe:   6%|5         | 1.53M/25.8M [01:07<17:57, 23.6kiB/s]Excel Tools v2.0.exe:   6%|5         | 1.54M/25.8M [01:08<16:48, 25.2kiB/s]Excel Tools v2.0.exe:   6%|6         | 1.56M/25.8M [01:08<15:41, 27.0kiB/s]Excel Tools v2.0.exe:   6%|6         | 1.58M/25.8M [01:08<13:27, 31.5kiB/s]Excel Tools v2.0.exe:   6%|6         | 1.59M/25.8M [01:09<13:36, 31.1kiB/s]Excel Tools v2.0.exe:   6%|6         | 1.61M/25.8M [01:09<12:25, 34.1kiB/s]Excel Tools v2.0.exe:   6%|6         | 1.62M/25.8M [01:10<13:14, 31.9kiB/s]Excel Tools v2.0.exe:   6%|6         | 1.64M/25.8M [01:10<12:56, 32.7kiB/s]Excel Tools v2.0.exe:   6%|6         | 1.65M/25.8M [01:11<14:27, 29.2kiB/s]Excel Tools v2.0.exe:   6%|6         | 1.67M/25.8M [01:12<13:41, 30.8kiB/s]Excel Tools v2.0.exe:   7%|6         | 1.69M/25.8M [01:12<14:47, 28.5kiB/s]Excel Tools v2.0.exe:   7%|6         | 1.70M/25.8M [01:13<13:39, 30.9kiB/s]Excel Tools v2.0.exe:   7%|6         | 1.72M/25.8M [01:13<14:11, 29.7kiB/s]Excel Tools v2.0.exe:   7%|6         | 1.73M/25.8M [01:14<13:52, 30.4kiB/s]Excel Tools v2.0.exe:   7%|6         | 1.75M/25.8M [01:14<14:40, 28.7kiB/s]Excel Tools v2.0.exe:   7%|6         | 1.76M/25.8M [01:15<15:11, 27.7kiB/s]Excel Tools v2.0.exe:   7%|6         | 1.78M/25.8M [01:16<14:06, 29.8kiB/s]Excel Tools v2.0.exe:   7%|6         | 1.79M/25.8M [01:16<12:36, 33.3kiB/s]Excel Tools v2.0.exe:   7%|7         | 1.81M/25.8M [01:17<16:01, 26.2kiB/s]Excel Tools v2.0.exe:   7%|7         | 1.84M/25.8M [01:18<15:33, 26.9kiB/s]Excel Tools v2.0.exe:   7%|7         | 1.86M/25.8M [01:19<18:28, 22.7kiB/s]Excel Tools v2.0.exe:   7%|7         | 1.87M/25.8M [01:20<17:59, 23.3kiB/s]Excel Tools v2.0.exe:   7%|7         | 1.89M/25.8M [01:20<18:13, 23.0kiB/s]Excel Tools v2.0.exe:   7%|7         | 1.90M/25.8M [01:21<18:49, 22.2kiB/s]Excel Tools v2.0.exe:   7%|7         | 1.92M/25.8M [01:22<19:45, 21.1kiB/s]Excel Tools v2.0.exe:   7%|7         | 1.94M/25.8M [01:23<22:03, 18.9kiB/s]Excel Tools v2.0.exe:   8%|7         | 1.95M/25.8M [01:24<21:01, 19.8kiB/s]Excel Tools v2.0.exe:   8%|7         | 1.97M/25.8M [01:25<22:04, 18.9kiB/s]Excel Tools v2.0.exe:   8%|7         | 1.98M/25.8M [01:26<21:19, 19.5kiB/s]Excel Tools v2.0.exe:   8%|7         | 2.00M/25.8M [01:27<21:15, 19.6kiB/s]Excel Tools v2.0.exe:   8%|7         | 2.01M/25.8M [01:27<18:07, 23.0kiB/s]Excel Tools v2.0.exe:   8%|7         | 2.03M/25.8M [01:27<16:52, 24.6kiB/s]Excel Tools v2.0.exe:   8%|7         | 2.04M/25.8M [01:28<15:21, 27.1kiB/s]Excel Tools v2.0.exe:   8%|7         | 2.06M/25.8M [01:28<13:22, 31.1kiB/s]Excel Tools v2.0.exe:   8%|8         | 2.08M/25.8M [01:29<12:53, 32.2kiB/s]Excel Tools v2.0.exe:   8%|8         | 2.09M/25.8M [01:29<11:38, 35.6kiB/s]Excel Tools v2.0.exe:   8%|8         | 2.11M/25.8M [01:29<10:43, 38.6kiB/s]Excel Tools v2.0.exe:   8%|8         | 2.12M/25.8M [01:30<12:27, 33.3kiB/s]Excel Tools v2.0.exe:   8%|8         | 2.14M/25.8M [01:31<11:44, 35.2kiB/s]Excel Tools v2.0.exe:   8%|8         | 2.15M/25.8M [01:31<15:28, 26.7kiB/s]Excel Tools v2.0.exe:   8%|8         | 2.17M/25.8M [01:32<17:32, 23.6kiB/s]Excel Tools v2.0.exe:   8%|8         | 2.19M/25.8M [01:34<23:42, 17.4kiB/s]Excel Tools v2.0.exe:   9%|8         | 2.20M/25.8M [01:35<24:55, 16.6kiB/s]Excel Tools v2.0.exe:   9%|8         | 2.22M/25.8M [01:36<21:42, 19.0kiB/s]Excel Tools v2.0.exe:   9%|8         | 2.23M/25.8M [01:36<21:58, 18.8kiB/s]Excel Tools v2.0.exe:   9%|8         | 2.25M/25.8M [01:37<22:31, 18.3kiB/s]Excel Tools v2.0.exe:   9%|8         | 2.26M/25.8M [01:39<24:45, 16.6kiB/s]Excel Tools v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]Excel Tools v2.0.exe:   0%|          | 1.00k/25.8M [00:00<1:44:06, 4.33kiB/s]Excel Tools v2.0.exe:   0%|          | 33.0k/25.8M [00:00<04:12, 107kiB/s]   Excel Tools v2.0.exe:   0%|          | 49.0k/25.8M [00:00<04:21, 103kiB/s]Excel Tools v2.0.exe:   0%|          | 81.0k/25.8M [00:00<04:01, 112kiB/s]Excel Tools v2.0.exe:   0%|          | 113k/25.8M [00:01<04:41, 95.9kiB/s]Excel Tools v2.0.exe:   0%|          | 129k/25.8M [00:01<04:46, 93.9kiB/s]Excel Tools v2.0.exe:   1%|          | 145k/25.8M [00:01<05:19, 84.2kiB/s]Excel Tools v2.0.exe:   1%|          | 161k/25.8M [00:02<08:20, 53.7kiB/s]Excel Tools v2.0.exe:   1%|          | 177k/25.8M [00:02<08:39, 51.8kiB/s]Excel Tools v2.0.exe:   1%|          | 193k/25.8M [00:04<16:59, 26.4kiB/s]Excel Tools v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]Excel Tools v2.0.exe:   0%|          | 1.00k/25.8M [00:00<1:01:36, 7.32kiB/s]Excel Tools v2.0.exe:   0%|          | 49.0k/25.8M [00:00<02:30, 180kiB/s]   Excel Tools v2.0.exe:   0%|          | 66.0k/25.8M [00:00<02:52, 156kiB/s]Excel Tools v2.0.exe:   0%|          | 81.0k/25.8M [00:00<06:36, 68.0kiB/s]Excel Tools v2.0.exe:   0%|          | 113k/25.8M [00:01<04:48, 93.6kiB/s] Excel Tools v2.0.exe:   0%|          | 129k/25.8M [00:01<04:58, 90.3kiB/s]Excel Tools v2.0.exe:   1%|          | 161k/25.8M [00:01<04:50, 92.6kiB/s]Excel Tools v2.0.exe:   1%|          | 177k/25.8M [00:02<05:24, 82.9kiB/s]Excel Tools v2.0.exe:   1%|          | 193k/25.8M [00:03<11:16, 39.7kiB/s]Excel Tools v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]Excel Tools v2.0.exe:   0%|          | 2.00k/25.8M [00:00<42:28, 10.6kiB/s]Excel Tools v2.0.exe:   0%|          | 7.00k/25.8M [00:00<23:20, 19.3kiB/s]Excel Tools v2.0.exe:   0%|          | 18.0k/25.8M [00:00<12:14, 36.8kiB/s]Excel Tools v2.0.exe:   0%|          | 27.0k/25.8M [00:00<08:58, 50.3kiB/s]Excel Tools v2.0.exe:   0%|          | 33.0k/25.8M [00:00<12:31, 36.0kiB/s]Excel Tools v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]Excel Tools v2.0.exe:   0%|          | 14.0k/25.8M [00:00<09:20, 48.3kiB/s]Excel Tools v2.0.exe:   0%|          | 19.0k/25.8M [00:00<16:39, 27.1kiB/s]Excel Tools v2.0.exe:   0%|          | 48.0k/25.8M [00:00<06:34, 68.5kiB/s]Excel Tools v2.0.exe:   0%|          | 64.0k/25.8M [00:01<05:50, 77.0kiB/s]Excel Tools v2.0.exe:   0%|          | 96.0k/25.8M [00:01<08:13, 54.6kiB/s]Excel Tools v2.0.exe:   0%|          | 128k/25.8M [00:02<07:55, 56.7kiB/s] Excel Tools v2.0.exe:   1%|          | 144k/25.8M [00:03<11:08, 40.3kiB/s]Excel Tools v2.0.exe:   1%|          | 160k/25.8M [00:03<14:04, 31.9kiB/s]Excel Tools v2.0.exe:   1%|          | 176k/25.8M [00:04<16:20, 27.4kiB/s]Excel Tools v2.0.exe:   1%|          | 192k/25.8M [00:05<16:15, 27.6kiB/s]Excel Tools v2.0.exe:   1%|          | 208k/25.8M [00:06<17:15, 25.9kiB/s]Excel Tools v2.0.exe:   1%|          | 224k/25.8M [00:07<21:10, 21.1kiB/s]Excel Tools v2.0.exe:   1%|          | 240k/25.8M [00:08<22:47, 19.6kiB/s]Excel Tools v2.0.exe:   1%|          | 256k/25.8M [00:10<34:43, 12.9kiB/s]Excel Tools v2.0.exe:   1%|1         | 272k/25.8M [00:11<31:34, 14.1kiB/s]Excel Tools v2.0.exe:   1%|1         | 288k/25.8M [00:12<27:58, 16.0kiB/s]Excel Tools v2.0.exe:   1%|1         | 304k/25.8M [00:12<22:34, 19.8kiB/s]Excel Tools v2.0.exe:   1%|1         | 320k/25.8M [00:13<20:48, 21.4kiB/s]Excel Tools v2.0.exe:   1%|1         | 336k/25.8M [00:13<16:34, 26.9kiB/s]Excel Tools v2.0.exe:   1%|1         | 352k/25.8M [00:14<19:47, 22.5kiB/s]Excel Tools v2.0.exe:   1%|1         | 368k/25.8M [00:15<24:09, 18.4kiB/s]Excel Tools v2.0.exe:   1%|1         | 384k/25.8M [00:16<27:13, 16.3kiB/s]Excel Tools v2.0.exe:   2%|1         | 400k/25.8M [00:17<27:23, 16.2kiB/s]Excel Tools v2.0.exe:   2%|1         | 416k/25.8M [00:18<27:18, 16.3kiB/s]Excel Tools v2.0.exe:   2%|1         | 432k/25.8M [00:20<28:34, 15.5kiB/s]Excel Tools v2.0.exe:   2%|1         | 448k/25.8M [00:21<30:25, 14.6kiB/s]Excel Tools v2.0.exe:   2%|1         | 464k/25.8M [00:22<32:36, 13.6kiB/s]Excel Tools v2.0.exe:   2%|1         | 480k/25.8M [00:23<29:59, 14.8kiB/s]Excel Tools v2.0.exe:   2%|1         | 496k/25.8M [00:24<25:25, 17.4kiB/s]Excel Tools v2.0.exe:   2%|1         | 512k/25.8M [00:24<22:34, 19.6kiB/s]Excel Tools v2.0.exe:   2%|1         | 528k/25.8M [00:26<29:03, 15.2kiB/s]Excel Tools v2.0.exe:   2%|2         | 544k/25.8M [00:28<32:55, 13.4kiB/s]Excel Tools v2.0.exe:   2%|2         | 560k/25.8M [00:28<29:27, 15.0kiB/s]Excel Tools v2.0.exe:   2%|2         | 576k/25.8M [00:29<27:25, 16.1kiB/s]Excel Tools v2.0.exe:   2%|2         | 592k/25.8M [00:30<23:57, 18.4kiB/s]Excel Tools v2.0.exe:   2%|2         | 608k/25.8M [00:31<23:02, 19.1kiB/s]Excel Tools v2.0.exe:   2%|2         | 624k/25.8M [00:31<22:15, 19.8kiB/s]Excel Tools v2.0.exe:   2%|2         | 640k/25.8M [00:32<20:11, 21.8kiB/s]Excel Tools v2.0.exe:   2%|2         | 656k/25.8M [00:33<21:49, 20.2kiB/s]Excel Tools v2.0.exe:   3%|2         | 672k/25.8M [00:33<19:24, 22.7kiB/s]Excel Tools v2.0.exe:   3%|2         | 688k/25.8M [00:34<18:48, 23.4kiB/s]Excel Tools v2.0.exe:   3%|2         | 704k/25.8M [00:35<22:18, 19.7kiB/s]Excel Tools v2.0.exe:   3%|2         | 720k/25.8M [00:36<20:24, 21.5kiB/s]Excel Tools v2.0.exe:   3%|2         | 736k/25.8M [00:37<25:50, 17.0kiB/s]Excel Tools v2.0.exe:   3%|2         | 752k/25.8M [00:38<23:13, 18.9kiB/s]Excel Tools v2.0.exe:   3%|2         | 768k/25.8M [00:39<25:07, 17.4kiB/s]Excel Tools v2.0.exe:   3%|2         | 784k/25.8M [00:40<28:46, 15.2kiB/s]Excel Tools v2.0.exe:   3%|3         | 800k/25.8M [00:41<29:31, 14.8kiB/s]Excel Tools v2.0.exe:   3%|3         | 816k/25.8M [00:43<29:49, 14.7kiB/s]Excel Tools v2.0.exe:   3%|3         | 832k/25.8M [00:43<26:05, 16.7kiB/s]Excel Tools v2.0.exe:   3%|3         | 848k/25.8M [00:44<25:21, 17.2kiB/s]Excel Tools v2.0.exe:   3%|3         | 864k/25.8M [00:45<28:14, 15.5kiB/s]Excel Tools v2.0.exe:   3%|3         | 880k/25.8M [00:47<29:25, 14.8kiB/s]Excel Tools v2.0.exe:   3%|3         | 896k/25.8M [00:48<32:09, 13.6kiB/s]Excel Tools v2.0.exe:   3%|3         | 912k/25.8M [00:49<29:00, 15.0kiB/s]Excel Tools v2.0.exe:   4%|3         | 928k/25.8M [00:50<25:49, 16.9kiB/s]Excel Tools v2.0.exe:   4%|3         | 944k/25.8M [00:50<24:34, 17.7kiB/s]Excel Tools v2.0.exe:   4%|3         | 960k/25.8M [00:51<21:01, 20.7kiB/s]Excel Tools v2.0.exe:   4%|3         | 976k/25.8M [00:51<18:59, 22.9kiB/s]Excel Tools v2.0.exe:   4%|3         | 992k/25.8M [00:52<18:49, 23.1kiB/s]Excel Tools v2.0.exe:   4%|3         | 0.98M/25.8M [00:53<20:59, 20.7kiB/s]Excel Tools v2.0.exe:   4%|3         | 1.00M/25.8M [00:53<16:18, 26.6kiB/s]Excel Tools v2.0.exe:   4%|3         | 1.02M/25.8M [00:54<16:30, 26.3kiB/s]Excel Tools v2.0.exe:   4%|3         | 1.03M/25.8M [00:55<15:37, 27.7kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.05M/25.8M [00:55<16:54, 25.6kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.06M/25.8M [00:56<18:32, 23.3kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.08M/25.8M [00:57<20:54, 20.7kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.09M/25.8M [00:58<18:43, 23.1kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.11M/25.8M [00:59<20:47, 20.8kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.12M/25.8M [01:00<25:19, 17.0kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.14M/25.8M [01:01<25:33, 16.9kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.16M/25.8M [01:02<27:34, 15.6kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.17M/25.8M [01:03<28:49, 14.9kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.19M/25.8M [01:04<26:39, 16.2kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.20M/25.8M [01:05<23:05, 18.6kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.22M/25.8M [01:05<21:18, 20.2kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.23M/25.8M [01:06<20:50, 20.6kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.25M/25.8M [01:07<22:28, 19.1kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.27M/25.8M [01:08<22:51, 18.8kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.28M/25.8M [01:10<31:45, 13.5kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.30M/25.8M [01:11<29:36, 14.5kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.31M/25.8M [01:12<27:51, 15.4kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.33M/25.8M [01:13<24:14, 17.7kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.34M/25.8M [01:14<25:16, 16.9kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.36M/25.8M [01:15<25:23, 16.8kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.38M/25.8M [01:16<29:07, 14.7kiB/s]Excel Tools v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]Excel Tools v2.0.exe:   0%|          | 33.0k/25.8M [00:00<02:43, 165kiB/s]Excel Tools v2.0.exe:   0%|          | 50.0k/25.8M [00:00<04:47, 94.0kiB/s]Excel Tools v2.0.exe:   0%|          | 113k/25.8M [00:00<02:59, 150kiB/s]  Excel Tools v2.0.exe:   1%|          | 161k/25.8M [00:00<02:12, 203kiB/s]Excel Tools v2.0.exe:   1%|          | 185k/25.8M [00:01<03:23, 132kiB/s]Excel Tools v2.0.exe:   1%|          | 241k/25.8M [00:01<02:38, 170kiB/s]Excel Tools v2.0.exe:   1%|1         | 321k/25.8M [00:02<02:40, 167kiB/s]Excel Tools v2.0.exe:   1%|1         | 385k/25.8M [00:02<02:01, 220kiB/s]Excel Tools v2.0.exe:   2%|1         | 417k/25.8M [00:02<02:12, 201kiB/s]Excel Tools v2.0.exe:   2%|1         | 442k/25.8M [00:02<02:08, 207kiB/s]Excel Tools v2.0.exe:   2%|1         | 467k/25.8M [00:02<03:03, 145kiB/s]Excel Tools v2.0.exe:   2%|1         | 495k/25.8M [00:03<02:53, 153kiB/s]Excel Tools v2.0.exe:   2%|1         | 514k/25.8M [00:03<02:49, 157kiB/s]Excel Tools v2.0.exe:   2%|2         | 533k/25.8M [00:03<03:11, 138kiB/s]Excel Tools v2.0.exe:   2%|2         | 549k/25.8M [00:03<03:08, 140kiB/s]Excel Tools v2.0.exe:   2%|2         | 565k/25.8M [00:03<03:51, 114kiB/s]Excel Tools v2.0.exe:   2%|2         | 578k/25.8M [00:03<03:54, 113kiB/s]Excel Tools v2.0.exe:   2%|2         | 591k/25.8M [00:03<03:57, 112kiB/s]Excel Tools v2.0.exe:   2%|2         | 607k/25.8M [00:04<03:54, 113kiB/s]Excel Tools v2.0.exe:   2%|2         | 623k/25.8M [00:04<05:11, 84.9kiB/s]Excel Tools v2.0.exe:   3%|2         | 671k/25.8M [00:04<03:37, 122kiB/s] Excel Tools v2.0.exe:   3%|2         | 687k/25.8M [00:05<05:17, 83.1kiB/s]Excel Tools v2.0.exe:   3%|2         | 735k/25.8M [00:05<03:50, 114kiB/s] Excel Tools v2.0.exe:   3%|2         | 751k/25.8M [00:05<04:03, 108kiB/s]Excel Tools v2.0.exe:   3%|2         | 767k/25.8M [00:05<04:19, 101kiB/s]Excel Tools v2.0.exe:   3%|2         | 783k/25.8M [00:05<04:05, 107kiB/s]Excel Tools v2.0.exe:   3%|3         | 799k/25.8M [00:06<04:12, 104kiB/s]Excel Tools v2.0.exe:   3%|3         | 815k/25.8M [00:06<03:58, 110kiB/s]Excel Tools v2.0.exe:   3%|3         | 831k/25.8M [00:06<04:16, 102kiB/s]Excel Tools v2.0.exe:   3%|3         | 847k/25.8M [00:06<05:36, 77.9kiB/s]Excel Tools v2.0.exe:   3%|3         | 879k/25.8M [00:06<04:59, 87.5kiB/s]Excel Tools v2.0.exe:   3%|3         | 895k/25.8M [00:07<05:10, 84.3kiB/s]Excel Tools v2.0.exe:   3%|3         | 911k/25.8M [00:07<04:49, 90.4kiB/s]Excel Tools v2.0.exe:   4%|3         | 927k/25.8M [00:07<05:04, 85.7kiB/s]Excel Tools v2.0.exe:   4%|3         | 943k/25.8M [00:07<04:41, 92.6kiB/s]Excel Tools v2.0.exe:   4%|3         | 959k/25.8M [00:07<04:56, 88.1kiB/s]Excel Tools v2.0.exe:   4%|3         | 975k/25.8M [00:08<04:31, 96.1kiB/s]Excel Tools v2.0.exe:   4%|3         | 991k/25.8M [00:08<06:14, 69.6kiB/s]Excel Tools v2.0.exe:   4%|3         | 1.00M/25.8M [00:08<04:52, 89.0kiB/s]Excel Tools v2.0.exe:   4%|3         | 1.01M/25.8M [00:08<05:01, 86.4kiB/s]Excel Tools v2.0.exe:   4%|3         | 1.03M/25.8M [00:09<06:49, 63.4kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.06M/25.8M [00:09<05:50, 74.1kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.08M/25.8M [00:09<06:18, 68.5kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.09M/25.8M [00:10<06:39, 65.0kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.11M/25.8M [00:10<06:43, 64.2kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.12M/25.8M [00:10<07:07, 60.6kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.14M/25.8M [00:11<07:04, 60.9kiB/s]Excel Tools v2.0.exe:   4%|4         | 1.16M/25.8M [00:11<07:24, 58.2kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.17M/25.8M [00:11<07:33, 56.9kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.19M/25.8M [00:12<07:56, 54.2kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.20M/25.8M [00:12<08:31, 50.5kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.22M/25.8M [00:12<06:56, 62.0kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.23M/25.8M [00:12<07:10, 59.8kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.25M/25.8M [00:13<06:58, 61.5kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.26M/25.8M [00:13<07:19, 58.6kiB/s]Excel Tools v2.0.exe:   5%|4         | 1.28M/25.8M [00:13<07:20, 58.4kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.30M/25.8M [00:13<06:58, 61.5kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.31M/25.8M [00:14<07:07, 60.1kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.33M/25.8M [00:14<06:42, 63.8kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.34M/25.8M [00:14<06:38, 64.3kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.36M/25.8M [00:14<06:47, 63.0kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.37M/25.8M [00:15<06:21, 67.2kiB/s]Excel Tools v2.0.exe:   5%|5         | 1.39M/25.8M [00:15<07:57, 53.6kiB/s]Excel Tools v2.0.exe:   6%|5         | 1.42M/25.8M [00:15<05:29, 77.5kiB/s]Excel Tools v2.0.exe:   6%|5         | 1.44M/25.8M [00:16<05:33, 76.7kiB/s]Excel Tools v2.0.exe:   6%|5         | 1.45M/25.8M [00:16<07:03, 60.3kiB/s]Excel Tools v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]Excel Tools v2.0.exe:   0%|          | 7.00k/25.8M [00:00<31:08, 14.5kiB/s]Excel Tools v2.0.exe:   0%|          | 48.0k/25.8M [00:00<06:37, 67.9kiB/s]Excel Tools v2.0.exe:   0%|          | 64.0k/25.8M [00:00<05:46, 78.0kiB/s]Excel Tools v2.0.exe:   0%|          | 80.0k/25.8M [00:01<05:45, 78.2kiB/s]Excel Tools v2.0.exe:   0%|          | 96.0k/25.8M [00:01<07:01, 64.0kiB/s]Excel Tools v2.0.exe:   0%|          | 112k/25.8M [00:01<07:39, 58.7kiB/s] Excel Tools v2.0.exe:   1%|          | 144k/25.8M [00:02<07:47, 57.6kiB/s]Excel Tools v2.0.exe:   1%|          | 176k/25.8M [00:02<05:49, 76.9kiB/s]Excel Tools v2.0.exe:   1%|          | 192k/25.8M [00:03<07:13, 62.0kiB/s]Excel Tools v2.0.exe:   1%|          | 207k/25.8M [00:07<34:06, 13.1kiB/s]Exception in thread Thread-1 (update):
+urllib3.exceptions.SSLError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 667, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1041, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 992, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tool\main.py", line 147, in update
+    if future.result():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 456, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "D:\My Projects\Excel-Tool\CheckUpdate.py", line 13, in download_update
+    response = requests.get(url, stream=True, verify=False, headers=headers)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 698, in send
+    raise SSLError(e, request=request)
+requests.exceptions.SSLError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+Exception in Tkinter callback
+urllib3.exceptions.SSLError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 667, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tool\main.py", line 147, in update
+    if future.result():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 456, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "D:\My Projects\Excel-Tool\CheckUpdate.py", line 13, in download_update
+    response = requests.get(url, stream=True, verify=False, headers=headers)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 698, in send
+    raise SSLError(e, request=request)
+requests.exceptions.SSLError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+Excel Tools v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]Excel Tools v2.0.exe:   0%|          | 65.0k/25.8M [00:00<00:59, 457kiB/s]Excel Tools v2.0.exe:   1%|          | 145k/25.8M [00:00<00:56, 476kiB/s] Excel Tools v2.0.exe:   1%|          | 236k/25.8M [00:00<00:42, 633kiB/s]Excel Tools v2.0.exe:   1%|1         | 346k/25.8M [00:00<00:33, 793kiB/s]Excel Tools v2.0.exe:   2%|1         | 458k/25.8M [00:00<00:30, 885kiB/s]Excel Tools v2.0.exe:   2%|2         | 554k/25.8M [00:00<00:30, 874kiB/s]Excel Tools v2.0.exe:   3%|2         | 730k/25.8M [00:00<00:23, 1.13MiB/s]Excel Tools v2.0.exe:   3%|3         | 844k/25.8M [00:01<00:28, 909kiB/s] Excel Tools v2.0.exe:   4%|3         | 0.99M/25.8M [00:01<00:24, 1.08MiB/s]Excel Tools v2.0.exe:   4%|4         | 1.11M/25.8M [00:01<00:23, 1.10MiB/s]Excel Tools v2.0.exe:   5%|4         | 1.22M/25.8M [00:01<00:23, 1.08MiB/s]Excel Tools v2.0.exe:   6%|5         | 1.46M/25.8M [00:01<00:17, 1.44MiB/s]Excel Tools v2.0.exe:   6%|6         | 1.60M/25.8M [00:01<00:17, 1.46MiB/s]Excel Tools v2.0.exe:   7%|6         | 1.75M/25.8M [00:01<00:17, 1.44MiB/s]Excel Tools v2.0.exe:   7%|7         | 1.89M/25.8M [00:01<00:17, 1.43MiB/s]Excel Tools v2.0.exe:   8%|7         | 2.05M/25.8M [00:01<00:17, 1.41MiB/s]Excel Tools v2.0.exe:   8%|8         | 2.19M/25.8M [00:02<00:19, 1.26MiB/s]Excel Tools v2.0.exe:   9%|9         | 2.33M/25.8M [00:02<00:18, 1.32MiB/s]Excel Tools v2.0.exe:  10%|9         | 2.50M/25.8M [00:02<00:17, 1.41MiB/s]Excel Tools v2.0.exe:  10%|#         | 2.64M/25.8M [00:02<00:17, 1.40MiB/s]Excel Tools v2.0.exe:  11%|#1        | 2.87M/25.8M [00:02<00:15, 1.54MiB/s]Excel Tools v2.0.exe:  12%|#1        | 3.04M/25.8M [00:02<00:14, 1.60MiB/s]Excel Tools v2.0.exe:  12%|#2        | 3.20M/25.8M [00:02<00:15, 1.52MiB/s]Excel Tools v2.0.exe:  13%|#3        | 3.37M/25.8M [00:02<00:16, 1.46MiB/s]Excel Tools v2.0.exe:  14%|#3        | 3.51M/25.8M [00:02<00:16, 1.44MiB/s]Excel Tools v2.0.exe:  14%|#4        | 3.67M/25.8M [00:03<00:16, 1.42MiB/s]Excel Tools v2.0.exe:  15%|#4        | 3.80M/25.8M [00:03<00:16, 1.40MiB/s]Excel Tools v2.0.exe:  16%|#5        | 4.03M/25.8M [00:03<00:14, 1.63MiB/s]Excel Tools v2.0.exe:  16%|#6        | 4.18M/25.8M [00:03<00:14, 1.61MiB/s]Excel Tools v2.0.exe:  17%|#6        | 4.34M/25.8M [00:03<00:14, 1.53MiB/s]Excel Tools v2.0.exe:  18%|#7        | 4.60M/25.8M [00:03<00:12, 1.75MiB/s]Excel Tools v2.0.exe:  19%|#8        | 4.80M/25.8M [00:03<00:12, 1.81MiB/s]Excel Tools v2.0.exe:  19%|#9        | 4.97M/25.8M [00:03<00:13, 1.60MiB/s]Excel Tools v2.0.exe:  20%|##        | 5.26M/25.8M [00:04<00:11, 1.87MiB/s]Excel Tools v2.0.exe:  21%|##1       | 5.44M/25.8M [00:04<00:11, 1.80MiB/s]Excel Tools v2.0.exe:  22%|##1       | 5.63M/25.8M [00:04<00:11, 1.85MiB/s]Excel Tools v2.0.exe:  23%|##2       | 5.83M/25.8M [00:04<00:11, 1.91MiB/s]Excel Tools v2.0.exe:  23%|##3       | 6.01M/25.8M [00:04<00:11, 1.84MiB/s]Excel Tools v2.0.exe:  24%|##4       | 6.20M/25.8M [00:04<00:10, 1.88MiB/s]Excel Tools v2.0.exe:  25%|##4       | 6.42M/25.8M [00:04<00:10, 1.95MiB/s]Excel Tools v2.0.exe:  26%|##5       | 6.65M/25.8M [00:04<00:09, 2.07MiB/s]Excel Tools v2.0.exe:  27%|##6       | 6.89M/25.8M [00:04<00:09, 2.19MiB/s]Excel Tools v2.0.exe:  28%|##7       | 7.10M/25.8M [00:05<00:10, 1.86MiB/s]Excel Tools v2.0.exe:  28%|##8       | 7.34M/25.8M [00:05<00:09, 2.03MiB/s]Excel Tools v2.0.exe:  30%|##9       | 7.64M/25.8M [00:05<00:08, 2.32MiB/s]Excel Tools v2.0.exe:  30%|###       | 7.87M/25.8M [00:05<00:10, 1.80MiB/s]Excel Tools v2.0.exe:  32%|###2      | 8.29M/25.8M [00:05<00:08, 2.29MiB/s]Excel Tools v2.0.exe:  33%|###3      | 8.60M/25.8M [00:05<00:07, 2.46MiB/s]Excel Tools v2.0.exe:  34%|###4      | 8.85M/25.8M [00:05<00:08, 2.13MiB/s]Excel Tools v2.0.exe:  35%|###5      | 9.08M/25.8M [00:05<00:08, 2.12MiB/s]Excel Tools v2.0.exe:  36%|###6      | 9.42M/25.8M [00:06<00:06, 2.47MiB/s]Excel Tools v2.0.exe:  37%|###7      | 9.67M/25.8M [00:06<00:07, 2.20MiB/s]Excel Tools v2.0.exe:  39%|###9      | 10.1M/25.8M [00:06<00:05, 2.75MiB/s]Excel Tools v2.0.exe:  40%|####      | 10.4M/25.8M [00:06<00:06, 2.59MiB/s]Excel Tools v2.0.exe:  41%|####1     | 10.7M/25.8M [00:06<00:06, 2.57MiB/s]Excel Tools v2.0.exe:  43%|####3     | 11.2M/25.8M [00:06<00:04, 3.23MiB/s]Excel Tools v2.0.exe:  45%|####4     | 11.5M/25.8M [00:06<00:05, 2.90MiB/s]Excel Tools v2.0.exe:  46%|####5     | 11.9M/25.8M [00:06<00:04, 2.97MiB/s]Excel Tools v2.0.exe:  47%|####7     | 12.2M/25.8M [00:07<00:04, 2.97MiB/s]Excel Tools v2.0.exe:  48%|####8     | 12.5M/25.8M [00:07<00:05, 2.68MiB/s]Excel Tools v2.0.exe:  51%|#####     | 13.1M/25.8M [00:07<00:03, 3.44MiB/s]Excel Tools v2.0.exe:  52%|#####1    | 13.4M/25.8M [00:07<00:04, 3.23MiB/s]Excel Tools v2.0.exe:  54%|#####3    | 13.9M/25.8M [00:07<00:03, 3.63MiB/s]Excel Tools v2.0.exe:  55%|#####5    | 14.2M/25.8M [00:07<00:03, 3.32MiB/s]Excel Tools v2.0.exe:  57%|#####7    | 14.8M/25.8M [00:07<00:02, 3.96MiB/s]Excel Tools v2.0.exe:  59%|#####8    | 15.2M/25.8M [00:07<00:02, 3.79MiB/s]Excel Tools v2.0.exe:  61%|######    | 15.7M/25.8M [00:08<00:02, 4.32MiB/s]Excel Tools v2.0.exe:  63%|######2   | 16.2M/25.8M [00:08<00:02, 4.11MiB/s]Excel Tools v2.0.exe:  64%|######4   | 16.6M/25.8M [00:08<00:02, 3.41MiB/s]Excel Tools v2.0.exe:  67%|######7   | 17.4M/25.8M [00:08<00:01, 4.51MiB/s]Excel Tools v2.0.exe:  69%|######9   | 17.8M/25.8M [00:08<00:01, 4.33MiB/s]Excel Tools v2.0.exe:  71%|#######   | 18.3M/25.8M [00:08<00:02, 3.70MiB/s]Excel Tools v2.0.exe:  74%|#######3  | 19.1M/25.8M [00:08<00:01, 4.83MiB/s]Excel Tools v2.0.exe:  76%|#######5  | 19.6M/25.8M [00:09<00:02, 2.88MiB/s]Excel Tools v2.0.exe:  79%|#######8  | 20.3M/25.8M [00:09<00:01, 3.57MiB/s]Excel Tools v2.0.exe:  80%|########  | 20.8M/25.8M [00:09<00:01, 3.82MiB/s]Excel Tools v2.0.exe:  82%|########2 | 21.2M/25.8M [00:09<00:01, 3.96MiB/s]Excel Tools v2.0.exe:  84%|########3 | 21.7M/25.8M [00:09<00:01, 3.69MiB/s]Excel Tools v2.0.exe:  86%|########6 | 22.3M/25.8M [00:09<00:00, 4.22MiB/s]Excel Tools v2.0.exe:  88%|########8 | 22.7M/25.8M [00:09<00:00, 4.37MiB/s]Excel Tools v2.0.exe:  90%|########9 | 23.2M/25.8M [00:09<00:00, 4.44MiB/s]Excel Tools v2.0.exe:  92%|#########1| 23.7M/25.8M [00:10<00:00, 4.66MiB/s]Excel Tools v2.0.exe:  94%|#########3| 24.2M/25.8M [00:10<00:00, 4.68MiB/s]Excel Tools v2.0.exe:  96%|#########5| 24.7M/25.8M [00:10<00:00, 4.73MiB/s]Excel Tools v2.0.exe:  97%|#########7| 25.1M/25.8M [00:10<00:00, 4.16MiB/s]Excel Tools v2.0.exe: 100%|##########| 25.8M/25.8M [00:10<00:00, 2.57MiB/s]
+Excel Tools v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]Excel Tools v2.0.exe:   0%|          | 1.00k/25.8M [00:00<48:51, 9.23kiB/s]Excel Tools v2.0.exe:   0%|          | 59.0k/25.8M [00:00<01:41, 267kiB/s] Excel Tools v2.0.exe:   1%|          | 207k/25.8M [00:00<00:36, 728kiB/s] Excel Tools v2.0.exe:   1%|1         | 283k/25.8M [00:00<00:39, 684kiB/s]Excel Tools v2.0.exe:   2%|1         | 463k/25.8M [00:00<00:28, 937kiB/s]Excel Tools v2.0.exe:   3%|2         | 751k/25.8M [00:00<00:17, 1.49MiB/s]Excel Tools v2.0.exe:   3%|3         | 906k/25.8M [00:00<00:19, 1.36MiB/s]Excel Tools v2.0.exe:   5%|5         | 1.31M/25.8M [00:01<00:13, 1.96MiB/s]Excel Tools v2.0.exe:   7%|6         | 1.71M/25.8M [00:01<00:10, 2.52MiB/s]Excel Tools v2.0.exe:   8%|7         | 1.96M/25.8M [00:01<00:12, 1.95MiB/s]Excel Tools v2.0.exe:  10%|9         | 2.54M/25.8M [00:01<00:08, 2.85MiB/s]Excel Tools v2.0.exe:  12%|#1        | 3.01M/25.8M [00:01<00:07, 3.33MiB/s]Excel Tools v2.0.exe:  13%|#3        | 3.37M/25.8M [00:01<00:08, 2.88MiB/s]Excel Tools v2.0.exe:  14%|#4        | 3.68M/25.8M [00:01<00:08, 2.72MiB/s]Excel Tools v2.0.exe:  16%|#6        | 4.23M/25.8M [00:01<00:06, 3.41MiB/s]Excel Tools v2.0.exe:  18%|#8        | 4.66M/25.8M [00:02<00:06, 3.60MiB/s]Excel Tools v2.0.exe:  20%|#9        | 5.11M/25.8M [00:02<00:05, 3.88MiB/s]Excel Tools v2.0.exe:  21%|##1       | 5.50M/25.8M [00:02<00:06, 3.22MiB/s]Excel Tools v2.0.exe:  24%|##4       | 6.26M/25.8M [00:02<00:04, 4.33MiB/s]Excel Tools v2.0.exe:  26%|##6       | 6.72M/25.8M [00:02<00:04, 4.46MiB/s]Excel Tools v2.0.exe:  28%|##7       | 7.18M/25.8M [00:02<00:04, 4.37MiB/s]Excel Tools v2.0.exe:  30%|##9       | 7.62M/25.8M [00:02<00:04, 4.40MiB/s]Excel Tools v2.0.exe:  32%|###2      | 8.27M/25.8M [00:02<00:03, 5.01MiB/s]Excel Tools v2.0.exe:  34%|###3      | 8.76M/25.8M [00:03<00:03, 4.78MiB/s]Excel Tools v2.0.exe:  36%|###6      | 9.41M/25.8M [00:03<00:03, 5.21MiB/s]Excel Tools v2.0.exe:  38%|###8      | 9.92M/25.8M [00:03<00:04, 4.11MiB/s]Excel Tools v2.0.exe:  41%|####1     | 10.6M/25.8M [00:03<00:03, 4.86MiB/s]Excel Tools v2.0.exe:  43%|####3     | 11.2M/25.8M [00:03<00:03, 5.06MiB/s]Excel Tools v2.0.exe:  45%|####5     | 11.7M/25.8M [00:03<00:03, 4.48MiB/s]Excel Tools v2.0.exe:  47%|####7     | 12.1M/25.8M [00:03<00:03, 4.09MiB/s]Excel Tools v2.0.exe:  49%|####9     | 12.7M/25.8M [00:03<00:03, 4.54MiB/s]Excel Tools v2.0.exe:  51%|#####1    | 13.2M/25.8M [00:04<00:03, 4.33MiB/s]Excel Tools v2.0.exe:  53%|#####2    | 13.6M/25.8M [00:04<00:03, 4.15MiB/s]Excel Tools v2.0.exe:  55%|#####4    | 14.2M/25.8M [00:04<00:02, 4.47MiB/s]Excel Tools v2.0.exe:  58%|#####7    | 14.9M/25.8M [00:04<00:02, 5.43MiB/s]Excel Tools v2.0.exe:  60%|######    | 15.6M/25.8M [00:04<00:01, 5.70MiB/s]Excel Tools v2.0.exe:  63%|######2   | 16.2M/25.8M [00:04<00:01, 5.71MiB/s]Excel Tools v2.0.exe:  66%|######6   | 17.1M/25.8M [00:04<00:01, 6.44MiB/s]Excel Tools v2.0.exe:  68%|######8   | 17.7M/25.8M [00:04<00:01, 5.58MiB/s]Excel Tools v2.0.exe:  72%|#######1  | 18.5M/25.8M [00:04<00:01, 6.02MiB/s]Excel Tools v2.0.exe:  74%|#######4  | 19.1M/25.8M [00:05<00:01, 5.00MiB/s]Excel Tools v2.0.exe:  76%|#######6  | 19.7M/25.8M [00:05<00:01, 5.31MiB/s]Excel Tools v2.0.exe:  79%|#######9  | 20.5M/25.8M [00:05<00:00, 5.88MiB/s]Excel Tools v2.0.exe:  82%|########1 | 21.1M/25.8M [00:05<00:00, 6.00MiB/s]Excel Tools v2.0.exe:  84%|########4 | 21.8M/25.8M [00:05<00:00, 6.40MiB/s]Excel Tools v2.0.exe:  87%|########6 | 22.4M/25.8M [00:05<00:00, 6.44MiB/s]Excel Tools v2.0.exe:  90%|########9 | 23.1M/25.8M [00:05<00:00, 6.62MiB/s]Excel Tools v2.0.exe:  92%|#########2| 23.8M/25.8M [00:05<00:00, 6.75MiB/s]Excel Tools v2.0.exe:  95%|#########4| 24.5M/25.8M [00:05<00:00, 6.96MiB/s]Excel Tools v2.0.exe:  98%|#########7| 25.2M/25.8M [00:06<00:00, 6.07MiB/s]Excel Tools v2.0.exe: 100%|#########9| 25.8M/25.8M [00:06<00:00, 6.09MiB/s]Excel Tools v2.0.exe: 100%|##########| 25.8M/25.8M [00:06<00:00, 4.34MiB/s]
+Exception in thread Thread-1 (update):
+urllib3.exceptions.SSLError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 667, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1041, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 992, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tool\main.py", line 147, in update
+    if future.result():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 456, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "D:\My Projects\Excel-Tool\CheckUpdate.py", line 13, in download_update
+    response = requests.get(url, stream=True, verify=False, headers=headers)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 698, in send
+    raise SSLError(e, request=request)
+requests.exceptions.SSLError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+Exception in thread Thread-1 (update):
+urllib3.exceptions.SSLError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 667, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1041, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 992, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tool\main.py", line 147, in update
+    if future.result():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 456, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "D:\My Projects\Excel-Tool\CheckUpdate.py", line 13, in download_update
+    response = requests.get(url, stream=True, verify=False, headers=headers)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 698, in send
+    raise SSLError(e, request=request)
+requests.exceptions.SSLError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+Exception in thread Thread-1 (update):
+urllib3.exceptions.SSLError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 667, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1041, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 992, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tool\main.py", line 147, in update
+    if future.result():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 456, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "D:\My Projects\Excel-Tool\CheckUpdate.py", line 13, in download_update
+    response = requests.get(url, stream=True, verify=False, headers=headers)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 698, in send
+    raise SSLError(e, request=request)
+requests.exceptions.SSLError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+Exception in thread Thread-1 (update):
+urllib3.exceptions.SSLError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 667, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1041, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 992, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tool\main.py", line 147, in update
+    if future.result():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 456, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "D:\My Projects\Excel-Tool\CheckUpdate.py", line 13, in download_update
+    response = requests.get(url, stream=True, verify=False, headers=headers)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\adapters.py", line 698, in send
+    raise SSLError(e, request=request)
+requests.exceptions.SSLError: HTTPSConnectionPool(host='aqiulawrence.github.io', port=443): Max retries exceeded with url: /downloads/Excel%20Tools%20v2.0.exe (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+./Excel.Tools.v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]./Excel.Tools.v2.0.exe:   0%|          | 33.0k/25.8M [00:00<01:22, 326kiB/s]./Excel.Tools.v2.0.exe:   0%|          | 113k/25.8M [00:00<00:44, 606kiB/s] ./Excel.Tools.v2.0.exe:   1%|1         | 337k/25.8M [00:00<00:20, 1.33MiB/s]./Excel.Tools.v2.0.exe:   3%|2         | 666k/25.8M [00:00<00:12, 2.12MiB/s]./Excel.Tools.v2.0.exe:   5%|4         | 1.18M/25.8M [00:00<00:08, 2.95MiB/s]./Excel.Tools.v2.0.exe:   6%|6         | 1.62M/25.8M [00:00<00:07, 3.39MiB/s]./Excel.Tools.v2.0.exe:   9%|9         | 2.35M/25.8M [00:00<00:05, 4.63MiB/s]./Excel.Tools.v2.0.exe:  12%|#1        | 3.04M/25.8M [00:00<00:04, 5.29MiB/s]./Excel.Tools.v2.0.exe:  15%|#4        | 3.75M/25.8M [00:00<00:03, 5.86MiB/s]./Excel.Tools.v2.0.exe:  17%|#6        | 4.37M/25.8M [00:01<00:03, 6.03MiB/s]./Excel.Tools.v2.0.exe:  19%|#9        | 4.95M/25.8M [00:01<00:03, 5.68MiB/s]./Excel.Tools.v2.0.exe:  21%|##1       | 5.50M/25.8M [00:01<00:04, 4.95MiB/s]./Excel.Tools.v2.0.exe:  26%|##5       | 6.62M/25.8M [00:01<00:02, 6.71MiB/s]./Excel.Tools.v2.0.exe:  28%|##8       | 7.30M/25.8M [00:01<00:02, 6.76MiB/s]./Excel.Tools.v2.0.exe:  31%|###       | 7.97M/25.8M [00:01<00:02, 6.74MiB/s]./Excel.Tools.v2.0.exe:  33%|###3      | 8.64M/25.8M [00:01<00:02, 6.77MiB/s]./Excel.Tools.v2.0.exe:  36%|###6      | 9.37M/25.8M [00:01<00:02, 7.02MiB/s]./Excel.Tools.v2.0.exe:  39%|###9      | 10.1M/25.8M [00:01<00:02, 7.22MiB/s]./Excel.Tools.v2.0.exe:  42%|####2     | 10.9M/25.8M [00:02<00:02, 7.48MiB/s]./Excel.Tools.v2.0.exe:  45%|####5     | 11.7M/25.8M [00:02<00:01, 7.66MiB/s]./Excel.Tools.v2.0.exe:  48%|####8     | 12.4M/25.8M [00:02<00:01, 7.52MiB/s]./Excel.Tools.v2.0.exe:  51%|#####     | 13.1M/25.8M [00:02<00:02, 6.05MiB/s]./Excel.Tools.v2.0.exe:  55%|#####4    | 14.1M/25.8M [00:02<00:01, 7.01MiB/s]./Excel.Tools.v2.0.exe:  57%|#####7    | 14.8M/25.8M [00:02<00:01, 6.88MiB/s]./Excel.Tools.v2.0.exe:  62%|######2   | 16.0M/25.8M [00:02<00:01, 8.43MiB/s]./Excel.Tools.v2.0.exe:  65%|######5   | 16.9M/25.8M [00:02<00:01, 8.35MiB/s]./Excel.Tools.v2.0.exe:  69%|######8   | 17.7M/25.8M [00:03<00:01, 6.30MiB/s]./Excel.Tools.v2.0.exe:  75%|#######4  | 19.4M/25.8M [00:03<00:00, 8.80MiB/s]./Excel.Tools.v2.0.exe:  79%|#######8  | 20.3M/25.8M [00:03<00:00, 8.26MiB/s]./Excel.Tools.v2.0.exe:  84%|########3 | 21.6M/25.8M [00:03<00:00, 9.39MiB/s]./Excel.Tools.v2.0.exe:  87%|########7 | 22.6M/25.8M [00:03<00:00, 9.16MiB/s]./Excel.Tools.v2.0.exe:  91%|#########1| 23.5M/25.8M [00:03<00:00, 9.28MiB/s]./Excel.Tools.v2.0.exe:  95%|#########4| 24.5M/25.8M [00:03<00:00, 9.48MiB/s]./Excel.Tools.v2.0.exe:  99%|#########9| 25.6M/25.8M [00:03<00:00, 10.0MiB/s]./Excel.Tools.v2.0.exe: 100%|##########| 25.8M/25.8M [00:03<00:00, 6.97MiB/s]
+./Excel.Tools.v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]./Excel.Tools.v2.0.exe:   0%|          | 1.00k/25.8M [00:00<57:07, 7.90kiB/s]./Excel.Tools.v2.0.exe:   0%|          | 49.0k/25.8M [00:00<01:47, 252kiB/s] ./Excel.Tools.v2.0.exe:   1%|          | 193k/25.8M [00:00<00:35, 754kiB/s] ./Excel.Tools.v2.0.exe:   1%|1         | 394k/25.8M [00:00<00:21, 1.24MiB/s]./Excel.Tools.v2.0.exe:   4%|3         | 926k/25.8M [00:00<00:09, 2.66MiB/s]./Excel.Tools.v2.0.exe:   8%|7         | 1.95M/25.8M [00:00<00:04, 5.37MiB/s]./Excel.Tools.v2.0.exe:  10%|9         | 2.47M/25.8M [00:00<00:04, 4.90MiB/s]./Excel.Tools.v2.0.exe:  17%|#6        | 4.36M/25.8M [00:00<00:03, 7.44MiB/s]./Excel.Tools.v2.0.exe:  20%|#9        | 5.09M/25.8M [00:01<00:03, 6.76MiB/s]./Excel.Tools.v2.0.exe:  22%|##2       | 5.70M/25.8M [00:01<00:03, 6.62MiB/s]./Excel.Tools.v2.0.exe:  26%|##5       | 6.64M/25.8M [00:01<00:03, 6.60MiB/s]./Excel.Tools.v2.0.exe:  29%|##8       | 7.42M/25.8M [00:01<00:02, 6.63MiB/s]./Excel.Tools.v2.0.exe:  31%|###1      | 8.04M/25.8M [00:01<00:03, 5.09MiB/s]./Excel.Tools.v2.0.exe:  42%|####2     | 10.9M/25.8M [00:01<00:01, 10.4MiB/s]./Excel.Tools.v2.0.exe:  47%|####6     | 12.1M/25.8M [00:02<00:02, 5.64MiB/s]./Excel.Tools.v2.0.exe:  53%|#####2    | 13.6M/25.8M [00:02<00:01, 7.09MiB/s]./Excel.Tools.v2.0.exe:  60%|#####9    | 15.4M/25.8M [00:02<00:01, 9.12MiB/s]./Excel.Tools.v2.0.exe:  65%|######4   | 16.7M/25.8M [00:02<00:00, 9.60MiB/s]./Excel.Tools.v2.0.exe:  72%|#######2  | 18.6M/25.8M [00:02<00:00, 11.9MiB/s]./Excel.Tools.v2.0.exe:  78%|#######7  | 20.0M/25.8M [00:02<00:00, 12.3MiB/s]./Excel.Tools.v2.0.exe:  83%|########3 | 21.4M/25.8M [00:03<00:00, 9.93MiB/s]./Excel.Tools.v2.0.exe:  88%|########7 | 22.6M/25.8M [00:03<00:00, 10.4MiB/s]./Excel.Tools.v2.0.exe:  95%|#########5| 24.6M/25.8M [00:03<00:00, 12.7MiB/s]./Excel.Tools.v2.0.exe: 100%|##########| 25.8M/25.8M [00:03<00:00, 7.93MiB/s]
+./Excel.Tools.v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]./Excel.Tools.v2.0.exe:   0%|          | 36.0k/25.8M [00:00<01:15, 359kiB/s]./Excel.Tools.v2.0.exe:   1%|          | 196k/25.8M [00:00<00:24, 1.10MiB/s]./Excel.Tools.v2.0.exe:   2%|2         | 612k/25.8M [00:00<00:10, 2.51MiB/s]./Excel.Tools.v2.0.exe:   3%|3         | 858k/25.8M [00:00<00:10, 2.44MiB/s]./Excel.Tools.v2.0.exe:   6%|5         | 1.46M/25.8M [00:00<00:06, 3.86MiB/s]./Excel.Tools.v2.0.exe:   8%|8         | 2.19M/25.8M [00:00<00:04, 5.13MiB/s]./Excel.Tools.v2.0.exe:  11%|#         | 2.73M/25.8M [00:00<00:04, 5.26MiB/s]./Excel.Tools.v2.0.exe:  14%|#3        | 3.61M/25.8M [00:00<00:03, 6.16MiB/s]./Excel.Tools.v2.0.exe:  16%|#6        | 4.20M/25.8M [00:01<00:04, 5.09MiB/s]./Excel.Tools.v2.0.exe:  18%|#8        | 4.70M/25.8M [00:01<00:05, 4.04MiB/s]./Excel.Tools.v2.0.exe:  21%|##        | 5.36M/25.8M [00:01<00:05, 3.84MiB/s]./Excel.Tools.v2.0.exe:  23%|##2       | 5.91M/25.8M [00:01<00:05, 4.07MiB/s]./Excel.Tools.v2.0.exe:  26%|##6       | 6.74M/25.8M [00:01<00:03, 5.01MiB/s]./Excel.Tools.v2.0.exe:  30%|##9       | 7.67M/25.8M [00:01<00:03, 6.07MiB/s]./Excel.Tools.v2.0.exe:  33%|###3      | 8.55M/25.8M [00:01<00:02, 6.83MiB/s]./Excel.Tools.v2.0.exe:  37%|###6      | 9.46M/25.8M [00:01<00:02, 7.42MiB/s]./Excel.Tools.v2.0.exe:  40%|###9      | 10.2M/25.8M [00:02<00:02, 7.30MiB/s]./Excel.Tools.v2.0.exe:  45%|####4     | 11.5M/25.8M [00:02<00:01, 8.94MiB/s]./Excel.Tools.v2.0.exe:  48%|####7     | 12.4M/25.8M [00:02<00:01, 8.27MiB/s]./Excel.Tools.v2.0.exe:  51%|#####1    | 13.2M/25.8M [00:02<00:01, 7.95MiB/s]./Excel.Tools.v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]./Excel.Tools.v2.0.exe:   0%|          | 33.0k/25.8M [00:00<01:39, 272kiB/s]./Excel.Tools.v2.0.exe:   1%|          | 178k/25.8M [00:00<00:29, 901kiB/s] ./Excel.Tools.v2.0.exe:   1%|1         | 396k/25.8M [00:00<00:20, 1.29MiB/s]./Excel.Tools.v2.0.exe:   4%|4         | 1.06M/25.8M [00:00<00:08, 3.23MiB/s]./Excel.Tools.v2.0.exe:   5%|5         | 1.40M/25.8M [00:00<00:07, 3.26MiB/s]./Excel.Tools.v2.0.exe:   7%|6         | 1.75M/25.8M [00:00<00:07, 3.34MiB/s]./Excel.Tools.v2.0.exe:   9%|9         | 2.45M/25.8M [00:00<00:07, 3.40MiB/s]./Excel.Tools.v2.0.exe:  12%|#1        | 3.07M/25.8M [00:00<00:05, 4.15MiB/s]./Excel.Tools.v2.0.exe:  15%|#5        | 4.00M/25.8M [00:01<00:04, 5.50MiB/s]./Excel.Tools.v2.0.exe:  18%|#7        | 4.56M/25.8M [00:01<00:04, 4.56MiB/s]./Excel.Tools.v2.0.exe:  22%|##2       | 5.75M/25.8M [00:01<00:03, 6.42MiB/s]./Excel.Tools.v2.0.exe:  25%|##5       | 6.57M/25.8M [00:01<00:02, 6.98MiB/s]./Excel.Tools.v2.0.exe:  29%|##8       | 7.37M/25.8M [00:01<00:02, 7.34MiB/s]./Excel.Tools.v2.0.exe:  32%|###1      | 8.25M/25.8M [00:01<00:02, 7.84MiB/s]./Excel.Tools.v2.0.exe:  35%|###5      | 9.14M/25.8M [00:01<00:02, 8.20MiB/s]./Excel.Tools.v2.0.exe:  39%|###8      | 10.0M/25.8M [00:01<00:01, 8.52MiB/s]./Excel.Tools.v2.0.exe:  42%|####2     | 10.9M/25.8M [00:02<00:02, 7.77MiB/s]./Excel.Tools.v2.0.exe:  48%|####8     | 12.4M/25.8M [00:02<00:01, 10.1MiB/s]./Excel.Tools.v2.0.exe:  52%|#####2    | 13.6M/25.8M [00:02<00:01, 10.5MiB/s]./Excel.Tools.v2.0.exe:  57%|#####6    | 14.7M/25.8M [00:02<00:01, 10.8MiB/s]./Excel.Tools.v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]./Excel.Tools.v2.0.exe:   0%|          | 17.0k/25.8M [00:00<03:02, 148kiB/s]./Excel.Tools.v2.0.exe:   0%|          | 105k/25.8M [00:00<00:48, 553kiB/s] ./Excel.Tools.v2.0.exe:   1%|1         | 312k/25.8M [00:00<00:22, 1.20MiB/s]./Excel.Tools.v2.0.exe:   2%|2         | 616k/25.8M [00:00<00:13, 1.90MiB/s]./Excel.Tools.v2.0.exe:   4%|3         | 0.98M/25.8M [00:00<00:10, 2.60MiB/s]./Excel.Tools.v2.0.exe:   5%|5         | 1.40M/25.8M [00:00<00:09, 2.60MiB/s]./Excel.Tools.v2.0.exe:   9%|9         | 2.35M/25.8M [00:00<00:05, 4.64MiB/s]./Excel.Tools.v2.0.exe:  13%|#2        | 3.28M/25.8M [00:00<00:03, 6.06MiB/s]./Excel.Tools.v2.0.exe:  16%|#6        | 4.13M/25.8M [00:01<00:03, 6.81MiB/s]./Excel.Tools.v2.0.exe:  20%|#9        | 5.04M/25.8M [00:01<00:02, 7.56MiB/s]./Excel.Tools.v2.0.exe:  22%|##2       | 5.79M/25.8M [00:01<00:04, 4.96MiB/s]./Excel.Tools.v2.0.exe:  25%|##4       | 6.39M/25.8M [00:01<00:04, 4.79MiB/s]./Excel.Tools.v2.0.exe:  33%|###2      | 8.41M/25.8M [00:01<00:02, 6.48MiB/s]./Excel.Tools.v2.0.exe:  35%|###5      | 9.05M/25.8M [00:01<00:03, 5.64MiB/s]./Excel.Tools.v2.0.exe:  37%|###7      | 9.61M/25.8M [00:02<00:03, 5.61MiB/s]./Excel.Tools.v2.0.exe:  39%|###9      | 10.2M/25.8M [00:02<00:03, 5.14MiB/s]./Excel.Tools.v2.0.exe:  46%|####5     | 11.8M/25.8M [00:02<00:01, 7.69MiB/s]./Excel.Tools.v2.0.exe:  51%|#####1    | 13.3M/25.8M [00:02<00:01, 9.61MiB/s]./Excel.Tools.v2.0.exe:  55%|#####5    | 14.3M/25.8M [00:02<00:01, 9.22MiB/s]./Excel.Tools.v2.0.exe:  60%|#####9    | 15.4M/25.8M [00:02<00:01, 9.66MiB/s]./Excel.Tools.v2.0.exe:  64%|######3   | 16.4M/25.8M [00:02<00:01, 6.94MiB/s]./Excel.Tools.v2.0.exe:  71%|#######1  | 18.4M/25.8M [00:03<00:00, 9.74MiB/s]./Excel.Tools.v2.0.exe:  76%|#######5  | 19.6M/25.8M [00:03<00:00, 10.3MiB/s]./Excel.Tools.v2.0.exe:  80%|########  | 20.7M/25.8M [00:03<00:00, 7.15MiB/s]./Excel.Tools.v2.0.exe:  84%|########3 | 21.6M/25.8M [00:03<00:00, 7.26MiB/s]./Excel.Tools.v2.0.exe:  87%|########7 | 22.5M/25.8M [00:03<00:00, 7.68MiB/s]./Excel.Tools.v2.0.exe:  92%|#########1| 23.8M/25.8M [00:03<00:00, 8.86MiB/s]./Excel.Tools.v2.0.exe:  96%|#########5| 24.7M/25.8M [00:03<00:00, 7.61MiB/s]./Excel.Tools.v2.0.exe: 100%|#########9| 25.8M/25.8M [00:04<00:00, 8.34MiB/s]./Excel.Tools.v2.0.exe: 100%|##########| 25.8M/25.8M [00:04<00:00, 6.72MiB/s]
+./Excel.Tools.v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]./Excel.Tools.v2.0.exe:   0%|          | 49.0k/25.8M [00:00<01:28, 304kiB/s]./Excel.Tools.v2.0.exe:   0%|          | 113k/25.8M [00:00<02:03, 218kiB/s] ./Excel.Tools.v2.0.exe:   1%|          | 177k/25.8M [00:00<01:26, 310kiB/s]./Excel.Tools.v2.0.exe:   1%|1         | 273k/25.8M [00:00<01:04, 413kiB/s]./Excel.Tools.v2.0.exe:   2%|1         | 449k/25.8M [00:00<00:36, 725kiB/s]./Excel.Tools.v2.0.exe:   3%|2         | 705k/25.8M [00:01<00:22, 1.17MiB/s]./Excel.Tools.v2.0.exe:   3%|3         | 844k/25.8M [00:01<00:25, 1.02MiB/s]./Excel.Tools.v2.0.exe:   6%|5         | 1.55M/25.8M [00:01<00:11, 2.18MiB/s]./Excel.Tools.v2.0.exe:  10%|#         | 2.70M/25.8M [00:01<00:05, 4.36MiB/s]./Excel.Tools.v2.0.exe:  15%|#4        | 3.86M/25.8M [00:01<00:04, 5.74MiB/s]./Excel.Tools.v2.0.exe:  20%|##        | 5.19M/25.8M [00:01<00:02, 7.66MiB/s]./Excel.Tools.v2.0.exe:  23%|##3       | 6.01M/25.8M [00:01<00:03, 6.00MiB/s]./Excel.Tools.v2.0.exe:  26%|##5       | 6.69M/25.8M [00:02<00:03, 5.30MiB/s]./Excel.Tools.v2.0.exe:  28%|##8       | 7.28M/25.8M [00:02<00:04, 4.00MiB/s]./Excel.Tools.v2.0.exe:  35%|###4      | 8.92M/25.8M [00:02<00:02, 6.29MiB/s]./Excel.Tools.v2.0.exe:  38%|###8      | 9.92M/25.8M [00:02<00:02, 6.52MiB/s]./Excel.Tools.v2.0.exe:  41%|####1     | 10.7M/25.8M [00:03<00:03, 4.11MiB/s]./Excel.Tools.v2.0.exe:  46%|####5     | 11.8M/25.8M [00:03<00:03, 4.39MiB/s]./Excel.Tools.v2.0.exe:  56%|#####6    | 14.6M/25.8M [00:03<00:01, 7.05MiB/s]./Excel.Tools.v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]./Excel.Tools.v2.0.exe:   0%|          | 36.0k/25.8M [00:00<01:32, 291kiB/s]./Excel.Tools.v2.0.exe:   1%|          | 148k/25.8M [00:00<00:36, 729kiB/s] ./Excel.Tools.v2.0.exe:   1%|1         | 276k/25.8M [00:00<00:29, 910kiB/s]./Excel.Tools.v2.0.exe:   3%|3         | 850k/25.8M [00:00<00:10, 2.62MiB/s]./Excel.Tools.v2.0.exe:   4%|4         | 1.09M/25.8M [00:00<00:10, 2.55MiB/s]./Excel.Tools.v2.0.exe:   7%|6         | 1.72M/25.8M [00:00<00:06, 3.63MiB/s]./Excel.Tools.v2.0.exe:  10%|9         | 2.51M/25.8M [00:00<00:04, 5.04MiB/s]./Excel.Tools.v2.0.exe:  13%|#2        | 3.23M/25.8M [00:00<00:04, 5.74MiB/s]./Excel.Tools.v2.0.exe:  16%|#5        | 4.00M/25.8M [00:00<00:03, 6.43MiB/s]./Excel.Tools.v2.0.exe:  19%|#8        | 4.88M/25.8M [00:01<00:03, 7.17MiB/s]./Excel.Tools.v2.0.exe:  22%|##2       | 5.75M/25.8M [00:01<00:02, 7.70MiB/s]./Excel.Tools.v2.0.exe:  26%|##5       | 6.59M/25.8M [00:01<00:02, 7.99MiB/s]./Excel.Tools.v2.0.exe:  29%|##8       | 7.36M/25.8M [00:01<00:02, 6.74MiB/s]./Excel.Tools.v2.0.exe:  31%|###1      | 8.04M/25.8M [00:01<00:02, 6.45MiB/s]./Excel.Tools.v2.0.exe:  34%|###4      | 8.83M/25.8M [00:01<00:02, 6.92MiB/s]./Excel.Tools.v2.0.exe:  37%|###6      | 9.51M/25.8M [00:01<00:02, 6.96MiB/s]./Excel.Tools.v2.0.exe:  41%|####      | 10.5M/25.8M [00:01<00:02, 7.89MiB/s]./Excel.Tools.v2.0.exe:  44%|####3     | 11.3M/25.8M [00:01<00:01, 7.90MiB/s]./Excel.Tools.v2.0.exe:  48%|####8     | 12.4M/25.8M [00:02<00:01, 9.03MiB/s]./Excel.Tools.v2.0.exe:  52%|#####2    | 13.5M/25.8M [00:02<00:01, 9.45MiB/s]./Excel.Tools.v2.0.exe:  56%|#####6    | 14.5M/25.8M [00:02<00:01, 9.94MiB/s]./Excel.Tools.v2.0.exe:  60%|#####9    | 15.5M/25.8M [00:02<00:01, 9.79MiB/s]./Excel.Tools.v2.0.exe:  64%|######4   | 16.6M/25.8M [00:02<00:00, 10.4MiB/s]./Excel.Tools.v2.0.exe:  68%|######8   | 17.6M/25.8M [00:02<00:00, 9.58MiB/s]./Excel.Tools.v2.0.exe:  74%|#######3  | 19.1M/25.8M [00:02<00:00, 11.2MiB/s]./Excel.Tools.v2.0.exe:  79%|#######8  | 20.4M/25.8M [00:02<00:00, 7.55MiB/s]
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 130, in update
+    state = CheckUpdate.update(VERSION) # ·µ»ØÖµÓÐÈýÖÖ£º0±íÊ¾»ñÈ¡¸üÐÂÊ§°Ü£¨Ã»¿ªVPN£©¡¢1±íÊ¾ÐÂ°æ±¾ÏÂÔØÍêÁË¡¢°æ±¾ºÅ
+  File "D:\My Projects\Excel-Tools\CheckUpdate.py", line 65, in update
+    for data in response.iter_content(chunk_size=1024):
+                ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\models.py", line 820, in generate
+    yield from self.raw.stream(chunk_size, decode_content=True)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\response.py", line 1066, in stream
+    data = self.read(amt=amt, decode_content=decode_content)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\response.py", line 952, in read
+    if len(self._decoded_buffer) >= amt:
+       ~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\response.py", line 249, in __len__
+    def __len__(self) -> int:
+    
+KeyboardInterrupt
+./Excel.Tools.v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]./Excel.Tools.v2.0.exe:   0%|          | 49.0k/25.8M [00:00<01:46, 253kiB/s]./Excel.Tools.v2.0.exe:   1%|          | 193k/25.8M [00:00<00:39, 687kiB/s] ./Excel.Tools.v2.0.exe:   2%|1         | 458k/25.8M [00:00<00:26, 989kiB/s]./Excel.Tools.v2.0.exe:   4%|3         | 997k/25.8M [00:00<00:12, 2.17MiB/s]./Excel.Tools.v2.0.exe:   5%|4         | 1.24M/25.8M [00:00<00:12, 1.99MiB/s]./Excel.Tools.v2.0.exe:   7%|6         | 1.71M/25.8M [00:00<00:09, 2.67MiB/s]./Excel.Tools.v2.0.exe:   8%|7         | 2.00M/25.8M [00:01<00:10, 2.46MiB/s]./Excel.Tools.v2.0.exe:   9%|9         | 2.44M/25.8M [00:01<00:08, 2.97MiB/s]./Excel.Tools.v2.0.exe:  11%|#         | 2.75M/25.8M [00:01<00:09, 2.60MiB/s]./Excel.Tools.v2.0.exe:  13%|#3        | 3.39M/25.8M [00:01<00:06, 3.58MiB/s]./Excel.Tools.v2.0.exe:  15%|#4        | 3.79M/25.8M [00:01<00:06, 3.73MiB/s]./Excel.Tools.v2.0.exe:  16%|#6        | 4.19M/25.8M [00:01<00:05, 3.80MiB/s]./Excel.Tools.v2.0.exe:  18%|#7        | 4.62M/25.8M [00:01<00:05, 3.97MiB/s]./Excel.Tools.v2.0.exe:  20%|#9        | 5.05M/25.8M [00:01<00:05, 4.11MiB/s]./Excel.Tools.v2.0.exe:  21%|##1       | 5.49M/25.8M [00:01<00:05, 4.11MiB/s]./Excel.Tools.v2.0.exe:  23%|##2       | 5.92M/25.8M [00:02<00:04, 4.21MiB/s]./Excel.Tools.v2.0.exe:  25%|##4       | 6.33M/25.8M [00:02<00:05, 3.91MiB/s]./Excel.Tools.v2.0.exe:  26%|##6       | 6.83M/25.8M [00:02<00:04, 4.25MiB/s]./Excel.Tools.v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]./Excel.Tools.v2.0.exe:   0%|          | 33.0k/25.8M [00:00<02:19, 193kiB/s]./Excel.Tools.v2.0.exe:   1%|          | 145k/25.8M [00:00<00:45, 587kiB/s] ./Excel.Tools.v2.0.exe:   2%|1         | 496k/25.8M [00:00<00:15, 1.70MiB/s]./Excel.Tools.v2.0.exe:   3%|2         | 778k/25.8M [00:00<00:12, 2.10MiB/s]./Excel.Tools.v2.0.exe:   8%|7         | 2.05M/25.8M [00:00<00:05, 4.86MiB/s]./Excel.Tools.v2.0.exe:  14%|#4        | 3.69M/25.8M [00:00<00:02, 7.94MiB/s]./Excel.Tools.v2.0.exe:  17%|#7        | 4.45M/25.8M [00:00<00:03, 6.84MiB/s]./Excel.Tools.v2.0.exe:  20%|#9        | 5.11M/25.8M [00:01<00:03, 5.81MiB/s]./Excel.Tools.v2.0.exe:  25%|##5       | 6.54M/25.8M [00:01<00:02, 7.98MiB/s]./Excel.Tools.v2.0.exe:  29%|##8       | 7.44M/25.8M [00:01<00:03, 6.33MiB/s]./Excel.Tools.v2.0.exe:  34%|###3      | 8.66M/25.8M [00:01<00:02, 6.91MiB/s]./Excel.Tools.v2.0.exe:  41%|####1     | 10.7M/25.8M [00:01<00:01, 9.83MiB/s]./Excel.Tools.v2.0.exe:  46%|####6     | 11.9M/25.8M [00:01<00:01, 10.7MiB/s]./Excel.Tools.v2.0.exe:  51%|#####     | 13.1M/25.8M [00:01<00:01, 9.92MiB/s]./Excel.Tools.v2.0.exe:  56%|#####6    | 14.5M/25.8M [00:02<00:01, 11.1MiB/s]./Excel.Tools.v2.0.exe:  61%|######    | 15.7M/25.8M [00:02<00:01, 9.15MiB/s]./Excel.Tools.v2.0.exe:  69%|######9   | 17.9M/25.8M [00:02<00:00, 10.1MiB/s]./Excel.Tools.v2.0.exe:  81%|########1 | 20.9M/25.8M [00:02<00:00, 14.6MiB/s]./Excel.Tools.v2.0.exe:  87%|########7 | 22.5M/25.8M [00:02<00:00, 12.5MiB/s]./Excel.Tools.v2.0.exe:  98%|#########8| 25.4M/25.8M [00:02<00:00, 16.1MiB/s]./Excel.Tools.v2.0.exe: 100%|##########| 25.8M/25.8M [00:02<00:00, 9.51MiB/s]
+./Excel.Tools.v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]./Excel.Tools.v2.0.exe:   0%|          | 1.00k/25.8M [00:00<1:11:16, 6.33kiB/s]./Excel.Tools.v2.0.exe:   0%|          | 65.0k/25.8M [00:00<01:28, 304kiB/s]   ./Excel.Tools.v2.0.exe:   1%|          | 209k/25.8M [00:00<00:35, 757kiB/s] ./Excel.Tools.v2.0.exe:   1%|1         | 369k/25.8M [00:00<00:25, 1.07MiB/s]./Excel.Tools.v2.0.exe:   2%|1         | 496k/25.8M [00:00<00:24, 1.08MiB/s]./Excel.Tools.v2.0.exe:   4%|3         | 0.98M/25.8M [00:00<00:11, 2.18MiB/s]./Excel.Tools.v2.0.exe:   6%|5         | 1.51M/25.8M [00:00<00:08, 3.12MiB/s]./Excel.Tools.v2.0.exe:   9%|8         | 2.21M/25.8M [00:00<00:06, 3.70MiB/s]./Excel.Tools.v2.0.exe:  14%|#4        | 3.65M/25.8M [00:01<00:04, 5.70MiB/s]./Excel.Tools.v2.0.exe:  16%|#6        | 4.16M/25.8M [00:01<00:04, 4.85MiB/s]./Excel.Tools.v2.0.exe:  19%|#9        | 4.95M/25.8M [00:01<00:03, 5.62MiB/s]./Excel.Tools.v2.0.exe:  21%|##1       | 5.50M/25.8M [00:01<00:04, 5.04MiB/s]./Excel.Tools.v2.0.exe:  23%|##3       | 6.00M/25.8M [00:01<00:04, 5.05MiB/s]./Excel.Tools.v2.0.exe:  29%|##8       | 7.43M/25.8M [00:01<00:02, 7.36MiB/s]./Excel.Tools.v2.0.exe:  34%|###4      | 8.86M/25.8M [00:01<00:01, 9.30MiB/s]./Excel.Tools.v2.0.exe:  39%|###8      | 10.0M/25.8M [00:01<00:01, 10.0MiB/s]./Excel.Tools.v2.0.exe:  43%|####2     | 11.0M/25.8M [00:02<00:02, 6.55MiB/s]./Excel.Tools.v2.0.exe:  51%|#####     | 13.1M/25.8M [00:02<00:01, 8.79MiB/s]./Excel.Tools.v2.0.exe:  55%|#####5    | 14.2M/25.8M [00:02<00:01, 9.37MiB/s]./Excel.Tools.v2.0.exe:  60%|######    | 15.5M/25.8M [00:02<00:01, 10.2MiB/s]./Excel.Tools.v2.0.exe:  70%|######9   | 18.0M/25.8M [00:02<00:00, 14.1MiB/s]./Excel.Tools.v2.0.exe:  76%|#######5  | 19.5M/25.8M [00:02<00:00, 14.6MiB/s]./Excel.Tools.v2.0.exe:  81%|########1 | 21.0M/25.8M [00:03<00:00, 10.2MiB/s]./Excel.Tools.v2.0.exe:  91%|#########1| 23.6M/25.8M [00:03<00:00, 12.3MiB/s]./Excel.Tools.v2.0.exe:  97%|#########6| 24.9M/25.8M [00:03<00:00, 12.1MiB/s]./Excel.Tools.v2.0.exe: 100%|##########| 25.8M/25.8M [00:03<00:00, 7.82MiB/s]
+./Excel.Tools.v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]./Excel.Tools.v2.0.exe:   0%|          | 17.0k/25.8M [00:00<02:44, 165kiB/s]./Excel.Tools.v2.0.exe:   0%|          | 81.0k/25.8M [00:00<01:03, 422kiB/s]./Excel.Tools.v2.0.exe:   1%|          | 145k/25.8M [00:00<00:53, 503kiB/s] ./Excel.Tools.v2.0.exe:   1%|1         | 392k/25.8M [00:00<00:21, 1.24MiB/s]./Excel.Tools.v2.0.exe:   4%|3         | 0.99M/25.8M [00:00<00:10, 2.43MiB/s]./Excel.Tools.v2.0.exe:  11%|#         | 2.77M/25.8M [00:00<00:03, 7.08MiB/s]./Excel.Tools.v2.0.exe:  14%|#3        | 3.52M/25.8M [00:00<00:03, 6.99MiB/s]./Excel.Tools.v2.0.exe:  16%|#6        | 4.23M/25.8M [00:01<00:04, 4.90MiB/s]./Excel.Tools.v2.0.exe:  23%|##2       | 5.91M/25.8M [00:01<00:03, 6.35MiB/s]./Excel.Tools.v2.0.exe:  28%|##8       | 7.25M/25.8M [00:01<00:02, 7.64MiB/s]./Excel.Tools.v2.0.exe:  31%|###1      | 8.05M/25.8M [00:01<00:02, 7.20MiB/s]./Excel.Tools.v2.0.exe:  35%|###5      | 9.15M/25.8M [00:01<00:02, 6.63MiB/s]./Excel.Tools.v2.0.exe:  38%|###8      | 9.83M/25.8M [00:01<00:02, 6.39MiB/s]./Excel.Tools.v2.0.exe:  46%|####5     | 11.8M/25.8M [00:01<00:01, 9.29MiB/s]./Excel.Tools.v2.0.exe:  52%|#####1    | 13.3M/25.8M [00:02<00:01, 11.0MiB/s]./Excel.Tools.v2.0.exe:  58%|#####7    | 15.0M/25.8M [00:02<00:00, 12.5MiB/s]./Excel.Tools.v2.0.exe:  64%|######3   | 16.5M/25.8M [00:02<00:00, 13.5MiB/s]./Excel.Tools.v2.0.exe:  71%|#######1  | 18.4M/25.8M [00:02<00:00, 15.1MiB/s]./Excel.Tools.v2.0.exe:  78%|#######8  | 20.2M/25.8M [00:02<00:00, 16.3MiB/s]./Excel.Tools.v2.0.exe:  85%|########4 | 21.9M/25.8M [00:02<00:00, 16.8MiB/s]./Excel.Tools.v2.0.exe:  92%|#########2| 23.8M/25.8M [00:02<00:00, 17.4MiB/s]./Excel.Tools.v2.0.exe: 100%|#########9| 25.7M/25.8M [00:02<00:00, 18.1MiB/s]./Excel.Tools.v2.0.exe: 100%|##########| 25.8M/25.8M [00:02<00:00, 9.78MiB/s]
+./Excel.Tools.v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]./Excel.Tools.v2.0.exe:   0%|          | 49.0k/25.8M [00:00<01:08, 393kiB/s]./Excel.Tools.v2.0.exe:   1%|          | 225k/25.8M [00:00<00:23, 1.13MiB/s]./Excel.Tools.v2.0.exe:   2%|2         | 634k/25.8M [00:00<00:11, 2.37MiB/s]./Excel.Tools.v2.0.exe:   6%|5         | 1.49M/25.8M [00:00<00:05, 4.88MiB/s]./Excel.Tools.v2.0.exe:  11%|#1        | 2.96M/25.8M [00:00<00:03, 7.24MiB/s]./Excel.Tools.v2.0.exe:  14%|#4        | 3.62M/25.8M [00:00<00:03, 6.10MiB/s]./Excel.Tools.v2.0.exe:  19%|#8        | 4.82M/25.8M [00:00<00:03, 6.56MiB/s]./Excel.Tools.v2.0.exe:  24%|##3       | 6.12M/25.8M [00:01<00:02, 7.34MiB/s]./Excel.Tools.v2.0.exe:  33%|###2      | 8.40M/25.8M [00:01<00:01, 11.2MiB/s]./Excel.Tools.v2.0.exe:  40%|####      | 10.4M/25.8M [00:01<00:01, 13.5MiB/s]./Excel.Tools.v2.0.exe:  46%|####5     | 11.8M/25.8M [00:01<00:01, 10.4MiB/s]./Excel.Tools.v2.0.exe:  50%|#####     | 13.0M/25.8M [00:01<00:01, 10.5MiB/s]./Excel.Tools.v2.0.exe:  55%|#####4    | 14.1M/25.8M [00:01<00:01, 7.63MiB/s]./Excel.Tools.v2.0.exe:  60%|#####9    | 15.5M/25.8M [00:01<00:01, 8.85MiB/s]./Excel.Tools.v2.0.exe:  64%|######3   | 16.5M/25.8M [00:02<00:01, 6.76MiB/s]./Excel.Tools.v2.0.exe:  67%|######7   | 17.4M/25.8M [00:02<00:01, 7.06MiB/s]./Excel.Tools.v2.0.exe:  70%|#######   | 18.2M/25.8M [00:02<00:01, 6.68MiB/s]./Excel.Tools.v2.0.exe:  77%|#######6  | 19.9M/25.8M [00:02<00:00, 8.97MiB/s]./Excel.Tools.v2.0.exe:  85%|########4 | 21.9M/25.8M [00:02<00:00, 11.3MiB/s]./Excel.Tools.v2.0.exe:  99%|#########8| 25.5M/25.8M [00:02<00:00, 17.5MiB/s]./Excel.Tools.v2.0.exe: 100%|##########| 25.8M/25.8M [00:02<00:00, 9.17MiB/s]
+./Excel.Tools.v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]./Excel.Tools.v2.0.exe:   0%|          | 17.0k/25.8M [00:00<03:56, 114kiB/s]./Excel.Tools.v2.0.exe:   1%|          | 145k/25.8M [00:00<00:40, 672kiB/s] ./Excel.Tools.v2.0.exe:   1%|          | 250k/25.8M [00:00<00:36, 744kiB/s]./Excel.Tools.v2.0.exe:   1%|1         | 394k/25.8M [00:00<00:27, 956kiB/s]./Excel.Tools.v2.0.exe:   3%|3         | 869k/25.8M [00:00<00:12, 2.18MiB/s]./Excel.Tools.v2.0.exe:   8%|8         | 2.09M/25.8M [00:00<00:04, 5.52MiB/s]./Excel.Tools.v2.0.exe:  10%|#         | 2.65M/25.8M [00:00<00:04, 5.41MiB/s]./Excel.Tools.v2.0.exe:  12%|#2        | 3.19M/25.8M [00:01<00:05, 4.13MiB/s]./Excel.Tools.v2.0.exe:  16%|#5        | 4.03M/25.8M [00:01<00:04, 5.23MiB/s]./Excel.Tools.v2.0.exe:  21%|##1       | 5.49M/25.8M [00:01<00:02, 7.17MiB/s]./Excel.Tools.v2.0.exe:  27%|##7       | 7.07M/25.8M [00:01<00:02, 9.47MiB/s]./Excel.Tools.v2.0.exe:  31%|###1      | 8.05M/25.8M [00:01<00:02, 7.72MiB/s]./Excel.Tools.v2.0.exe:  36%|###5      | 9.22M/25.8M [00:01<00:02, 8.59MiB/s]./Excel.Tools.v2.0.exe:  39%|###9      | 10.1M/25.8M [00:01<00:01, 8.32MiB/s]./Excel.Tools.v2.0.exe:  43%|####2     | 11.0M/25.8M [00:01<00:02, 7.42MiB/s]./Excel.Tools.v2.0.exe:  49%|####9     | 12.7M/25.8M [00:02<00:01, 9.11MiB/s]./Excel.Tools.v2.0.exe:  61%|######    | 15.7M/25.8M [00:02<00:00, 14.4MiB/s]./Excel.Tools.v2.0.exe:  67%|######6   | 17.2M/25.8M [00:02<00:00, 9.28MiB/s]./Excel.Tools.v2.0.exe:  75%|#######4  | 19.3M/25.8M [00:02<00:00, 9.18MiB/s]./Excel.Tools.v2.0.exe:  85%|########5 | 22.0M/25.8M [00:02<00:00, 12.4MiB/s]./Excel.Tools.v2.0.exe:  91%|#########1| 23.6M/25.8M [00:02<00:00, 12.8MiB/s]./Excel.Tools.v2.0.exe:  98%|#########7| 25.3M/25.8M [00:03<00:00, 14.0MiB/s]./Excel.Tools.v2.0.exe: 100%|##########| 25.8M/25.8M [00:03<00:00, 8.62MiB/s]
+./Excel.Tools.v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]./Excel.Tools.v2.0.exe:   0%|          | 40.0k/25.8M [00:00<01:13, 370kiB/s]./Excel.Tools.v2.0.exe:   1%|          | 152k/25.8M [00:00<00:37, 709kiB/s] ./Excel.Tools.v2.0.exe:   2%|1         | 408k/25.8M [00:00<00:18, 1.46MiB/s]./Excel.Tools.v2.0.exe:   2%|2         | 555k/25.8M [00:00<00:18, 1.41MiB/s]./Excel.Tools.v2.0.exe:   6%|5         | 1.52M/25.8M [00:00<00:05, 4.37MiB/s]./Excel.Tools.v2.0.exe:   8%|8         | 2.09M/25.8M [00:00<00:05, 4.61MiB/s]./Excel.Tools.v2.0.exe:  10%|9         | 2.55M/25.8M [00:00<00:05, 4.16MiB/s]./Excel.Tools.v2.0.exe:  13%|#3        | 3.43M/25.8M [00:00<00:04, 5.52MiB/s]./Excel.Tools.v2.0.exe:  18%|#7        | 4.60M/25.8M [00:01<00:03, 7.39MiB/s]./Excel.Tools.v2.0.exe:  21%|##        | 5.34M/25.8M [00:01<00:03, 6.01MiB/s]./Excel.Tools.v2.0.exe:  24%|##4       | 6.23M/25.8M [00:01<00:03, 6.19MiB/s]./Excel.Tools.v2.0.exe:  27%|##6       | 6.86M/25.8M [00:01<00:03, 6.12MiB/s]./Excel.Tools.v2.0.exe:  30%|###       | 7.80M/25.8M [00:01<00:02, 7.08MiB/s]./Excel.Tools.v2.0.exe:  33%|###2      | 8.52M/25.8M [00:01<00:02, 6.54MiB/s]./Excel.Tools.v2.0.exe:  37%|###6      | 9.54M/25.8M [00:01<00:02, 7.61MiB/s]./Excel.Tools.v2.0.exe:  40%|###9      | 10.3M/25.8M [00:01<00:02, 7.13MiB/s]./Excel.Tools.v2.0.exe:  44%|####4     | 11.4M/25.8M [00:02<00:01, 8.22MiB/s]./Excel.Tools.v2.0.exe:  47%|####7     | 12.2M/25.8M [00:02<00:01, 7.51MiB/s]./Excel.Tools.v2.0.exe:  51%|#####     | 13.1M/25.8M [00:02<00:01, 7.72MiB/s]./Excel.Tools.v2.0.exe:  54%|#####3    | 13.8M/25.8M [00:02<00:01, 7.74MiB/s]./Excel.Tools.v2.0.exe:  57%|#####7    | 14.8M/25.8M [00:02<00:01, 8.56MiB/s]./Excel.Tools.v2.0.exe:  61%|######    | 15.7M/25.8M [00:02<00:01, 8.60MiB/s]./Excel.Tools.v2.0.exe:  64%|######4   | 16.7M/25.8M [00:02<00:01, 9.01MiB/s]./Excel.Tools.v2.0.exe:  68%|######8   | 17.6M/25.8M [00:02<00:00, 8.65MiB/s]./Excel.Tools.v2.0.exe:  73%|#######2  | 18.8M/25.8M [00:02<00:00, 9.68MiB/s]./Excel.Tools.v2.0.exe:  77%|#######6  | 19.8M/25.8M [00:03<00:00, 9.90MiB/s]./Excel.Tools.v2.0.exe:  80%|########  | 20.7M/25.8M [00:03<00:00, 9.31MiB/s]./Excel.Tools.v2.0.exe:  84%|########3 | 21.6M/25.8M [00:03<00:00, 8.31MiB/s]./Excel.Tools.v2.0.exe:  90%|########9 | 23.1M/25.8M [00:03<00:00, 10.2MiB/s]./Excel.Tools.v2.0.exe:  93%|#########3| 24.1M/25.8M [00:03<00:00, 10.3MiB/s]./Excel.Tools.v2.0.exe:  97%|#########7| 25.1M/25.8M [00:03<00:00, 10.4MiB/s]./Excel.Tools.v2.0.exe: 100%|##########| 25.8M/25.8M [00:03<00:00, 7.44MiB/s]
+./Excel.Tools.v2.0.exe:   0%|          | 0.00/25.8M [00:00<?, ?iB/s]./Excel.Tools.v2.0.exe:   0%|          | 49.0k/25.8M [00:00<01:11, 377kiB/s]./Excel.Tools.v2.0.exe:   0%|          | 113k/25.8M [00:00<01:00, 446kiB/s] ./Excel.Tools.v2.0.exe:   1%|1         | 314k/25.8M [00:00<00:37, 719kiB/s]./Excel.Tools.v2.0.exe:   3%|2         | 762k/25.8M [00:00<00:15, 1.73MiB/s]./Excel.Tools.v2.0.exe:   5%|5         | 1.36M/25.8M [00:00<00:08, 3.02MiB/s]./Excel.Tools.v2.0.exe:   9%|9         | 2.44M/25.8M [00:00<00:04, 5.36MiB/s]./Excel.Tools.v2.0.exe:  12%|#1        | 3.03M/25.8M [00:01<00:05, 4.34MiB/s]./Excel.Tools.v2.0.exe:  14%|#3        | 3.53M/25.8M [00:01<00:05, 4.51MiB/s]./Excel.Tools.v2.0.exe:  16%|#5        | 4.10M/25.8M [00:01<00:04, 4.81MiB/s]./Excel.Tools.v2.0.exe:  20%|#9        | 5.15M/25.8M [00:01<00:03, 6.44MiB/s]./Excel.Tools.v2.0.exe:  23%|##2       | 5.82M/25.8M [00:01<00:03, 5.91MiB/s]./Excel.Tools.v2.0.exe:  31%|###1      | 8.05M/25.8M [00:01<00:01, 10.3MiB/s]./Excel.Tools.v2.0.exe:  35%|###5      | 9.13M/25.8M [00:01<00:02, 8.67MiB/s]./Excel.Tools.v2.0.exe:  39%|###8      | 10.1M/25.8M [00:01<00:02, 8.17MiB/s]./Excel.Tools.v2.0.exe:  42%|####2     | 10.9M/25.8M [00:02<00:02, 7.37MiB/s]./Excel.Tools.v2.0.exe:  46%|####5     | 11.8M/25.8M [00:02<00:01, 7.74MiB/s]./Excel.Tools.v2.0.exe:  53%|#####2    | 13.6M/25.8M [00:02<00:01, 10.5MiB/s]./Excel.Tools.v2.0.exe:  57%|#####7    | 14.7M/25.8M [00:02<00:01, 8.50MiB/s]./Excel.Tools.v2.0.exe:  61%|######1   | 15.9M/25.8M [00:02<00:01, 9.22MiB/s]./Excel.Tools.v2.0.exe:  65%|######5   | 16.8M/25.8M [00:02<00:01, 9.08MiB/s]./Excel.Tools.v2.0.exe:  69%|######8   | 17.8M/25.8M [00:02<00:01, 6.56MiB/s]./Excel.Tools.v2.0.exe:  76%|#######5  | 19.6M/25.8M [00:03<00:00, 9.07MiB/s]./Excel.Tools.v2.0.exe:  80%|########  | 20.7M/25.8M [00:03<00:00, 8.92MiB/s]./Excel.Tools.v2.0.exe:  84%|########3 | 21.7M/25.8M [00:03<00:00, 8.74MiB/s]./Excel.Tools.v2.0.exe:  88%|########7 | 22.6M/25.8M [00:03<00:00, 8.54MiB/s]./Excel.Tools.v2.0.exe:  91%|######### | 23.5M/25.8M [00:03<00:00, 8.51MiB/s]./Excel.Tools.v2.0.exe:  94%|#########4| 24.3M/25.8M [00:03<00:00, 8.15MiB/s]./Excel.Tools.v2.0.exe:  97%|#########7| 25.1M/25.8M [00:03<00:00, 8.19MiB/s]./Excel.Tools.v2.0.exe: 100%|##########| 25.8M/25.8M [00:03<00:00, 7.08MiB/s]
