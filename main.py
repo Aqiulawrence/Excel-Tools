@@ -73,7 +73,7 @@ sys.stderr = multi_stream
 VERSION = "2.0" # 当前版本
 NEW = None # 最新版本
 id = None # 蓝奏云文件的id，爬取下载地址需要用到，目前已废弃
-top = True # 窗口是否置顶
+top = False # 窗口是否置顶
 record = [f'!{get_time()}'] # 记录程序的功能使用情况
 
 def isFirstOpen(): # 获取是否为第一次打开程序
@@ -120,6 +120,8 @@ def start_update():
 
 def update(auto=False):
     global NEW
+    if auto == False:
+        print('检查更新中...')
     state = CheckUpdate.update(VERSION) # 返回值有三种：0表示获取更新失败（没开VPN）、1表示新版本下载完了、版本号
     if state == 1: # 更新成功
         messagebox.showinfo('提示', '更新成功！请您运行新版本。')
@@ -135,7 +137,7 @@ def old_update(auto=False):  # auto表示该函数是否为自动更新调用的
         if not auto:
             messagebox.showinfo('提示', '当前程序为最新版本，无需更新。')
         else:
-            print(green_text('当前程序为最新版本！'))
+            print('当前程序为最新版本！')
     elif VERSION < NEW:
         if messagebox.askyesno('提示', f'发现新版本v{NEW}，当前版本v{VERSION}\n按下”是“进行自动更新，按下”否“忽略本次更新。\n注：下载可能需要一定的时间，请耐心等待，请勿关闭此程序！'):
             try:
@@ -287,28 +289,18 @@ def about():
     else:
         messagebox.showinfo("关于", f"当前版本：v{VERSION}\n最新版本：v{NEW}\n作者：Sam")
 
-def postLog():
-    # print(yellow_text('正在上传日志，请不要关闭程序！'))
+def postLog(): # 网站已废弃，暂时关闭postlog功能，何时恢复未知...
     # 先处理文件
     with open(rf'{LOG_DIR}\operation.log', 'a') as f:
         record.append(f'{get_time()}!')
         f.write(json.dumps(record)+'\n')
 
-    try:
-        # 网站已废弃，暂时关闭postlog功能，何时恢复未知...（检查注释）
-        return False
-        response = requests.get(r'http://techxi.us.kg/post', timeout=3)
-        if response.status_code != 200:
-            return False
-    except:
-        return False
-
     if multi_stream.isWrite:
         with open(rf'{LOG_DIR}\error.log', 'a') as f:
             f.write(f'----------Above {get_time()}----------\n\n')
-        with open(rf'{LOG_DIR}\error.log', 'r') as f:
-            data = f.read()
-            if PostData.postData(data, 'errorLog', gethostname()):
+        # 上传日志
+        r'''with open(rf'{LOG_DIR}\error.log', 'r') as f:
+            if PostData.postData(f.read(), 'errorLog', gethostname()):
                 print(blue_text('日志上传成功！'))
             else:
                 print(red_text('日志上传失败！'))
@@ -320,7 +312,7 @@ def postLog():
             if state:
                 print(blue_text('日志上传成功！'))
             else:
-                print(red_text('日志上传失败！'))
+                print(red_text('日志上传失败！'))'''
 
 def easydo(): # 一键操作
     if not extract():

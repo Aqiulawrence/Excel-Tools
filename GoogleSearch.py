@@ -12,6 +12,7 @@ black_path = './configs/blacklist.txt'
 priority = ['ebay.com', 'amazon.com', 'cat.com', 'alibaba.com']
 blacklist = ['farfetch.com']
 
+delay = 2
 
 def load(path, content):  # 如果不存在这个文件，就创建这个文件并写入content
     if os.path.exists(path):
@@ -26,7 +27,6 @@ def load(path, content):  # 如果不存在这个文件，就创建这个文件�
 def blue_text(text):
     return Fore.BLUE + Style.BRIGHT + text + Style.RESET_ALL
 
-
 def search(tag):  # 搜索图片所对应的网站
     span_count = 0
     current_tag = tag
@@ -38,7 +38,6 @@ def search(tag):  # 搜索图片所对应的网站
         website = current_tag.get_text(strip=True)
         return website
 
-
 def download_images(url, output_folder, num, is_filter):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -49,7 +48,8 @@ def download_images(url, output_folder, num, is_filter):
         try:
             response = requests.get(url, headers=headers, timeout=5)
         except:
-            time.sleep(1)
+            print('retry-1')
+            time.sleep(delay)
             continue
         break
 
@@ -87,7 +87,8 @@ def download_images(url, output_folder, num, is_filter):
                 try:
                     img_response = requests.get(data, headers=headers, timeout=5)
                 except:
-                    time.sleep(0.7)
+                    print('retry-2')
+                    time.sleep(delay)
                     continue
                 break
             with open(file_name, 'wb') as handler:  # 先下载图片
@@ -109,24 +110,11 @@ def download_images(url, output_folder, num, is_filter):
 
     return False
 
-
-def searchName(key):  # 功能弃用
-    url = 'https://www.google.com/search?q='
-    while True:
-        try:
-            response = requests.get(url + key)
-        except:
-            time.sleep(0.7)
-            continue
-        break
-    soup = BeautifulSoup(response.text, "html.parser")
-    print(soup.find_all('h3')[0].text)
-
-
 def main(data, is_filter, output_directory=".\\img"):
     global priority, blacklist
     error_img = 0
     index = 1
+    # 网站筛选
     priority = load(pri_path, priority)
     blacklist = load(black_path, blacklist)
     if is_filter:
@@ -141,7 +129,6 @@ def main(data, is_filter, output_directory=".\\img"):
     if error_img:
         return error_img
     return 0
-
 
 if __name__ == '__main__':
     main(['JHOAT163475'], True)

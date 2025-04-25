@@ -14,6 +14,16 @@ def blue_text(text):
 owner = "Aqiulawrence"
 repo = "Excel-Tools"
 
+
+def replace(filename):
+    v_index = filename.find('v')
+    if v_index == -1:
+        return filename.replace('.', ' ')
+
+    before_v = filename[:v_index].replace('.', ' ')
+    after_v = filename[v_index:]
+    return before_v + after_v
+
 def update(ver, owner=owner, repo=repo, output_dir="./", token=None):
     headers = {
         "User-Agent": "Mozilla/5.0",
@@ -27,33 +37,34 @@ def update(ver, owner=owner, repo=repo, output_dir="./", token=None):
     response = requests.get(api_url, headers=headers)
 
     release = response.json()
-    new = release['tag_name'][1:]
+    try:
+        new = release['tag_name'][1:] # github release为空
+    except:
+        print('找不到可用更新。')
+        return 0
 
     if new == ver:
         print('当前为最新版本。')
         return new
 
-    print(blue_text(f'发现新版本v{new}，正在进行后台更新！'))
+    print(f'发现新版本v{new}，正在进行后台更新！')
 
     max_retries = 3
     retry_count = 0
     base_delay = 12
+
     while retry_count < max_retries:
         try:
             # 查找.exe文件
             exe_assets = [asset for asset in release.get("assets", [])
                           if asset["name"].lower().endswith(".exe")]
 
-            if not exe_assets:
-                raise Exception("未找到.exe文件！请提醒Sam检查Github Release！")
-
             # 下载第一个找到的.exe文件(如果有多个，可以修改这里)
             exe_asset = exe_assets[0]
             download_url = exe_asset["browser_download_url"]
             file_name = exe_asset["name"]
+            file_name = replace(file_name) # 替换点为空格
             file_path = os.path.join(output_dir, file_name)
-
-            #### 修改下文件名！！.替换成空格
 
             response = requests.get(download_url, headers=headers, stream=True)
             total_size = int(response.headers.get('content-length', 0))
@@ -73,15 +84,16 @@ def update(ver, owner=owner, repo=repo, output_dir="./", token=None):
 
         except requests.exceptions.SSLError:
             retry_count += 1
+            print(f'SSLError-{retry_count}')
             if retry_count == max_retries:
-                print(red_text('更新失败！请重试。'))
+                print(red_text('下载更新失败！请重试。--SSLError'))
                 return new
 
             time.sleep(base_delay)
             # delay = base_delay * (2 ** (retry_count - 1)) # 指数退避
 
         except requests.exceptions.ConnectionError: # 未开启代理
-            print(red_text('更新失败！请 "开启VPN" 并在 "关于->检查更新" 中重试。'))
+            print(red_text('下载更新失败！请开启VPN并重试。--ConnectionError'))
             return 0
 
 if __name__ == "__main__":

@@ -28,7 +28,7 @@ def save(create=False):
     global data
     data = {}
     if create:
-        data['path'] = r'.\img'
+        data['path'] = r'.\imgs'
         data['auto_update'] = 1
         data['filter'] = 1
         data['auto_backup'] = 1
