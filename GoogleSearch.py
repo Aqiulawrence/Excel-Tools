@@ -1,6 +1,7 @@
 import requests
 import os
 import time
+
 from bs4 import BeautifulSoup
 from colorama import Fore, Style
 
@@ -12,6 +13,7 @@ black_path = './configs/blacklist.txt'
 priority = ['ebay.com', 'amazon.com', 'cat.com', 'alibaba.com']
 blacklist = ['farfetch.com']
 
+# 全局延迟
 delay = 2
 
 def load(path, content):  # 如果不存在这个文件，就创建这个文件并写入content
@@ -46,9 +48,9 @@ def download_images(url, output_folder, num, is_filter):
 
     while True:
         try:
-            response = requests.get(url, headers=headers, timeout=5)
-        except:
-            print('retry-1')
+            response = requests.get(url, headers=headers)
+        except Exception as e:
+            print('retry-1', e)
             time.sleep(delay)
             continue
         break
@@ -85,9 +87,9 @@ def download_images(url, output_folder, num, is_filter):
         if data[:4] == "http":  # 防止base64图片
             while True:
                 try:
-                    img_response = requests.get(data, headers=headers, timeout=5)
-                except:
-                    print('retry-2')
+                    img_response = requests.get(data, headers=headers)
+                except Exception as e:
+                    print('retry-2', e)
                     time.sleep(delay)
                     continue
                 break

@@ -1,1 +1,5 @@
-{"path": ".\\imgs", "auto_update": 1, "filter": 1, "auto_backup": 1}
+{
+    "auto_update": 1,
+    "filter": 1,
+    "auto_backup": 0
+}

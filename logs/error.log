@@ -1,4 +1,683 @@
 ./Excel Tools.v2 0 exe:   0%|                                                             | 0.00/47.1M [00:00<?, ?iB/s]./Excel Tools.v2 0 exe:   0%|                                                     | 57.0k/47.1M [00:00<01:39, 498kiB/s]./Excel Tools.v2 0 exe:   1%|3                                                    | 279k/47.1M [00:00<00:33, 1.45MiB/s]./Excel Tools.v2 0 exe:   2%|#                                                    | 983k/47.1M [00:00<00:12, 3.80MiB/s]./Excel Tools.v2 0 exe:   5%|##6                                                 | 2.45M/47.1M [00:00<00:06, 7.77MiB/s]./Excel Tools.v2 0 exe:   7%|###5                                                | 3.18M/47.1M [00:00<00:08, 5.62MiB/s]./Excel Tools.v2 0 exe:   9%|####7                                               | 4.34M/47.1M [00:00<00:06, 7.33MiB/s]./Excel Tools.v2 0 exe:  13%|######5                                             | 5.95M/47.1M [00:00<00:04, 9.77MiB/s]./Excel Tools.v2 0 exe:  16%|########4                                           | 7.63M/47.1M [00:00<00:03, 12.0MiB/s]./Excel Tools.v2 0 exe:  19%|#########7                                          | 8.88M/47.1M [00:01<00:04, 9.99MiB/s]./Excel Tools.v2 0 exe:  21%|##########9                                         | 9.94M/47.1M [00:01<00:06, 6.28MiB/s]./Excel Tools.v2 0 exe:  24%|############6                                       | 11.5M/47.1M [00:01<00:05, 7.35MiB/s]./Excel Tools.v2 0 exe:  28%|##############3                                     | 13.0M/47.1M [00:01<00:04, 8.81MiB/s]./Excel Tools.v2 0 exe:  32%|################7                                   | 15.1M/47.1M [00:01<00:03, 9.16MiB/s]./Excel Tools.v2 0 exe:  38%|###################9                                | 18.0M/47.1M [00:02<00:02, 12.4MiB/s]./Excel Tools.v2 0 exe:  44%|######################7                             | 20.7M/47.1M [00:02<00:01, 15.4MiB/s]./Excel Tools.v2 0 exe:  48%|########################7                           | 22.4M/47.1M [00:02<00:02, 12.5MiB/s]./Excel Tools.v2 0 exe:  52%|##########################9                         | 24.4M/47.1M [00:02<00:01, 12.9MiB/s]./Excel Tools.v2 0 exe:  55%|############################5                       | 25.8M/47.1M [00:02<00:01, 12.9MiB/s]./Excel Tools.v2 0 exe:  58%|##############################2                     | 27.4M/47.1M [00:02<00:01, 13.6MiB/s]./Excel Tools.v2 0 exe:  61%|###############################7                    | 28.8M/47.1M [00:02<00:01, 13.3MiB/s]./Excel Tools.v2 0 exe:  65%|#################################8                  | 30.6M/47.1M [00:03<00:01, 14.8MiB/s]./Excel Tools.v2 0 exe:  69%|###################################6                | 32.3M/47.1M [00:03<00:01, 15.4MiB/s]./Excel Tools.v2 0 exe:  72%|#####################################3              | 33.8M/47.1M [00:03<00:00, 14.9MiB/s]./Excel Tools.v2 0 exe:  75%|######################################9             | 35.3M/47.1M [00:03<00:00, 13.7MiB/s]./Excel Tools.v2 0 exe:  81%|#########################################9          | 38.0M/47.1M [00:03<00:00, 17.6MiB/s]./Excel Tools.v2 0 exe:  85%|###########################################9        | 39.8M/47.1M [00:03<00:00, 14.3MiB/s]./Excel Tools v2.0.exe:   0%|                                                             | 0.00/47.1M [00:00<?, ?iB/s]./Excel Tools v2.0.exe:   0%|                                                     | 48.0k/47.1M [00:00<01:47, 460kiB/s]./Excel Tools v2.0.exe:   0%|2                                                    | 196k/47.1M [00:00<00:47, 1.04MiB/s]./Excel Tools v2.0.exe:   1%|5                                                    | 515k/47.1M [00:00<00:24, 2.02MiB/s]./Excel Tools v2.0.exe:   2%|#1                                                  | 1.02M/47.1M [00:00<00:14, 3.26MiB/s]./Excel Tools v2.0.exe:   3%|#4                                                  | 1.33M/47.1M [00:00<00:15, 3.15MiB/s]./Excel Tools v2.0.exe:   5%|##3                                                 | 2.16M/47.1M [00:00<00:09, 4.94MiB/s]./Excel Tools v2.0.exe:   8%|####                                                | 3.63M/47.1M [00:00<00:07, 6.50MiB/s]./Excel Tools v2.0.exe:   9%|####6                                               | 4.21M/47.1M [00:01<00:09, 4.95MiB/s]./Excel Tools v2.0.exe:  10%|#####1                                              | 4.69M/47.1M [00:01<00:09, 4.59MiB/s]./Excel Tools v2.0.exe:  11%|#####7                                              | 5.23M/47.1M [00:01<00:11, 3.93MiB/s]./Excel Tools v2.0.exe:  16%|########4                                           | 7.65M/47.1M [00:01<00:06, 6.76MiB/s]./Excel Tools v2.0.exe:  18%|#########1                                          | 8.26M/47.1M [00:01<00:07, 5.67MiB/s]./Excel Tools v2.0.exe:  21%|##########9                                         | 9.91M/47.1M [00:01<00:04, 7.86MiB/s]./Excel Tools v2.0.exe:  23%|###########8                                        | 10.8M/47.1M [00:02<00:05, 6.93MiB/s]./Excel Tools v2.0.exe:  24%|############6                                       | 11.5M/47.1M [00:02<00:06, 6.12MiB/s]./Excel Tools v2.0.exe:  26%|#############4                                      | 12.2M/47.1M [00:02<00:05, 6.30MiB/s]./Excel Tools v2.0.exe:  27%|##############1                                     | 12.9M/47.1M [00:02<00:06, 5.57MiB/s]./Excel Tools v2.0.exe:  29%|##############9                                     | 13.5M/47.1M [00:02<00:06, 5.84MiB/s]./Excel Tools v2.0.exe:  30%|###############5                                    | 14.1M/47.1M [00:02<00:07, 4.72MiB/s]./Excel Tools v2.0.exe:  32%|################4                                   | 14.9M/47.1M [00:03<00:08, 3.88MiB/s]./Excel Tools v2.0.exe:  34%|#################5                                  | 15.9M/47.1M [00:03<00:06, 5.02MiB/s]./Excel Tools v2.0.exe:  36%|##################7                                 | 16.9M/47.1M [00:03<00:05, 6.16MiB/s]./Excel Tools v2.0.exe:  37%|###################4                                | 17.7M/47.1M [00:03<00:05, 5.94MiB/s]./Excel Tools v2.0.exe:  39%|####################2                               | 18.3M/47.1M [00:03<00:05, 5.96MiB/s]./Excel Tools v2.0.exe:  40%|####################8                               | 18.9M/47.1M [00:03<00:06, 4.68MiB/s]./Excel Tools v2.0.exe:  42%|#####################9                              | 19.9M/47.1M [00:03<00:04, 5.85MiB/s]./Excel Tools v2.0.exe:  44%|######################7                             | 20.6M/47.1M [00:04<00:05, 5.53MiB/s]./Excel Tools v2.0.exe:  45%|#######################3                            | 21.2M/47.1M [00:04<00:04, 5.58MiB/s]./Excel Tools v2.0.exe:  46%|########################                            | 21.8M/47.1M [00:04<00:05, 5.19MiB/s]./Excel Tools v2.0.exe:  48%|########################8                           | 22.5M/47.1M [00:04<00:04, 5.66MiB/s]./Excel Tools v2.0.exe:  49%|#########################4                          | 23.1M/47.1M [00:04<00:04, 5.60MiB/s]./Excel Tools v2.0.exe:  50%|##########################                          | 23.6M/47.1M [00:04<00:04, 5.36MiB/s]./Excel Tools v2.0.exe:  51%|##########################6                         | 24.2M/47.1M [00:04<00:04, 5.37MiB/s]./Excel Tools v2.0.exe:  52%|###########################2                        | 24.7M/47.1M [00:04<00:04, 5.40MiB/s]./Excel Tools v2.0.exe:  54%|###########################8                        | 25.2M/47.1M [00:04<00:04, 5.50MiB/s]./Excel Tools v2.0.exe:  55%|############################4                       | 25.8M/47.1M [00:05<00:04, 5.48MiB/s]./Excel Tools v2.0.exe:  56%|#############################                       | 26.3M/47.1M [00:05<00:03, 5.59MiB/s]./Excel Tools v2.0.exe:  57%|#############################6                      | 26.9M/47.1M [00:05<00:04, 4.47MiB/s]./Excel Tools v2.0.exe:  59%|##############################9                     | 28.0M/47.1M [00:05<00:03, 6.26MiB/s]./Excel Tools v2.0.exe:  61%|###############################6                    | 28.7M/47.1M [00:05<00:03, 6.42MiB/s]./Excel Tools v2.0.exe:  62%|################################3                   | 29.3M/47.1M [00:05<00:02, 6.36MiB/s]./Excel Tools v2.0.exe:  64%|#################################                   | 30.0M/47.1M [00:05<00:02, 6.01MiB/s]./Excel Tools v2.0.exe:  66%|##################################1                 | 30.9M/47.1M [00:05<00:02, 7.10MiB/s]./Excel Tools v2.0.exe:  67%|##################################9                 | 31.7M/47.1M [00:05<00:02, 7.27MiB/s]./Excel Tools v2.0.exe:  69%|###################################7                | 32.4M/47.1M [00:06<00:02, 7.43MiB/s]./Excel Tools v2.0.exe:  71%|####################################6               | 33.2M/47.1M [00:06<00:01, 7.70MiB/s]./Excel Tools v2.0.exe:  72%|#####################################6              | 34.1M/47.1M [00:06<00:01, 8.11MiB/s]./Excel Tools v2.0.exe:  74%|######################################5             | 35.0M/47.1M [00:06<00:01, 8.31MiB/s]./Excel Tools v2.0.exe:  76%|#######################################4            | 35.8M/47.1M [00:06<00:01, 6.75MiB/s]./Excel Tools v2.0.exe:  79%|########################################8           | 37.0M/47.1M [00:06<00:01, 8.30MiB/s]./Excel Tools v2.0.exe:  80%|#########################################7          | 37.9M/47.1M [00:06<00:01, 7.84MiB/s]./Excel Tools v2.0.exe:  82%|##########################################7         | 38.8M/47.1M [00:06<00:01, 8.21MiB/s]./Excel Tools v2.0.exe:  84%|###########################################8        | 39.8M/47.1M [00:06<00:00, 8.87MiB/s]./Excel Tools v2.0.exe:  86%|############################################8       | 40.6M/47.1M [00:07<00:00, 8.36MiB/s]./Excel Tools v2.0.exe:  88%|#############################################9      | 41.6M/47.1M [00:07<00:00, 8.88MiB/s]./Excel Tools v2.0.exe:  91%|###############################################1    | 42.7M/47.1M [00:07<00:00, 9.59MiB/s]./Excel Tools v2.0.exe:  93%|################################################3   | 43.8M/47.1M [00:07<00:00, 10.1MiB/s]./Excel Tools v2.0.exe:  95%|#################################################4  | 44.8M/47.1M [00:07<00:00, 8.03MiB/s]./Excel Tools v2.0.exe:  99%|###################################################4| 46.6M/47.1M [00:07<00:00, 10.6MiB/s]./Excel Tools v2.0.exe: 100%|####################################################| 47.1M/47.1M [00:07<00:00, 6.37MiB/s]
 ----------Above 2025-04-25 22:08:06----------
 
-./Excel Tools v2.0.exe:   0%|          | 0.00/47.1M [00:00<?, ?iB/s]./Excel Tools v2.0.exe:   0%|          | 33.0k/47.1M [00:00<03:18, 248kiB/s]./Excel Tools v2.0.exe:   0%|          | 145k/47.1M [00:00<01:33, 524kiB/s] ./Excel Tools v2.0.exe:   1%|          | 362k/47.1M [00:00<00:44, 1.10MiB/s]./Excel Tools v2.0.exe:   2%|1         | 926k/47.1M [00:00<00:18, 2.64MiB/s]./Excel Tools v2.0.exe:   3%|2         | 1.19M/47.1M [00:00<00:17, 2.75MiB/s]./Excel Tools v2.0.exe:   4%|4         | 2.09M/47.1M [00:00<00:09, 4.79MiB/s]./Excel Tools v2.0.exe:   5%|5         | 2.58M/47.1M [00:01<00:20, 2.27MiB/s]./Excel Tools v2.0.exe:   6%|6         | 2.94M/47.1M [00:01<00:25, 1.81MiB/s]./Excel Tools v2.0.exe:   7%|7         | 3.36M/47.1M [00:01<00:25, 1.82MiB/s]
+./Excel Tools v2.0.exe:   0%|          | 0.00/47.1M [00:00<?, ?iB/s]./Excel Tools v2.0.exe:   0%|          | 33.0k/47.1M [00:00<03:18, 248kiB/s]./Excel Tools v2.0.exe:   0%|          | 145k/47.1M [00:00<01:33, 524kiB/s] ./Excel Tools v2.0.exe:   1%|          | 362k/47.1M [00:00<00:44, 1.10MiB/s]./Excel Tools v2.0.exe:   2%|1         | 926k/47.1M [00:00<00:18, 2.64MiB/s]./Excel Tools v2.0.exe:   3%|2         | 1.19M/47.1M [00:00<00:17, 2.75MiB/s]./Excel Tools v2.0.exe:   4%|4         | 2.09M/47.1M [00:00<00:09, 4.79MiB/s]./Excel Tools v2.0.exe:   5%|5         | 2.58M/47.1M [00:01<00:20, 2.27MiB/s]./Excel Tools v2.0.exe:   6%|6         | 2.94M/47.1M [00:01<00:25, 1.81MiB/s]./Excel Tools v2.0.exe:   7%|7         | 3.36M/47.1M [00:01<00:25, 1.82MiB/s]Traceback (most recent call last):
+  File "D:\My Projects\Excel-Tools\main.py", line 622, in <module>
+    main()
+    ~~~~^^
+  File "D:\My Projects\Excel-Tools\main.py", line 472, in main
+    t1.grid(row=0, column=3, padx=5, sticky=tk.W)
+    ^^
+NameError: name 't1' is not defined
+Traceback (most recent call last):
+  File "D:\My Projects\Excel-Tools\main.py", line 622, in <module>
+    main()
+    ~~~~^^
+  File "D:\My Projects\Excel-Tools\main.py", line 472, in main
+    t1.grid(row=0, column=3, padx=5, sticky=tk.W)
+    ^^
+NameError: name 't1' is not defined
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\My Projects\Excel-Tools\main.py", line 627, in <module>
+    input()
+    ~~~~~^^
+  File "<frozen codecs>", line 322, in decode
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "D:\My Projects\Excel-Tools\main.py", line 625, in <module>
+    main()
+    ~~~~^^
+  File "D:\My Projects\Excel-Tools\main.py", line 590, in main
+    window_menu.add_command(label='切换置顶', command=top_switch, variable=var_topmost)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 3517, in add_command
+    self.add('command', cnf or kw)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 3504, in add
+    self.tk.call((self._w, 'add', itemType) +
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+             self._options(cnf, kw))
+             ^^^^^^^^^^^^^^^^^^^^^^^
+_tkinter.TclError: unknown option "-variable"
+Traceback (most recent call last):
+  File "D:\My Projects\Excel-Tools\main.py", line 625, in <module>
+    main()
+    ~~~~^^
+  File "D:\My Projects\Excel-Tools\main.py", line 590, in main
+    window_menu.add_command(label='切换置顶', command=top_switch, variable=var_topmost)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 3517, in add_command
+    self.add('command', cnf or kw)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 3504, in add
+    self.tk.call((self._w, 'add', itemType) +
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+             self._options(cnf, kw))
+             ^^^^^^^^^^^^^^^^^^^^^^^
+_tkinter.TclError: unknown option "-variable"
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\My Projects\Excel-Tools\main.py", line 630, in <module>
+    input()
+    ~~~~~^^
+  File "<frozen codecs>", line 322, in decode
+KeyboardInterrupt
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 249, in move_key
+    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\MoveKey.py", line 9, in main
+    now = start[0]
+          ~~~~~^^^
+IndexError: string index out of range
+Traceback (most recent call last):
+  File "D:\My Projects\Excel-Tools\main.py", line 584, in <module>
+    main()
+    ~~~~^^
+  File "D:\My Projects\Excel-Tools\main.py", line 526, in main
+    bt8.grid(row=0, column=0, padx=5, pady=5, sticky=tk.WN)
+                                                     ^^^^^
+AttributeError: module 'tkinter' has no attribute 'WN'
+Traceback (most recent call last):
+  File "D:\My Projects\Excel-Tools\main.py", line 584, in <module>
+    main()
+    ~~~~^^
+  File "D:\My Projects\Excel-Tools\main.py", line 526, in main
+    bt8.grid(row=0, column=0, padx=5, pady=5, sticky=tk.WN)
+                                                     ^^^^^
+AttributeError: module 'tkinter' has no attribute 'WN'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\My Projects\Excel-Tools\main.py", line 589, in <module>
+    input()
+    ~~~~~^^
+  File "<frozen codecs>", line 322, in decode
+KeyboardInterrupt
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 264, in excel_search
+    ExcelSearch.find_data_in_multiple_excel(var8.get(), data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\ExcelSearch.py", line 45, in find_data_in_multiple_excel
+    workbook = load_workbook(full_path)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\reader\excel.py", line 348, in load_workbook
+    reader.read()
+    ~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\reader\excel.py", line 303, in read
+    self.read_worksheets()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\reader\excel.py", line 237, in read_worksheets
+    ws_parser.bind_all()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\_reader.py", line 466, in bind_all
+    self.bind_merged_cells()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\_reader.py", line 403, in bind_merged_cells
+    self.ws._clean_merge_range(mcr)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\worksheet.py", line 615, in _clean_merge_range
+    mcr.format()
+    ~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\merge.py", line 120, in format
+    cell.border += border
+    ^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\styles\styleable.py", line 26, in __set__
+    setattr(instance._style, self.key, coll.add(value))
+                                       ~~~~~~~~^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\utils\indexed_list.py", line 49, in add
+    return self._dict[value]
+           ~~~~~~~~~~^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\descriptors\serialisable.py", line 179, in __eq__
+    if getattr(self, el) != getattr(other, el):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\descriptors\serialisable.py", line 185, in __ne__
+    return not self == other
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\descriptors\serialisable.py", line 179, in __eq__
+    if getattr(self, el) != getattr(other, el):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\descriptors\serialisable.py", line 185, in __ne__
+    return not self == other
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\descriptors\serialisable.py", line 176, in __eq__
+    elif not dict(self) == dict(other):
+             ~~~~^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\styles\colors.py", line 110, in __iter__
+    yield k, safe_string(v)
+             ~~~~~~~~~~~^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\compat\strings.py", line 12, in safe_string
+    def safe_string(value):
+    
+KeyboardInterrupt
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 256, in excel_search
+    ExcelSearch.find_data_in_multiple_excel(var8.get(), data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\ExcelSearch.py", line 59, in find_data_in_multiple_excel
+    print(cell.row)
+          ^^^^^^^^
+AttributeError: 'EmptyCell' object has no attribute 'row'
+C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\header_footer.py:48: UserWarning: Cannot parse header or footer so it will be ignored
+  warn("""Cannot parse header or footer so it will be ignored""")
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 256, in excel_search
+    ExcelSearch.find_data_in_multiple_excel(var8.get(), data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\ExcelSearch.py", line 45, in find_data_in_multiple_excel
+    workbook = load_workbook(full_path, read_only=True)  # 使用只读模式提高性能
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\reader\excel.py", line 348, in load_workbook
+    reader.read()
+    ~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\reader\excel.py", line 291, in read
+    self.read_strings()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\reader\excel.py", line 147, in read_strings
+    self.shared_strings = reader(src)
+                          ~~~~~~^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\reader\strings.py", line 18, in read_string_table
+    text = Text.from_tree(node).content
+           ~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\descriptors\serialisable.py", line 74, in from_tree
+    tag = localname(el)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\xml\functions.py", line 80, in localname
+    m = NS_REGEX.match(node.tag)
+KeyboardInterrupt
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 256, in excel_search
+    ExcelSearch.find_data_in_multiple_excel(var8.get(), data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\ExcelSearch.py", line 59, in find_data_in_multiple_excel
+    print(cell.coordinate)
+          ^^^^^^^^^^^^^^^
+AttributeError: 'EmptyCell' object has no attribute 'coordinate'
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 256, in excel_search
+    ExcelSearch.find_data_in_multiple_excel(var8.get(), data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\ExcelSearch.py", line 59, in find_data_in_multiple_excel
+    print(cell.coordinate)
+          ^^^^^^^^^^^^^^^
+AttributeError: 'EmptyCell' object has no attribute 'coordinate'
+----------Above 2025-04-27 21:43:11----------
+
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 256, in excel_search
+    ExcelSearch.find_data_in_multiple_excel(var8.get(), data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\ExcelSearch.py", line 59, in find_data_in_multiple_excel
+    cell.row
+AttributeError: 'EmptyCell' object has no attribute 'row'
+----------Above 2025-04-27 21:43:49----------
+
+C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\header_footer.py:48: UserWarning: Cannot parse header or footer so it will be ignored
+  warn("""Cannot parse header or footer so it will be ignored""")
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 256, in excel_search
+    ExcelSearch.find_data_in_multiple_excel(var8.get(), data)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'ExcelSearch' has no attribute 'find_data_in_multiple_excel'
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = Extract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = Extract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = Extract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = Extract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = Extract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = Extract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = Extract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = Extract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = Extract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = Extract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = Extract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = Extract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = Extract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = Extract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = Extract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = Extract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = Extract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = Extract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = ExcelExtract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = ExcelExtract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = ExcelExtract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = ExcelExtract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 167, in extract
+    result = ExcelExtract.main(var2.get(), var3.get(), var1.get())
+             ^^^^^^^
+NameError: name 'Extract' is not defined. Did you mean: 'extract'?
+Process SpawnPoolWorker-22:
+Process SpawnPoolWorker-17:
+Process SpawnPoolWorker-21:
+Process SpawnPoolWorker-23:
+Traceback (most recent call last):
+Traceback (most recent call last):
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\pool.py", line 51, in starmapstar
+    return list(itertools.starmap(args[0], args[1]))
+  File "D:\My Projects\Excel-Tools\ExcelSearch.py", line 43, in singleSearch
+    value = str(worksheet[index].value)
+                ~~~~~~~~~^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\worksheet.py", line 311, in __getitem__
+    return self._get_cell(min_row, min_col)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\_read_only.py", line 132, in _get_cell
+    for row in self._cells_by_row(column, row, column, row):
+               ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\_read_only.py", line 90, in _cells_by_row
+    for _ in range(counter, idx):
+             ~~~~~^^^^^^^^^^^^^^
+KeyboardInterrupt
+Traceback (most recent call last):
+Traceback (most recent call last):
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\pool.py", line 51, in starmapstar
+    return list(itertools.starmap(args[0], args[1]))
+  File "D:\My Projects\Excel-Tools\ExcelSearch.py", line 43, in singleSearch
+    value = str(worksheet[index].value)
+                ~~~~~~~~~^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\worksheet.py", line 311, in __getitem__
+    return self._get_cell(min_row, min_col)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\_read_only.py", line 132, in _get_cell
+    for row in self._cells_by_row(column, row, column, row):
+               ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\_read_only.py", line 85, in _cells_by_row
+    for idx, row in parser.parse():
+                    ~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\_reader.py", line 167, in parse
+    row = self.parse_row(element)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\_reader.py", line 301, in parse_row
+    self.row_dimensions[str(self.row_counter)] = attrs
+                        ~~~^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+wargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\pool.py", line 51, in starmapstar
+    return list(itertools.starmap(args[0], args[1]))
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ~~~~^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\ExcelSearch.py", line 43, in singleSearch
+    value = str(worksheet[index].value)
+                ~~~~~~~~~^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\worksheet.py", line 311, in __getitem__
+    return self._get_cell(min_row, min_col)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\ExcelSearch.py", line 43, in singleSearch
+    value = str(worksheet[index].value)
+                ~~~~~~~~~^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\_read_only.py", line 132, in _get_cell
+    for row in self._cells_by_row(column, row, column, row):
+               ~~~~~~~~~~~~~~  File "C:\Users\Admin\AppData\L  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+n self._cells_by_row(column, row, column, row):
+               ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\_read_only.py", line 85, in _cells_by_row
+    for idx, row in parser.parse():
+                    ~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ~~~~^^^^^^^^^^^^^^^
+KeyboardInterrupt
+min\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\pool.py", line 51, in starmapstar
+    return list(itertools.starmap(args[0], args[1]))
+  File "D:\My Projects\Excel-Tools\ExcelSearch.py", line 43, in singleSearch
+    value = str(worksheet[index].value)
+                ~~~~~~~~~^^^^^^^
+rgs[0], args[1]))
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\pool.py", line 51, in starmapstar
+    return list(itertools.starmap(args[0], args[1]))
+  File "D:\My Projects\Excel-Tools\ExcelSearch.py", line 43, in singleSearch
+    value = str(worksheet[index].value)
+                ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\ExcelSearch.py", line 43, in singleSearch
+    value = str(worksheet[index].value)
+                ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\ExcelSearch.py", line 43, in singleSearch
+    value = str(worksheet[index].value)
+                ~~~~~~~~~^^^^^^^
+elf._get_cell(min_row, min_col)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\worksheet.py", line 311, in __getitem__
+    return self._get_cell(min_row, min_col)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\_read_only.py", line 132, in _get_cell
+    for row in self._cells_by_row(column, row, column, row):
+               ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\_read_only.py", line 85, in _cells_by_row
+    for idx, row in parser.parse():
+                    ~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\worksheet.py", line 311, in __getitem__
+    return self._get_cell(min_row, min_col)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\_read_only.py", line 132, in _get_cell
+    for row in self._cells_by_row(column, row, column, row):
+               ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+ages\openpyxl\descriptors\serialisable.py", line 103, in from_tree
+    return cls(**attrib)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\_read_only.py", line 85, in _cells_by_row
+    for idx, row in parser.parse():
+                    ~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\_reader.py", line 156, in parse
+    for _, element in it:
+                      ^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\views.py", line 109, in __init__
+    self.showRowColHeaders = showRowColHeaders
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\_read_only.py", line 85, in _cells_by_row
+    for idx, row in parser.parse():
+                    ~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\descriptors\base.py", line 168, in __set__
+    super().__set__(instance, value)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\worksheet\_reader.py", line 156, in parse
+    for _, element in it:
+                      ^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\openpyxl\descriptors\base.py", line 68, in __set__
+    def __set__(self, instance, value):
+    
+KeyboardInterrupt
+min\AppData\Local\Programs\Python\Python313\Lib\xml\etree\ElementTree.py", line 1241, in iterator
+    pullparser.feed(data)
+    ~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\xml\etree\ElementTree.py", line 1291, in feed
+    self._parser.feed(data)
+    ~~~~~~~~~~~~~~~~~^^^^^^
+KeyboardInterrupt
+KeyboardInterrupt
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\main.py", line 254, in excel_search
+    raise # 还没改
+    ^^^^^
+RuntimeError: No active exception to reraise
+Traceback (most recent call last):
+  File "D:\My Projects\Excel-Tools\main.py", line 564, in <module>
+    main()
+    ~~~~^^
+  File "D:\My Projects\Excel-Tools\main.py", line 536, in main
+    if check and set_value['auto_update']: # check在第一次进入时为True，从设置进入时为False
+                 ^^^^^^^^^
+NameError: name 'set_value' is not defined
+Traceback (most recent call last):
+  File "D:\My Projects\Excel-Tools\main.py", line 564, in <module>
+    main()
+    ~~~~^^
+  File "D:\My Projects\Excel-Tools\main.py", line 536, in main
+    if check and set_value['auto_update']: # check在第一次进入时为True，从设置进入时为False
+                 ^^^^^^^^^
+NameError: name 'set_value' is not defined
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\My Projects\Excel-Tools\main.py", line 569, in <module>
+    input()
+    ~~~~~^^
+  File "<frozen codecs>", line 322, in decode
+KeyboardInterrupt

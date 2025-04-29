@@ -1,12 +1,10 @@
-import Extract
+import ExcelExtract
+import ExcelInsert
+import ExcelSearch
 import GoogleSearch
-import Insert
 import CheckUpdate
 import Settings
 import MoveKey
-import ExcelSearch
-import PostData
-import ExcelCheck
 
 import tkinter as tk
 import shutil
@@ -14,7 +12,6 @@ import traceback
 import sys
 import requests
 import webbrowser
-import winsound
 import os
 import subprocess
 import tkinterdnd2
@@ -22,20 +19,19 @@ import json
 import time
 import re
 import ctypes
-import threading
 
-from concurrent.futures import ThreadPoolExecutor
 from colorama import Fore, Style
 from threading import Thread
-from ast import literal_eval
 from tkinter import messagebox
 from tkinter import filedialog
 from easygui import exceptionbox
-from socket import gethostname
+
+# 1.检查各个模块的名字有没有错
+# 2.重点检查excelsearch功能的多线程功能
 
 update_content = '''
-1. 优化了搜索显示。
-2. 修改了更新部分代码。
+1. Excel搜索部分改用多进程，大幅提高了搜索效率。
+2. 优化了其他的部分的代码。
 '''
 
 def get_time():
@@ -128,27 +124,7 @@ def update(auto=False):
     else:
         NEW = state
 
-def old_update(auto=False):  # auto表示该函数是否为自动更新调用的，如果是就不弹窗
-    global NEW, id
-    NEW, id = CheckUpdate.check_update()
-    if NEW == 0:
-        messagebox.showerror('错误', '无法连接至更新服务器！请检查网络状态。')
-    elif VERSION >= NEW:
-        if not auto:
-            messagebox.showinfo('提示', '当前程序为最新版本，无需更新。')
-        else:
-            print('当前程序为最新版本！')
-    elif VERSION < NEW:
-        if messagebox.askyesno('提示', f'发现新版本v{NEW}，当前版本v{VERSION}\n按下”是“进行自动更新，按下”否“忽略本次更新。\n注：下载可能需要一定的时间，请耐心等待，请勿关闭此程序！'):
-            try:
-                CheckUpdate.download_update(id, f'Excel Tools v{NEW}.exe')
-            except:
-                exceptionbox(title='错误', msg='更新失败！请检查网络状态，并将此错误报告发送至管理员Sam！')
-                return
-            messagebox.showinfo('提示', '更新成功！即将运行新版本。')
-            root.destroy()
-            subprocess.Popen(f'Excel Tools v{NEW}.exe')
-            sys.exit()
+
 
 def open_file():
     file_path = filedialog.askopenfilename()
@@ -171,7 +147,7 @@ def extract():
         record.append(f'{get_time()} Extract Failed - The selected file does not exist')
         return False
     t1.delete("1.0", tk.END)
-    result = Extract.main(var2.get(), var3.get(), var1.get())
+    result = ExcelExtract.main(var2.get(), var3.get(), var1.get())
     if type(result[0]) == list:
         for i in result:
             t1.insert(tk.END, "\n".join(i))
@@ -184,11 +160,11 @@ def extract():
     return True
 
 def search():
-    try:
+    try: # 先尝试连接
         response = requests.get("https://www.google.com/")
     except:
         messagebox.showerror(title="错误", message="无法连接至谷歌服务器，请重试。")
-        record.append(f'{get_time()} Search Failed')
+        record.append(f'{get_time()} Search Failed - Connection Failed')
         return False
 
     error_img = GoogleSearch.main(t1.get("1.0", tk.END).split("\n"), set_value['filter'], set_value['path'])
@@ -196,39 +172,21 @@ def search():
     if error_img: # 有图片没搜到
         messagebox.showwarning('警告', f'搜索完成！但有{error_img}个件号图片无法被搜到，请检查件号是否有误！')
         record.append(f'{get_time()} Search Successfully but {error_img} Not Found')
-
-        '''if messagebox.askyesno('提示', '是否继续搜索英文名？'):
-            for content in t1.get("1.0", tk.END).split("\n"):
-                if content == '' or content == '\n':
-                    continue
-                GoogleSearch.searchName(content)
-            messagebox.showinfo('提示', '英文名搜索完成。')
-            record.append(f'{get_time()} English_name Search Successfully')'''
-
         return False
+
     # 正常状态
     record.append(f'{get_time()} Search Successfully')
     messagebox.showinfo('提示', '搜索完成！')
-
-    '''if messagebox.askyesno("提示", "搜索完成！是否继续搜索英文名？"):
-        for content in t1.get("1.0", tk.END).split("\n"):
-            if content == '' or content == '\n':
-                continue
-            GoogleSearch.searchName(content)
-        messagebox.showinfo('提示', '英文名搜索完成。')
-        record.append(f'{get_time()} English_name Search Successfully')'''
     return True
 
 def insert():
     try:
         num = int(var3.get()[1:]) - int(var2.get()[1:]) + 1 # 待插入的图片数量
-        error_insert = Insert.main([var4.get()[0], int(var4.get()[1:])], num, var1.get(), set_value['path'])
+        error_insert = ExcelInsert.main([var4.get()[0], int(var4.get()[1:])], num, var1.get(), set_value['path'])
     except FileNotFoundError:
         messagebox.showerror('错误', '未找到Excel文件或图片文件！')
-        record.append(f'{get_time()} Insert Failed')
+        record.append(f'{get_time()} Insert Failed - The selected file does not exist')
         return False
-    '''if set_value['auto_delete']:  # 删除img文件夹
-        shutil.rmtree(set_value['path'])'''
     if error_insert and error_insert != 'STOP':
         messagebox.showwarning('警告', f'有{error_insert}个图片插入失败！其余插入成功。\n注：请检查插入图片失败的件号是否正确！')
         record.append(f'{get_time()} Insert Successfully but {error_insert} Failed')
@@ -251,46 +209,31 @@ def move_key():
     record.append(f'{get_time()} Move keys Successfully')
 
 def excel_search():
+    start = time.time()
     data_list = t1.get('1.0', tk.END).split('\n')
     for data in data_list:
         if data.strip() == '':
             continue
-        elif os.path.isfile(var8.get()):
-            if not ExcelSearch.find_data_in_single_excel(var8.get(), data):
-                record.append(f'{get_time()} Single Excel Search Failed')
-                return False
+
+        elif os.path.isfile(var8.get()): # 搜索单个文件
+            ExcelSearch.singleSearch(var8.get(), data)
             record.append(f'{get_time()} Single Excel Search Successfully')
-        elif os.path.isdir(var8.get()):
-            ExcelSearch.find_data_in_multiple_excel(var8.get(), data)
+
+        elif os.path.isdir(var8.get()): # 搜索多个文件
+            ExcelSearch.multipleSearch(var8.get(), data)
             record.append(f'{get_time()} Multiple Excel Search Successfully')
-        print(f'---------------以上为 "{data}" 的搜索结果---------------')
+
+        end = time.time()
+        print(f'---------------以上为 "{data}" 的搜索结果，用时：{end-start:.2f}s---------------')
     messagebox.showinfo('提示', '搜索完成！请到命令行查看搜索结果。')
 
-def excel_check():
-    if os.path.isdir(var8.get()):
-        ExcelCheck.checkSum(var8.get())
-        print(f'---------------以上为 "SUM函数" 的检查结果---------------')
-        messagebox.showinfo('提示', '检查完成！请到命令行查看检查结果。')
-        record.append(f'{get_time()} CheckSum Successfully')
-    else:
-        messagebox.showwarning('警告', '请选择一个文件夹而不是一个文件。')
-        record.append(f'{get_time()} CheckSum Failed - Selected a file instead of a folder')
-
-def exit_():
-    root.destroy()
-
-    save()
-    postLog()
-    sys.exit()
-
-def about():
+def about(): # 关于
     if not NEW:
         messagebox.showinfo("关于", f'当前版本：v{VERSION}\n最新版本：未知（请点击 "关于->检查更新" 获取更新）\n作者：Sam')
     else:
         messagebox.showinfo("关于", f"当前版本：v{VERSION}\n最新版本：v{NEW}\n作者：Sam")
 
-def postLog(): # 网站已废弃，暂时关闭postlog功能，何时恢复未知...
-    # 先处理文件
+def saveLog(): # 保存日志
     with open(rf'{LOG_DIR}\operation.log', 'a') as f:
         record.append(f'{get_time()}!')
         f.write(json.dumps(record)+'\n')
@@ -298,21 +241,6 @@ def postLog(): # 网站已废弃，暂时关闭postlog功能，何时恢复未�
     if multi_stream.isWrite:
         with open(rf'{LOG_DIR}\error.log', 'a') as f:
             f.write(f'----------Above {get_time()}----------\n\n')
-        # 上传日志
-        r'''with open(rf'{LOG_DIR}\error.log', 'r') as f:
-            if PostData.postData(f.read(), 'errorLog', gethostname()):
-                print(blue_text('日志上传成功！'))
-            else:
-                print(red_text('日志上传失败！'))
-                sys.exit()
-
-    with open(rf'{LOG_DIR}\operation.log', 'r') as f:
-        state = PostData.postData(f.read(), 'recordLog', gethostname())
-        if not multi_stream.isWrite:
-            if state:
-                print(blue_text('日志上传成功！'))
-            else:
-                print(red_text('日志上传失败！'))'''
 
 def easydo(): # 一键操作
     if not extract():
@@ -419,10 +347,10 @@ def main(check=True): # check为是否检查更新以及是否输出提示文本
 
     deleteOld()
 
-    set_value = Settings.load()
-    if len(set_value) != Settings.set_value_len:
-        Settings.save(True)
-        set_value = Settings.load()
+    #set_value = Settings.load()
+    #if len(set_value) != Settings.set_value_len:
+    #    Settings.save(True)
+    #    set_value = Settings.load()
 
     root = tkinterdnd2.Tk()
     root.title(f"Excel Tools by Sam v{VERSION}")
@@ -468,6 +396,8 @@ def main(check=True): # check为是否检查更新以及是否输出提示文本
     root.dnd_bind('<<Drop>>', on_drop)
     bt1 = tk.Button(f1, text="选择", command=open_file)
     bt1.grid(row=0, column=2, padx=5, sticky=tk.W)
+    bt_open = tk.Button(f1, text='打开', command=lambda: os.startfile(var1.get()))
+    bt_open.grid(row=0, column=3, padx=5, sticky=tk.W)
 
     f2 = tk.Frame(root)
     f2.grid(row=1, column=0, sticky=tk.NW)
@@ -540,7 +470,7 @@ def main(check=True): # check为是否检查更新以及是否输出提示文本
     bt6.grid(row=3, column=0, padx=5, pady=5, columnspan=2)
 
     # 数据搜索&函数检查
-    lf6 = tk.LabelFrame(root, text='数据搜索&函数检查(在上方文本框输入待搜索的内容)')
+    lf6 = tk.LabelFrame(root, text='数据搜索(在上方文本框输入待搜索的内容)')
     lf6.grid(row=2, column=0, padx=5, sticky=tk.NW)
     lf6.drop_target_register(tkinterdnd2.DND_FILES)
     lf6.dnd_bind('<<Drop>>', on_drop2)
@@ -556,37 +486,32 @@ def main(check=True): # check为是否检查更新以及是否输出提示文本
     bt8.grid(row=0, column=1, padx=5, pady=5, sticky=tk.N)
     bt9 = tk.Button(f4, text='搜索', command=excel_search)
     bt9.grid(row=0, column=2, padx=5, pady=5, sticky=tk.N)
-    bt10 = tk.Button(f4, text='检查', command=excel_check)
-    bt10.grid(row=0, column=3, padx=5, pady=5, sticky=tk.N)
 
     # 右键Menu
     rc_menu = tk.Menu(root, tearoff=0)
     rc_menu.add_command(label='复制', command=rc_copy)
     rc_menu.add_command(label='粘贴', command=rc_paste)
 
-    # 顶部Menu
+    # 创建菜单栏
     menubar = tk.Menu(root)
+    root.config(menu=menubar)
 
+    # 创建下拉菜单和菜单项
     about_menu = tk.Menu(menubar, tearoff=False)
+    menubar.add_cascade(label="关于", menu=about_menu)
     about_menu.add_command(label="关于", command=about)
     about_menu.add_command(label='检查更新', command=start_update)
     about_menu.add_command(label='更新公告', command=lambda: messagebox.showinfo('更新内容', update_content))
     about_menu.add_command(label='官网', command=lambda:webbrowser.open(r'https://aqiulawrence.github.io/'))
 
     set_menu = tk.Menu(menubar, tearoff=False)
+    menubar.add_cascade(label="设置", menu=set_menu)
     set_menu.add_command(label="设置", command=settings)
 
     window_menu = tk.Menu(menubar, tearoff=False)
-    window_menu.add_command(label='切换置顶', command=top_switch)
-
-    exit_menu = tk.Menu(menubar, tearoff=False)
-    exit_menu.add_command(label='退出', command=exit_)
-
-    menubar.add_cascade(label="关于", menu=about_menu)
-    menubar.add_cascade(label="设置", menu=set_menu)
     menubar.add_cascade(label='窗口', menu=window_menu)
-    menubar.add_cascade(label="退出", menu=exit_menu)
-    root.config(menu=menubar)
+    var_topmost = tk.BooleanVar(value=top) # 这里懒得改了直接用top变量
+    window_menu.add_checkbutton(label='总在最前', command=top_switch, variable=var_topmost)
 
     if check and set_value['auto_update']: # check在第一次进入时为True，从设置进入时为False
         thread = Thread(target=update, args=(True,))
@@ -604,9 +529,8 @@ def main(check=True): # check为是否检查更新以及是否输出提示文本
 
     root.mainloop()
 
-    # 主界面关闭后的处理，记得还要同步到 exit_() 函数上！
     save()
-    postLog()
+    saveLog()
     sys.exit()
 
 if __name__ == "__main__":
