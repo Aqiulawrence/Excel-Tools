@@ -3,8 +3,8 @@ import ExcelInsert
 import ExcelSearch
 import GoogleSearch
 import CheckUpdate
-import Settings
 import MoveKey
+from Logger import AppLogger, log
 
 import tkinter as tk
 import shutil
@@ -19,23 +19,33 @@ import json
 import time
 import re
 import ctypes
+import multiprocessing
 
 from colorama import Fore, Style
 from threading import Thread
-from tkinter import messagebox
-from tkinter import filedialog
+from tkinter import messagebox, filedialog
 from easygui import exceptionbox
 
-# 1.检查各个模块的名字有没有错
-# 2.重点检查excelsearch功能的多线程功能
-
-update_content = '''
+VERSION = "2.1" # 当前版本
+NEW = None # 最新版本
+UPDATE_CONTENT = '''
 1. Excel搜索部分改用多进程，大幅提高了搜索效率。
-2. 优化了其他的部分的代码。
+2. Excel搜索部分支持搜索.xls文件，搜图部分目前还未支持。
+3. 重写了设置和日志部分代码。
+4. 优化了其他的部分的代码。
 '''
 
-def get_time():
-    return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+top = False # 窗口是否置顶
+CONFIG_DIR = rf'.\configs'
+USERDATA_FILE = rf'{CONFIG_DIR}\userdata.json' # 此文件作用是保存主窗口内输入框的值
+LOG_DIR = rf'.\logs'
+if not os.path.exists(CONFIG_DIR):
+    os.makedirs(CONFIG_DIR)
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
+
+# 初始化日志系统
+app_logger = AppLogger()
 
 class MultiStream: # 多重错误流
     def __init__(self, *streams):
@@ -52,25 +62,158 @@ class MultiStream: # 多重错误流
         for stream in self.streams:
             stream.flush()
 
-CONFIG_DIR = rf'.\configs' # 此常量仅在 main.py 和 Settings.py 出现
-CONFIG_FILE1 = rf'.\configs\cf1.json' # 此文件作用是保存主窗口内输入框的值
-LOG_DIR = rf'.\logs' # 此常量在 GoogleSearch.py 也存在
-
-if not os.path.exists(CONFIG_DIR):
-    os.makedirs(CONFIG_DIR)
-if not os.path.exists(LOG_DIR):
-    os.makedirs(LOG_DIR)
-
 # 设置多重错误流
 err_log = open(rf'{LOG_DIR}\error.log', 'a')
 multi_stream = MultiStream(sys.stderr, err_log)
 sys.stderr = multi_stream
 
-VERSION = "2.0" # 当前版本
-NEW = None # 最新版本
-id = None # 蓝奏云文件的id，爬取下载地址需要用到，目前已废弃
-top = False # 窗口是否置顶
-record = [f'!{get_time()}'] # 记录程序的功能使用情况
+class SettingsApp:
+    CONFIG_DIR = "./configs"
+    CONFIG_FILE = f"{CONFIG_DIR}/config.json"
+
+    # 定义所有设置项及其属性
+    SETTINGS_SCHEMA = {
+        'auto_update': {
+            'type': 'checkbox',
+            'label': '启用自动更新：',
+            'default': 1
+        },
+        'filter': {
+            'type': 'checkbox',
+            'label': '搜图启用网站筛选：',
+            'default': 1
+        },
+        'auto_backup': {
+            'type': 'checkbox',
+            'label': '移动前自动备份：',
+            'default': 1
+        },
+        'max_workers': {
+            'type': 'entry',
+            'label': '搜索最大进程数：',
+            'default': 8,
+            'validate': 'int'  # 验证类型
+        }
+    }
+
+    def __init__(self):
+        self._settings_window = None
+        self._current_settings = self._load_default_settings()
+        self._load_saved_settings()
+
+    @property
+    def settings(self):
+        return self._current_settings.copy()
+
+    def get(self, name: str, default=None):
+        return self._current_settings.get(name, default)
+
+    def show(self, parent):
+        if self._settings_window and self._settings_window.winfo_exists(): # 双重判断
+            self._settings_window.lift() # 跳到前面
+            return
+
+        self._settings_window = tk.Toplevel(parent)
+        self._settings_window.title("设置")
+        self._settings_window.geometry("260x215+400+200")
+        self._settings_window.resizable(False, False)
+
+        self._create_settings_ui()
+        self._settings_window.protocol("WM_DELETE_WINDOW", self._close_settings)
+
+    def _load_default_settings(self):
+        return {name: config['default'] for name, config in self.SETTINGS_SCHEMA.items()}
+
+    def _load_saved_settings(self):
+        try:
+            if not os.path.exists(self.CONFIG_DIR):
+                os.makedirs(self.CONFIG_DIR)
+
+            if os.path.exists(self.CONFIG_FILE):
+                with open(self.CONFIG_FILE, 'r') as f:
+                    saved_settings = json.load(f)
+                    for name, value in saved_settings.items():
+                        if name in self._current_settings:
+                            self._current_settings[name] = value
+        except Exception as e:
+            print(f"加载设置失败: {e}")
+
+    def _save_from_ui(self):
+        try:
+            for name, var in self._setting_widgets.items():
+                config = self.SETTINGS_SCHEMA[name]
+
+                if config['type'] == 'checkbox':
+                    self._current_settings[name] = var.get()
+                elif config['type'] == 'entry':
+                    value = var.get()
+                    if config.get('validate') == 'int':
+                        value = int(value)
+                    self._current_settings[name] = value
+
+            if self._save_settings():
+                self._close_settings()
+
+        except ValueError:
+            messagebox.showerror("错误", "请输入有效的数字！")
+        except Exception as e:
+            messagebox.showerror("错误", f"保存失败: {str(e)}")
+
+    def _save_settings(self) -> bool:
+        try:
+            with open(self.CONFIG_FILE, 'w') as f:
+                json.dump(self._current_settings, f, indent=2)
+            return True
+        except Exception as e:
+            print(f"保存设置失败: {e}")
+            return False
+
+    def _create_settings_ui(self):
+        main_frame = tk.Frame(self._settings_window, padx=10, pady=10)
+        main_frame.pack(fill=tk.BOTH, expand=True)
+
+        # 创建设置项控件
+        self._setting_widgets = {}
+        for row, (name, config) in enumerate(self.SETTINGS_SCHEMA.items()):
+            frame = tk.Frame(main_frame)
+            frame.pack(fill=tk.X, pady=5)
+
+            label = tk.Label(frame, text=config['label'], width=20, anchor='w')
+            label.pack(side=tk.LEFT)
+
+            if config['type'] == 'checkbox':
+                var = tk.IntVar(value=self.get(name))
+                widget = tk.Checkbutton(frame, variable=var)
+                self._setting_widgets[name] = var
+            elif config['type'] == 'entry':
+                var = tk.StringVar(value=str(self.get(name)))
+                widget = tk.Entry(frame, textvariable=var, width=10)
+                self._setting_widgets[name] = var
+            widget.pack(side=tk.LEFT, padx=5)
+
+        # 添加按钮
+        btn_frame = tk.Frame(main_frame)
+        btn_frame.pack(fill=tk.X, pady=10)
+
+        tk.Button(
+            btn_frame, text="保存",
+            command=self._save_from_ui, width=10
+        ).pack(side=tk.RIGHT, padx=5)
+
+        tk.Button(
+            btn_frame, text="取消",
+            command=self._close_settings, width=10
+        ).pack(side=tk.RIGHT)
+
+    def _close_settings(self):
+        if self._settings_window:
+            self._settings_window.destroy()
+            self._settings_window = None
+
+app = SettingsApp()
+
+def get_time():
+    return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
 
 def isFirstOpen(): # 获取是否为第一次打开程序
     path = rf'{CONFIG_DIR}\record.json' # 这个文件只记录打开过的版本号
@@ -118,13 +261,145 @@ def update(auto=False):
     global NEW
     if auto == False:
         print('检查更新中...')
-    state = CheckUpdate.update(VERSION) # 返回值有三种：0表示获取更新失败（没开VPN）、1表示新版本下载完了、版本号
+    state = CheckUpdate.update(VERSION) # 返回值：0表示获取更新失败（没开VPN）、1表示新版本下载完了、版本号、False表示获取更新失败
     if state == 1: # 更新成功
         messagebox.showinfo('提示', '更新成功！请您运行新版本。')
     else:
         NEW = state
 
+@log
+def extract():
+    if not os.path.isfile(var1.get()):
+        messagebox.showerror('错误', '选择的文件不存在！')
+        return False
+    t1.delete("1.0", tk.END)
+    result = ExcelExtract.main(var2.get(), var3.get(), var1.get())
+    if type(result[0]) == list:
+        for i in result:
+            t1.insert(tk.END, "\n".join(i))
+            t1.insert(tk.END, "\n")
+    else:
+        t1.insert(tk.END, "\n".join(result))
+    if 'None' in result:
+        messagebox.showwarning('警告', '提取出空值，请检查选择的文件以及输入的单元格是否正确！')
+    return True
 
+@log
+def search():
+    try: # 先尝试连接
+        response = requests.get("https://www.google.com/")
+    except:
+        messagebox.showerror(title="错误", message="无法连接至谷歌服务器，请重试。")
+        return False
+
+    error_img = GoogleSearch.main(t1.get("1.0", tk.END).split("\n"), app.settings['filter'], r'.\imgs')
+
+    if error_img: # 有图片没搜到
+        messagebox.showwarning('警告', f'搜索完成！但有{error_img}个件号图片无法被搜到，请检查件号是否有误！')
+        return False
+
+    # 正常状态
+    messagebox.showinfo('提示', '搜索完成！')
+    return True
+
+@log
+def insert():
+    try:
+        num = int(var3.get()[1:]) - int(var2.get()[1:]) + 1 # 待插入的图片数量
+        error_insert = ExcelInsert.main([var4.get()[0], int(var4.get()[1:])], num, var1.get(), r'.\imgs')
+    except FileNotFoundError:
+        messagebox.showerror('错误', '未找到Excel文件或图片文件！')
+        return False
+    if error_insert and error_insert != 'STOP':
+        messagebox.showwarning('警告', f'有{error_insert}个图片插入失败！其余插入成功。\n注：请检查插入图片失败的件号是否正确！')
+        return False
+    elif error_insert == 'STOP':
+        return False
+    messagebox.showinfo("提示", "插入完成！")
+
+@log
+def move_key():
+    if not os.path.isfile(var1.get()):
+        messagebox.showerror('错误', '选择的文件不存在！')
+        return False
+    if app.settings.get('auto_backup'):
+        shutil.copyfile(var1.get(), 'backup.xlsx')
+        print(blue_text('Excel文件已成功备份到程序目录下的 "backup.xlsx"！'))
+    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
+    messagebox.showinfo('提示', '移动完成！')
+
+@log
+def excel_search():
+    start = time.time()
+    data_list = t1.get('1.0', tk.END).split('\n')
+    for data in data_list:
+        if data.strip() == '':
+            continue
+
+        elif os.path.isfile(var8.get()): # 搜索单个文件
+            ExcelSearch.single_search(var8.get(), data)
+
+        elif os.path.isdir(var8.get()): # 搜索多个文件
+            ExcelSearch.batch_search(var8.get(), data, app.settings['max_workers'])
+            if os.path.exists('./temp'):
+                shutil.rmtree('./temp')
+
+        end = time.time()
+        print(f'---------------以上为 "{data}" 的搜索结果，用时：{end-start:.2f}s---------------')
+    messagebox.showinfo('提示', '搜索完成！请到命令行查看搜索结果。')
+
+def about(): # 关于
+    if NEW:
+        messagebox.showinfo("关于", f"当前版本：v{VERSION}\n最新版本：v{NEW}\n作者QQ：2418131303\n有bug请联系作者！")
+    else:
+        messagebox.showinfo("关于", f"当前版本：v{VERSION}\n最新版本：未知\n作者QQ：2418131303\n有bug请联系作者！")
+
+def easydo(): # 一键操作
+    if not extract():
+        return
+    if search() == 0:
+        return
+    insert()
+
+def load(): # 加载上次填充的内容
+    global data
+    data = {}
+    if os.path.exists(USERDATA_FILE):
+        with open(USERDATA_FILE, 'r') as f:
+            try:
+                data = json.load(f)
+                return True
+            except json.decoder.JSONDecodeError:
+                data = {}
+                with open(USERDATA_FILE, 'w'): pass
+    else:
+        with open(USERDATA_FILE, 'w') as f: pass
+        return False
+
+def save():
+    data = {}
+    data['file'] = var1.get()
+    data['start1'] = var2.get()
+    data['end1'] = var3.get()
+    data['start2'] = var4.get()
+    data['move_start'] = var5.get()
+    data['move_end'] = var6.get()
+    data['move_target'] = var7.get()
+    data['search_file'] = var8.get()
+    data['isTop'] = top
+
+    with open(USERDATA_FILE, 'w') as f:
+        json.dump(data, f)
+
+def top_switch():
+    global top
+    top = not top
+    root.attributes("-topmost", top)
+
+def check_path(path):
+    if path.lower().endswith(('.xlsx', '.xls')):
+        return True
+    return False
 
 def open_file():
     file_path = filedialog.askopenfilename()
@@ -140,156 +415,6 @@ def open_file3(): # 选择文件夹
     file_path = filedialog.askdirectory()
     if os.path.isdir(file_path):
         var8.set(file_path)
-
-def extract():
-    if not os.path.isfile(var1.get()):
-        messagebox.showerror('错误', '选择的文件不存在！')
-        record.append(f'{get_time()} Extract Failed - The selected file does not exist')
-        return False
-    t1.delete("1.0", tk.END)
-    result = ExcelExtract.main(var2.get(), var3.get(), var1.get())
-    if type(result[0]) == list:
-        for i in result:
-            t1.insert(tk.END, "\n".join(i))
-            t1.insert(tk.END, "\n")
-    else:
-        t1.insert(tk.END, "\n".join(result))
-    if 'None' in result:
-        messagebox.showwarning('警告', '提取出空值，请检查选择的文件以及输入的单元格是否正确！')
-    record.append(f'{get_time()} Extract Successfully')
-    return True
-
-def search():
-    try: # 先尝试连接
-        response = requests.get("https://www.google.com/")
-    except:
-        messagebox.showerror(title="错误", message="无法连接至谷歌服务器，请重试。")
-        record.append(f'{get_time()} Search Failed - Connection Failed')
-        return False
-
-    error_img = GoogleSearch.main(t1.get("1.0", tk.END).split("\n"), set_value['filter'], set_value['path'])
-
-    if error_img: # 有图片没搜到
-        messagebox.showwarning('警告', f'搜索完成！但有{error_img}个件号图片无法被搜到，请检查件号是否有误！')
-        record.append(f'{get_time()} Search Successfully but {error_img} Not Found')
-        return False
-
-    # 正常状态
-    record.append(f'{get_time()} Search Successfully')
-    messagebox.showinfo('提示', '搜索完成！')
-    return True
-
-def insert():
-    try:
-        num = int(var3.get()[1:]) - int(var2.get()[1:]) + 1 # 待插入的图片数量
-        error_insert = ExcelInsert.main([var4.get()[0], int(var4.get()[1:])], num, var1.get(), set_value['path'])
-    except FileNotFoundError:
-        messagebox.showerror('错误', '未找到Excel文件或图片文件！')
-        record.append(f'{get_time()} Insert Failed - The selected file does not exist')
-        return False
-    if error_insert and error_insert != 'STOP':
-        messagebox.showwarning('警告', f'有{error_insert}个图片插入失败！其余插入成功。\n注：请检查插入图片失败的件号是否正确！')
-        record.append(f'{get_time()} Insert Successfully but {error_insert} Failed')
-        return False
-    elif error_insert == 'STOP':
-        return False
-    messagebox.showinfo("提示", "插入完成！")
-    record.append(f'{get_time()} Insert Successfully')
-
-def move_key():
-    if not os.path.isfile(var1.get()):
-        messagebox.showerror('错误', '选择的文件不存在！')
-        record.append(f'{get_time()} Move keys Failed - The selected file does not exist')
-        return False
-    if set_value.get('auto_backup'):
-        shutil.copyfile(var1.get(), 'backup.xlsx')
-        print(blue_text('Excel文件已成功备份到程序目录下的 "backup.xlsx"！'))
-    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
-    messagebox.showinfo('提示', '移动完成！')
-    record.append(f'{get_time()} Move keys Successfully')
-
-def excel_search():
-    start = time.time()
-    data_list = t1.get('1.0', tk.END).split('\n')
-    for data in data_list:
-        if data.strip() == '':
-            continue
-
-        elif os.path.isfile(var8.get()): # 搜索单个文件
-            ExcelSearch.singleSearch(var8.get(), data)
-            record.append(f'{get_time()} Single Excel Search Successfully')
-
-        elif os.path.isdir(var8.get()): # 搜索多个文件
-            ExcelSearch.multipleSearch(var8.get(), data)
-            record.append(f'{get_time()} Multiple Excel Search Successfully')
-
-        end = time.time()
-        print(f'---------------以上为 "{data}" 的搜索结果，用时：{end-start:.2f}s---------------')
-    messagebox.showinfo('提示', '搜索完成！请到命令行查看搜索结果。')
-
-def about(): # 关于
-    if not NEW:
-        messagebox.showinfo("关于", f'当前版本：v{VERSION}\n最新版本：未知（请点击 "关于->检查更新" 获取更新）\n作者：Sam')
-    else:
-        messagebox.showinfo("关于", f"当前版本：v{VERSION}\n最新版本：v{NEW}\n作者：Sam")
-
-def saveLog(): # 保存日志
-    with open(rf'{LOG_DIR}\operation.log', 'a') as f:
-        record.append(f'{get_time()}!')
-        f.write(json.dumps(record)+'\n')
-
-    if multi_stream.isWrite:
-        with open(rf'{LOG_DIR}\error.log', 'a') as f:
-            f.write(f'----------Above {get_time()}----------\n\n')
-
-def easydo(): # 一键操作
-    if not extract():
-        return
-    if search() == 0:
-        return
-    insert()
-
-def settings():
-    record.append(f'{get_time()} Open Settings')
-    save()
-    root.destroy()
-    Settings.main()
-    main(False)
-
-def load(): # 加载上次填充的内容
-    global data
-    data = {}
-    if os.path.exists(CONFIG_FILE1):
-        with open(CONFIG_FILE1, 'r') as f:
-            try:
-                data = json.load(f)
-                return True
-            except json.decoder.JSONDecodeError:
-                data = {}
-                with open(CONFIG_FILE1, 'w'): pass
-    else:
-        with open(CONFIG_FILE1, 'w') as f: pass
-        return False
-
-def save():
-    data = {}
-    data['file'] = var1.get()
-    data['start1'] = var2.get()
-    data['end1'] = var3.get()
-    data['start2'] = var4.get()
-    data['move_start'] = var5.get()
-    data['move_end'] = var6.get()
-    data['move_target'] = var7.get()
-    data['search_file'] = var8.get()
-    data['isTop'] = top
-
-    with open(CONFIG_FILE1, 'w') as f:
-        json.dump(data, f)
-
-def top_switch():
-    global top
-    top = not top
-    root.attributes("-topmost", top)
 
 def on_drop(event):
     if event.data.count('{') == 1:
@@ -313,14 +438,6 @@ def on_drop2(event):
     elif os.path.isdir(path):
         var8.set(path)
 
-def check_path(path):
-    if path[-4:] == '.xls':
-        messagebox.showerror('错误', '暂不支持对.xls文件操作，请转换为.xlsx版本')
-        return False
-    elif path[-5:] != '.xlsx':
-        return False
-    return True
-
 def rc_popup(event): # 右键弹出粘贴菜单
     rc_menu.post(event.x_root, event.y_root)
 
@@ -342,15 +459,10 @@ def green_text(text):
 def yellow_text(text):
     return Fore.YELLOW+Style.BRIGHT+text+Style.RESET_ALL
 
-def main(check=True): # check为是否检查更新以及是否输出提示文本
-    global root, t1, var1, var2, var3, var4, var5, var6, var7, var8, top, NEW, id, set_value, data, t1, rc_menu
+def main():
+    global root, t1, var1, var2, var3, var4, var5, var6, var7, var8, top, NEW, data, t1, rc_menu
 
     deleteOld()
-
-    #set_value = Settings.load()
-    #if len(set_value) != Settings.set_value_len:
-    #    Settings.save(True)
-    #    set_value = Settings.load()
 
     root = tkinterdnd2.Tk()
     root.title(f"Excel Tools by Sam v{VERSION}")
@@ -500,37 +612,37 @@ def main(check=True): # check为是否检查更新以及是否输出提示文本
     about_menu = tk.Menu(menubar, tearoff=False)
     menubar.add_cascade(label="关于", menu=about_menu)
     about_menu.add_command(label="关于", command=about)
+    about_menu.add_command(label='官网', command=lambda: webbrowser.open(r'https://aqiulawrence.github.io/'))
     about_menu.add_command(label='检查更新', command=start_update)
-    about_menu.add_command(label='更新公告', command=lambda: messagebox.showinfo('更新内容', update_content))
-    about_menu.add_command(label='官网', command=lambda:webbrowser.open(r'https://aqiulawrence.github.io/'))
+    about_menu.add_command(label='更新公告', command=lambda: messagebox.showinfo('更新内容', UPDATE_CONTENT))
 
     set_menu = tk.Menu(menubar, tearoff=False)
     menubar.add_cascade(label="设置", menu=set_menu)
-    set_menu.add_command(label="设置", command=settings)
+    set_menu.add_command(label="设置", command=lambda: app.show(root))
 
     window_menu = tk.Menu(menubar, tearoff=False)
     menubar.add_cascade(label='窗口', menu=window_menu)
     var_topmost = tk.BooleanVar(value=top) # 这里懒得改了直接用top变量
     window_menu.add_checkbutton(label='总在最前', command=top_switch, variable=var_topmost)
 
-    if check and set_value['auto_update']: # check在第一次进入时为True，从设置进入时为False
+    if app.settings['auto_update']:
         thread = Thread(target=update, args=(True,))
         thread.start()
 
-    if check:
-        if ctypes.windll.shell32.IsUserAnAdmin():
-            messagebox.showinfo('提示', '若非特殊情况，请勿使用管理员身份运行此程序！')
-        else:
-            print(blue_text('[提示]文件无需手动选择，可拖拽进入窗口！'))
+    if ctypes.windll.shell32.IsUserAnAdmin():
+        messagebox.showinfo('提示', '以管理员身份运行此程序将无法得到彩色输出！')
+    else:
+        print(blue_text('[提示]文件无需手动选择，可拖拽进入窗口！'))
 
     if isFirstOpen():
-        # Settings.save(True) # 防止设置不兼容，某些版本更新需要设置，属于兼容部分代码
-        messagebox.showinfo('更新内容', '注：请先关闭此更新公告再使用主程序！！\n'+update_content)
+        messagebox.showinfo('更新内容', UPDATE_CONTENT)
 
     root.mainloop()
 
     save()
-    saveLog()
+    if multi_stream.isWrite:
+        with open(rf'{LOG_DIR}\error.log', 'a') as f:
+            f.write(f'----------Above {get_time()}----------\n\n')
     sys.exit()
 
 if __name__ == "__main__":
@@ -541,6 +653,7 @@ if __name__ == "__main__":
     except: pass
 
     try:
+        multiprocessing.freeze_support()
         main()
     except SystemExit: pass
     except KeyboardInterrupt: pass

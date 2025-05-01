@@ -1,10 +1,11 @@
 import os
-import threading
 import multiprocessing
+import pandas
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
 
 from openpyxl import load_workbook
+from xlrd import open_workbook
 from colorama import Fore, Style
 
 def red_text(text):
@@ -16,10 +17,42 @@ def blue_text(text):
 def yellow_text(text):
     return Fore.YELLOW+Style.BRIGHT+text+Style.RESET_ALL
 
-print_lock = threading.Lock()
+def convert(input_file, output_file):
+    pandas.read_excel(input_file).to_excel(output_file, index=False)
 
-def singleSearch(file_path, search_term):
+PATH = './temp' # main.py 也存在
+
+def search_xls(file_path, search_term):
+    wb = open_workbook(file_path)
+
+    for sheet in wb.sheets():
+        for row in range(sheet.nrows):
+            for col in range(sheet.ncols):
+                cell_value = str(sheet.cell_value(row, col)).lower().strip()
+                if search_term in cell_value:
+                    return True
+    return False
+
+def single_search(file_path, search_term, original_path=None):
+    if file_path.endswith('.xls'):
+        try:
+            if not os.path.exists(PATH):
+                os.mkdir(PATH)
+
+            if search_xls(file_path, search_term):
+                file_name = os.path.basename(file_path) # xxx.xls
+                output_file = f'{PATH}/{file_name}x'
+                convert(file_path, output_file)
+                single_search(output_file, search_term, file_path)
+
+        except Exception as e:
+            print(yellow_text(f"[Search1 Error]{file_path}: {e}\n"))
+        return
+
     try:
+        if original_path is None:
+            original_path = file_path
+
         workbook = load_workbook(file_path, read_only=True)  # 使用只读模式提高性能
         results = []
 
@@ -37,7 +70,7 @@ def singleSearch(file_path, search_term):
                             data[i] = cell.coordinate[0]
 
                     if search_term in cell_value:
-                        results.append(f'在 "{file_path}" "{sheet}" "{cell.coordinate}" 找到目标')
+                        results.append(f'在 "{original_path}" "{sheet}" "{cell.coordinate}" 找到目标')
                         output_parts = []
                         for i in data:
                             if data[i] is not None:
@@ -48,30 +81,28 @@ def singleSearch(file_path, search_term):
 
                         results.append(f"  {yellow_text('|')}  ".join(output_parts) + "\n")
 
-        with print_lock:
-            for result in results:
-                print(result)
+        for result in results:
+            print(result)
+
+    except Exception as e:
+        print(yellow_text(f"[Search2 Error]{original_path}: {e}\n"))
 
     finally:
         if 'workbook' in locals():
             workbook.close()
 
-
-def multipleSearch(folder_path, data_to_find, max_workers=8):
+def batch_search(folder_path, data_to_find, max_workers=8):
     search_term = data_to_find.lower().strip()
 
     file_paths = [
         os.path.join(root, file).replace('\\', '/')
         for root, _, files in os.walk(folder_path)
         for file in files
-        if file.endswith('.xlsx') and not file.startswith('~$')
+        if file.endswith(('.xlsx', '.xls')) and not file.startswith(('~$', '$'))
     ]
 
-    # 改用进程池
     with multiprocessing.Pool(processes=max_workers) as pool:
-        pool.starmap(singleSearch, [(fp, search_term) for fp in file_paths])
+        pool.starmap(single_search, [(fp, search_term) for fp in file_paths])
 
 if __name__ == '__main__':
-    folder_path = r'D:\stress test'
-    data_to_find = 'ak+q'
-    multipleSearch(folder_path, data_to_find)
+    batch_search(r'D:\stress test', 'ACTUATOR  8431499900')

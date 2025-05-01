@@ -29,21 +29,24 @@ def update(ver, owner=owner, repo=repo, output_dir="./", token=None):
         "User-Agent": "Mozilla/5.0",
         "Accept": "application/vnd.github.v3+json"
     }
-
+    api_url = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
     if token:
         headers["Authorization"] = f"token {token}"
 
-    api_url = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
-    response = requests.get(api_url, headers=headers)
+    try:
+        response = requests.get(api_url, headers=headers)
+        release = response.json()
+    except Exception as e:
+        print(f'获取更新失败：{e}')
+        return False
 
-    release = response.json()
     try:
         new = release['tag_name'][1:] # github release为空
     except:
         print('找不到可用更新。')
         return 0
 
-    if new == ver:
+    if new <= ver:
         print('当前为最新版本。')
         return new
 

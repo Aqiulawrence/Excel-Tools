@@ -6,8 +6,8 @@ from bs4 import BeautifulSoup
 from colorama import Fore, Style
 
 # 使用旧版User-Agent以防止显示base64图片，并且更加方便进行网站信息处理
-LOG_DIR = rf'.\logs'
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:50.0) Gecko/20100101 Firefox/50.0'}
+
 pri_path = './configs/priority.txt'
 black_path = './configs/blacklist.txt'
 priority = ['ebay.com', 'amazon.com', 'cat.com', 'alibaba.com']
@@ -50,7 +50,7 @@ def download_images(url, output_folder, num, is_filter):
         try:
             response = requests.get(url, headers=headers)
         except Exception as e:
-            print('retry-1', e)
+            print('retry-1', str(e).split(':')[0])
             time.sleep(delay)
             continue
         break
@@ -59,7 +59,7 @@ def download_images(url, output_folder, num, is_filter):
     soup = BeautifulSoup(html, "html.parser")
     img_tags = soup.find_all("img")
     del img_tags[0]  # 删除第0个，第0个固定为Google logo
-    # with open(rf'debug.html', 'w', encoding='utf-8') as f: f.write(soup.prettify())  # Debug时使用
+    # with open(rf'debug.html', 'w', encoding='utf-8') as f: f.write(soup.prettify())
 
     # 优先使用特定网站的图片
     priority = ['ebay.com', 'amazon.com', 'cat.com', 'alibaba.com']
@@ -89,7 +89,7 @@ def download_images(url, output_folder, num, is_filter):
                 try:
                     img_response = requests.get(data, headers=headers)
                 except Exception as e:
-                    print('retry-2', e)
+                    print('retry-2', str(e).split(':')[0])
                     time.sleep(delay)
                     continue
                 break
@@ -102,9 +102,6 @@ def download_images(url, output_folder, num, is_filter):
             return True
 
     print('No images found')
-    # 将可能有问题的网页保存下来
-    with open(rf'{LOG_DIR}\debug.html', 'w', encoding='utf-8') as f:
-        f.write(soup.prettify())
 
     # 创建一个空文件，插入的时候不会篡位
     with open(file_name, 'w'):
