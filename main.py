@@ -26,23 +26,17 @@ from threading import Thread
 from tkinter import messagebox, filedialog
 from easygui import exceptionbox
 
-VERSION = "2.1" # 当前版本
+VERSION = "2.2" # 当前版本
 NEW = None # 最新版本
 UPDATE_CONTENT = '''
-1. Excel搜索部分改用多进程，大幅提高了搜索效率。
-2. Excel搜索部分支持搜索.xls文件，搜图部分目前还未支持。
-3. 重写了设置和日志部分代码。
-4. 优化了其他的部分的代码。
+1. 搜图部分改用多线程，大幅提高了搜图效率。
 '''
 
 top = False # 窗口是否置顶
-CONFIG_DIR = rf'.\configs'
-USERDATA_FILE = rf'{CONFIG_DIR}\userdata.json' # 此文件作用是保存主窗口内输入框的值
-LOG_DIR = rf'.\logs'
+CONFIG_DIR = rf'.\config'
+USERDATA_FILE = rf'{CONFIG_DIR}\userdata.json'
 if not os.path.exists(CONFIG_DIR):
     os.makedirs(CONFIG_DIR)
-if not os.path.exists(LOG_DIR):
-    os.makedirs(LOG_DIR)
 
 # 初始化日志系统
 app_logger = AppLogger()
@@ -63,12 +57,11 @@ class MultiStream: # 多重错误流
             stream.flush()
 
 # 设置多重错误流
-err_log = open(rf'{LOG_DIR}\error.log', 'a')
+err_log = open(rf'{CONFIG_DIR}\error.log', 'a')
 multi_stream = MultiStream(sys.stderr, err_log)
 sys.stderr = multi_stream
 
 class SettingsApp:
-    CONFIG_DIR = "./configs"
     CONFIG_FILE = f"{CONFIG_DIR}/config.json"
 
     # 定义所有设置项及其属性
@@ -88,10 +81,16 @@ class SettingsApp:
             'label': '移动前自动备份：',
             'default': 1
         },
-        'max_workers': {
+        'excel_search_max_workers': {
             'type': 'entry',
             'label': '搜索最大进程数：',
             'default': 8,
+            'validate': 'int'  # 验证类型
+        },
+        'google_search_max_workers': {
+            'type': 'entry',
+            'label': '搜图最大线程数：',
+            'default': 20,
             'validate': 'int'  # 验证类型
         }
     }
@@ -115,8 +114,9 @@ class SettingsApp:
 
         self._settings_window = tk.Toplevel(parent)
         self._settings_window.title("设置")
-        self._settings_window.geometry("260x215+400+200")
+        self._settings_window.geometry("260x245+400+200")
         self._settings_window.resizable(False, False)
+        self._settings_window.attributes("-topmost", True)
 
         self._create_settings_ui()
         self._settings_window.protocol("WM_DELETE_WINDOW", self._close_settings)
@@ -126,8 +126,8 @@ class SettingsApp:
 
     def _load_saved_settings(self):
         try:
-            if not os.path.exists(self.CONFIG_DIR):
-                os.makedirs(self.CONFIG_DIR)
+            if not os.path.exists(CONFIG_DIR):
+                os.makedirs(CONFIG_DIR)
 
             if os.path.exists(self.CONFIG_FILE):
                 with open(self.CONFIG_FILE, 'r') as f:
@@ -274,6 +274,7 @@ def extract():
         return False
     t1.delete("1.0", tk.END)
     result = ExcelExtract.main(var2.get(), var3.get(), var1.get())
+
     if type(result[0]) == list:
         for i in result:
             t1.insert(tk.END, "\n".join(i))
@@ -292,10 +293,12 @@ def search():
         messagebox.showerror(title="错误", message="无法连接至谷歌服务器，请重试。")
         return False
 
-    error_img = GoogleSearch.main(t1.get("1.0", tk.END).split("\n"), app.settings['filter'], r'.\imgs')
+    start = time.time()
+    error_count = GoogleSearch.main(t1.get("1.0", tk.END).split("\n"), app.settings['google_search_max_workers'], app.settings['filter'])
+    print(f'用时：{time.time()-start:.2f}s')
 
-    if error_img: # 有图片没搜到
-        messagebox.showwarning('警告', f'搜索完成！但有{error_img}个件号图片无法被搜到，请检查件号是否有误！')
+    if error_count: # 有图片没搜到
+        messagebox.showwarning('警告', f'搜索完成！但有{error_count}个件号图片无法被搜到，请检查件号是否有误！')
         return False
 
     # 正常状态
@@ -306,10 +309,11 @@ def search():
 def insert():
     try:
         num = int(var3.get()[1:]) - int(var2.get()[1:]) + 1 # 待插入的图片数量
-        error_insert = ExcelInsert.main([var4.get()[0], int(var4.get()[1:])], num, var1.get(), r'.\imgs')
+        error_insert = ExcelInsert.main([var4.get()[0], int(var4.get()[1:])], num, var1.get())
     except FileNotFoundError:
         messagebox.showerror('错误', '未找到Excel文件或图片文件！')
         return False
+
     if error_insert and error_insert != 'STOP':
         messagebox.showwarning('警告', f'有{error_insert}个图片插入失败！其余插入成功。\n注：请检查插入图片失败的件号是否正确！')
         return False
@@ -340,7 +344,7 @@ def excel_search():
             ExcelSearch.single_search(var8.get(), data)
 
         elif os.path.isdir(var8.get()): # 搜索多个文件
-            ExcelSearch.batch_search(var8.get(), data, app.settings['max_workers'])
+            ExcelSearch.batch_search(var8.get(), data, app.settings['excel_search_max_workers'])
             if os.path.exists('./temp'):
                 shutil.rmtree('./temp')
 
@@ -354,6 +358,7 @@ def about(): # 关于
     else:
         messagebox.showinfo("关于", f"当前版本：v{VERSION}\n最新版本：未知\n作者QQ：2418131303\n有bug请联系作者！")
 
+@log
 def easydo(): # 一键操作
     if not extract():
         return
@@ -641,7 +646,7 @@ def main():
 
     save()
     if multi_stream.isWrite:
-        with open(rf'{LOG_DIR}\error.log', 'a') as f:
+        with open(rf'{CONFIG_DIR}\error.log', 'a') as f:
             f.write(f'----------Above {get_time()}----------\n\n')
     sys.exit()
 

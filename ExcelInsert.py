@@ -3,8 +3,9 @@ import warnings
 from tkinter import messagebox
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image
-
 warnings.filterwarnings("ignore")
+
+base_path = ".\\img\\"
 
 def resize_image(input_image_path, base_width, base_height):
     with Image.open(input_image_path) as img:
@@ -66,19 +67,18 @@ def insert(excel_path, image_path, cell_ref):
         raise
     return True
 
-def main(start_cell, total_num, excel_path, image_base_path=".\\img"):
+def main(start_cell, total_img, excel_path):
     image_names = []
-    image_base_path += '\\'
 
-    for i in range(1, total_num + 1):
+    for i in range(1, total_img + 1):
         image_names.append(f'{i:03d}.png')
 
-    error_insert = 0 # 没有被插入的图片
+    error_img = 0 # 没有被插入的图片
     for name in image_names:
-        img_path = image_base_path + name
+        img_path = base_path + name
         state = insert(excel_path, img_path, start_cell)
         if not state:
-            error_insert += 1
+            error_img += 1
             print('Inserted Failed')
         elif state == 'STOP':
             return 'STOP'
@@ -86,7 +86,7 @@ def main(start_cell, total_num, excel_path, image_base_path=".\\img"):
             print(f'Successfully inserted {img_path}')
         start_cell[1] += 1
 
-    return error_insert
+    return error_img
 
 if __name__ == '__main__':
     main(['A', 1], 30, 'test.xlsx')

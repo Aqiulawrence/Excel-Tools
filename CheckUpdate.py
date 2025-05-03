@@ -14,7 +14,6 @@ def blue_text(text):
 owner = "Aqiulawrence"
 repo = "Excel-Tools"
 
-
 def replace(filename):
     v_index = filename.find('v')
     if v_index == -1:
