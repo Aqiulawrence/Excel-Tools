@@ -28,13 +28,12 @@ from easygui import exceptionbox
 
 VERSION = "2.2" # 当前版本
 NEW = None # 最新版本
-UPDATE_CONTENT = '''
-1. 搜图部分改用多线程，大幅提高了搜图效率。
-'''
+UPDATE_CONTENT = '''1. 搜图部分改用多线程，大幅提高了搜图效率。
+2. 优化了插入图片部分代码，大幅提高了插入图片的效率。'''
 
 top = False # 窗口是否置顶
-CONFIG_DIR = rf'.\config'
-USERDATA_FILE = rf'{CONFIG_DIR}\userdata.json'
+CONFIG_DIR = './config'
+USERDATA_FILE = f'{CONFIG_DIR}/userdata.json'
 if not os.path.exists(CONFIG_DIR):
     os.makedirs(CONFIG_DIR)
 
@@ -57,7 +56,7 @@ class MultiStream: # 多重错误流
             stream.flush()
 
 # 设置多重错误流
-err_log = open(rf'{CONFIG_DIR}\error.log', 'a')
+err_log = open(f'{CONFIG_DIR}/error.log', 'a')
 multi_stream = MultiStream(sys.stderr, err_log)
 sys.stderr = multi_stream
 
@@ -76,10 +75,10 @@ class SettingsApp:
             'label': '搜图启用网站筛选：',
             'default': 1
         },
-        'auto_backup': {
+        'display_failure': {
             'type': 'checkbox',
-            'label': '移动前自动备份：',
-            'default': 1
+            'label': '搜图显示失败信息：',
+            'default': 0
         },
         'excel_search_max_workers': {
             'type': 'entry',
@@ -216,7 +215,7 @@ def get_time():
     return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
 
 def isFirstOpen(): # 获取是否为第一次打开程序
-    path = rf'{CONFIG_DIR}\record.json' # 这个文件只记录打开过的版本号
+    path = f'{CONFIG_DIR}/record.json' # 这个文件只记录打开过的版本号
     if not os.path.exists(path):
         with open(path, 'w', encoding='utf-8') as f:
             json.dump({VERSION: True}, f)
@@ -283,6 +282,7 @@ def extract():
         t1.insert(tk.END, "\n".join(result))
     if 'None' in result:
         messagebox.showwarning('警告', '提取出空值，请检查选择的文件以及输入的单元格是否正确！')
+
     return True
 
 @log
@@ -294,7 +294,7 @@ def search():
         return False
 
     start = time.time()
-    error_count = GoogleSearch.main(t1.get("1.0", tk.END).split("\n"), app.settings['google_search_max_workers'], app.settings['filter'])
+    error_count = GoogleSearch.main(t1.get("1.0", tk.END).split("\n"), app.settings['google_search_max_workers'], app.settings['filter'], app.settings['display_failure'])
     print(f'用时：{time.time()-start:.2f}s')
 
     if error_count: # 有图片没搜到
@@ -309,15 +309,13 @@ def search():
 def insert():
     try:
         num = int(var3.get()[1:]) - int(var2.get()[1:]) + 1 # 待插入的图片数量
-        error_insert = ExcelInsert.main([var4.get()[0], int(var4.get()[1:])], num, var1.get())
+        error_count = ExcelInsert.main([var4.get()[0], int(var4.get()[1:])], num, var1.get())
     except FileNotFoundError:
-        messagebox.showerror('错误', '未找到Excel文件或图片文件！')
+        messagebox.showerror('错误', '未找到Excel文件！')
         return False
 
-    if error_insert and error_insert != 'STOP':
-        messagebox.showwarning('警告', f'有{error_insert}个图片插入失败！其余插入成功。\n注：请检查插入图片失败的件号是否正确！')
-        return False
-    elif error_insert == 'STOP':
+    if error_count:
+        messagebox.showwarning('警告', f'有{error_count}个图片插入失败！其余插入成功。')
         return False
     messagebox.showinfo("提示", "插入完成！")
 
@@ -326,30 +324,27 @@ def move_key():
     if not os.path.isfile(var1.get()):
         messagebox.showerror('错误', '选择的文件不存在！')
         return False
-    if app.settings.get('auto_backup'):
-        shutil.copyfile(var1.get(), 'backup.xlsx')
-        print(blue_text('Excel文件已成功备份到程序目录下的 "backup.xlsx"！'))
     MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
     messagebox.showinfo('提示', '移动完成！')
 
 @log
 def excel_search():
-    start = time.time()
-    data_list = t1.get('1.0', tk.END).split('\n')
-    for data in data_list:
-        if data.strip() == '':
+    search_term = t1.get('1.0', tk.END).split('\n')
+    for term in search_term:
+        start = time.time()
+        if term.strip() == '':
             continue
 
         elif os.path.isfile(var8.get()): # 搜索单个文件
-            ExcelSearch.single_search(var8.get(), data)
+            ExcelSearch.single_search(var8.get(), term)
 
         elif os.path.isdir(var8.get()): # 搜索多个文件
-            ExcelSearch.batch_search(var8.get(), data, app.settings['excel_search_max_workers'])
+            ExcelSearch.batch_search(var8.get(), term, app.settings['excel_search_max_workers'])
             if os.path.exists('./temp'):
                 shutil.rmtree('./temp')
 
         end = time.time()
-        print(f'---------------以上为 "{data}" 的搜索结果，用时：{end-start:.2f}s---------------')
+        print(f'---------------以上为 "{term}" 的搜索结果，用时：{end-start:.2f}s---------------')
     messagebox.showinfo('提示', '搜索完成！请到命令行查看搜索结果。')
 
 def about(): # 关于
@@ -624,11 +619,12 @@ def main():
     set_menu = tk.Menu(menubar, tearoff=False)
     menubar.add_cascade(label="设置", menu=set_menu)
     set_menu.add_command(label="设置", command=lambda: app.show(root))
-
+    
     window_menu = tk.Menu(menubar, tearoff=False)
     menubar.add_cascade(label='窗口', menu=window_menu)
     var_topmost = tk.BooleanVar(value=top) # 这里懒得改了直接用top变量
     window_menu.add_checkbutton(label='总在最前', command=top_switch, variable=var_topmost)
+    window_menu.add_command(label="保存数据", command=save)
 
     if app.settings['auto_update']:
         thread = Thread(target=update, args=(True,))
@@ -646,7 +642,7 @@ def main():
 
     save()
     if multi_stream.isWrite:
-        with open(rf'{CONFIG_DIR}\error.log', 'a') as f:
+        with open(f'{CONFIG_DIR}/error.log', 'a') as f:
             f.write(f'----------Above {get_time()}----------\n\n')
     sys.exit()
 

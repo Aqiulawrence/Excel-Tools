@@ -5,10 +5,10 @@ import atexit
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 
-CONFIG_DIR = rf'.\config'
+CONFIG_DIR = './config'
 
 class AppLogger:
-    def __init__(self, log_file=f'./{CONFIG_DIR}/operation.log', max_bytes=10 * 1024 * 1024, backup_count=5):
+    def __init__(self, log_file=f'{CONFIG_DIR}/operation.log', max_bytes=10 * 1024 * 1024, backup_count=5):
         self.log_file = log_file
         self._setup_logging(max_bytes, backup_count)
         self._record_startup()

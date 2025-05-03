@@ -1,0 +1,242 @@
+C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'api.github.com'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'api.github.com'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\Logger.py", line 72, in wrapper
+    result = func(*args, **kwargs)
+  File "D:\My Projects\Excel-Tools\main.py", line 327, in move_key
+    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\MoveKey.py", line 11, in main
+    now = start[0]
+          ~~~~~^^^
+IndexError: string index out of range
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\Logger.py", line 72, in wrapper
+    result = func(*args, **kwargs)
+  File "D:\My Projects\Excel-Tools\main.py", line 327, in move_key
+    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\MoveKey.py", line 11, in main
+    now = start[0]
+          ~~~~~^^^
+IndexError: string index out of range
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\Logger.py", line 72, in wrapper
+    result = func(*args, **kwargs)
+  File "D:\My Projects\Excel-Tools\main.py", line 327, in move_key
+    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\MoveKey.py", line 11, in main
+    now = start[0]
+          ~~~~~^^^
+IndexError: string index out of range
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\Logger.py", line 72, in wrapper
+    result = func(*args, **kwargs)
+  File "D:\My Projects\Excel-Tools\main.py", line 327, in move_key
+    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\MoveKey.py", line 11, in main
+    now = start[0]
+          ~~~~~^^^
+IndexError: string index out of range
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\Logger.py", line 72, in wrapper
+    result = func(*args, **kwargs)
+  File "D:\My Projects\Excel-Tools\main.py", line 327, in move_key
+    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\MoveKey.py", line 11, in main
+    now = start[0]
+          ~~~~~^^^
+IndexError: string index out of range
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\Logger.py", line 72, in wrapper
+    result = func(*args, **kwargs)
+  File "D:\My Projects\Excel-Tools\main.py", line 327, in move_key
+    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\MoveKey.py", line 11, in main
+    now = start[0]
+          ~~~~~^^^
+IndexError: string index out of range
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\Logger.py", line 72, in wrapper
+    result = func(*args, **kwargs)
+  File "D:\My Projects\Excel-Tools\main.py", line 327, in move_key
+    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\MoveKey.py", line 11, in main
+    now = start[0]
+          ~~~~~^^^
+IndexError: string index out of range
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\Logger.py", line 72, in wrapper
+    result = func(*args, **kwargs)
+  File "D:\My Projects\Excel-Tools\main.py", line 327, in move_key
+    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\MoveKey.py", line 11, in main
+    now = start[0]
+          ~~~~~^^^
+IndexError: string index out of range
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\Logger.py", line 72, in wrapper
+    result = func(*args, **kwargs)
+  File "D:\My Projects\Excel-Tools\main.py", line 327, in move_key
+    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\MoveKey.py", line 11, in main
+    now = start[0]
+          ~~~~~^^^
+IndexError: string index out of range
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\Logger.py", line 72, in wrapper
+    result = func(*args, **kwargs)
+  File "D:\My Projects\Excel-Tools\main.py", line 327, in move_key
+    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\MoveKey.py", line 11, in main
+    now = start[0]
+          ~~~~~^^^
+IndexError: string index out of range
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\Logger.py", line 72, in wrapper
+    result = func(*args, **kwargs)
+  File "D:\My Projects\Excel-Tools\main.py", line 327, in move_key
+    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\MoveKey.py", line 11, in main
+    now = start[0]
+          ~~~~~^^^
+IndexError: string index out of range
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\Logger.py", line 72, in wrapper
+    result = func(*args, **kwargs)
+  File "D:\My Projects\Excel-Tools\main.py", line 327, in move_key
+    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\MoveKey.py", line 11, in main
+    now = start[0]
+          ~~~~~^^^
+IndexError: string index out of range
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\Logger.py", line 72, in wrapper
+    result = func(*args, **kwargs)
+  File "D:\My Projects\Excel-Tools\main.py", line 327, in move_key
+    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\MoveKey.py", line 11, in main
+    now = start[0]
+          ~~~~~^^^
+IndexError: string index out of range
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\Logger.py", line 72, in wrapper
+    result = func(*args, **kwargs)
+  File "D:\My Projects\Excel-Tools\main.py", line 327, in move_key
+    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\MoveKey.py", line 11, in main
+    now = start[0]
+          ~~~~~^^^
+IndexError: string index out of range
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\Logger.py", line 72, in wrapper
+    result = func(*args, **kwargs)
+  File "D:\My Projects\Excel-Tools\main.py", line 327, in move_key
+    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\MoveKey.py", line 11, in main
+    now = start[0]
+          ~~~~~^^^
+IndexError: string index out of range
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\Logger.py", line 72, in wrapper
+    result = func(*args, **kwargs)
+  File "D:\My Projects\Excel-Tools\main.py", line 327, in move_key
+    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\MoveKey.py", line 11, in main
+    now = start[0]
+          ~~~~~^^^
+IndexError: string index out of range
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\My Projects\Excel-Tools\Logger.py", line 72, in wrapper
+    result = func(*args, **kwargs)
+  File "D:\My Projects\Excel-Tools\main.py", line 327, in move_key
+    MoveKey.main(var1.get(), var5.get(), var6.get(), var7.get())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\My Projects\Excel-Tools\MoveKey.py", line 11, in main
+    now = start[0]
+          ~~~~~^^^
+IndexError: string index out of range

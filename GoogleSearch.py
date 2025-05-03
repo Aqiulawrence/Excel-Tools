@@ -13,11 +13,12 @@ from ExcelSearch import yellow_text
 
 # 使用旧版User-Agent以防止显示base64图片，并且更加方便进行网站信息处理
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:50.0) Gecko/20100101 Firefox/50.0'}
+detecting_text = 'Our systems have detected unusual traffic from your computer network.'
 
-CONFIG_DIR = rf'.\config'
-output_directory=".\\img"
-pri_path = f'./{CONFIG_DIR}/priority.txt'
-black_path = f'./{CONFIG_DIR}/blacklist.txt'
+CONFIG_DIR = './config'
+output_directory="./img"
+pri_path = f'{CONFIG_DIR}/priority.txt'
+black_path = f'{CONFIG_DIR}/blacklist.txt'
 priority = ['ebay.com', 'amazon.com', 'cat.com', 'alibaba.com']
 blacklist = ['farfetch.com']
 error_count = 0
@@ -67,7 +68,7 @@ def search_website(tag):  # 搜索图片所对应的网站
         website = current_tag.get_text(strip=True)
         return website
 
-def download_image(url, index, is_filter):
+def download_image(url, index, enable_filter, display_failure):
     global error_count, completed
     file_name = os.path.join(output_directory, f'{index:03d}.png')
 
@@ -76,9 +77,10 @@ def download_image(url, index, is_filter):
         try:
             response = requests.get(url, headers=headers)
         except Exception as e:
-            parsed = urlparse(url)
-            result = f"{parsed.scheme}://{parsed.netloc}"
-            safe_print(yellow_text(f'[Failed]Index:{index}'), result)
+            if display_failure:
+                parsed = urlparse(url)
+                result = f"{parsed.scheme}://{parsed.netloc}"
+                safe_print(yellow_text(f'[Failed]Index:{index}'), url, e, '稍后将自动重试。')
             delay()
             continue
         break
@@ -86,12 +88,14 @@ def download_image(url, index, is_filter):
     html = response.text
     soup = BeautifulSoup(html, "html.parser")
     img_tags = soup.find_all("img")
-    del img_tags[0]  # 删除第0个，第0个固定为Google logo
-    # with open(rf'debug.html', 'w', encoding='utf-8') as f: f.write(soup.prettify())
+    if len(img_tags):
+        del img_tags[0]  # 删除第0个，第0个固定为Google logo
+    else:
+        with open(f'{CONFIG_DIR}/debug.html', 'w', encoding='utf-8') as f: f.write(soup.prettify())
 
     # 优先使用特定网站的图片
     record = []
-    if is_filter:
+    if enable_filter:
         for img in img_tags:
             website = search_website(img)
             for pri in priority:
@@ -116,9 +120,10 @@ def download_image(url, index, is_filter):
                 try:
                     img_response = requests.get(src, headers=headers)
                 except Exception as e:
-                    parsed = urlparse(src)
-                    result = f"{parsed.scheme}://{parsed.netloc}"
-                    safe_print(yellow_text(f'[Failed]Index:{index}'), result)
+                    if display_failure:
+                        parsed = urlparse(src)
+                        result = f"{parsed.scheme}://{parsed.netloc}"
+                        safe_print(yellow_text(f'[Failed]Index:{index}'), src, e, '稍后将自动重试。')
                     delay()
                     continue
                 break
@@ -134,15 +139,15 @@ def download_image(url, index, is_filter):
     with open(file_name, 'w'):
         pass
     error_count += 1
-    safe_print('No images found')
+    safe_print(red_text(f'[Error]Index:{index}'), '没有找到可用图片！')
 
-def main(search_term, max_workers=1024, is_filter=True):
+def main(search_term, max_workers, enable_filter, display_failure):
     global priority, blacklist, error_count, completed
     priority = load_config(pri_path, priority)
     blacklist = load_config(black_path, blacklist)
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
-    if is_filter:
+    if enable_filter:
         print(blue_text('网站筛选功能已启用！'))
 
     search_term = [x.strip() for x in search_term if x.strip()]
@@ -152,7 +157,7 @@ def main(search_term, max_workers=1024, is_filter=True):
         completed = []
         for index, term in enumerate(search_term):
             url = f'https://www.google.com.hk/search?q={term}&udm=2'
-            future = executor.submit(download_image, url, index, is_filter)
+            future = executor.submit(download_image, url, index, enable_filter, display_failure)
             futures.append(future)
 
     while len(completed) != len(search_term):
@@ -161,11 +166,11 @@ def main(search_term, max_workers=1024, is_filter=True):
         print(red_text('Missing:'), missing)
         for index in missing:
             url = f'https://www.google.com.hk/search?q={search_term[index]}&udm=2'
-            download_image(url, index, is_filter)
+            download_image(url, index, enable_filter, display_failure)
 
     if error_count:
         return error_count
     return 0
 
 if __name__ == '__main__':
-    main(['JHOAT163475'])
+    main(['JHOAT163475'], 100, 1, 0)

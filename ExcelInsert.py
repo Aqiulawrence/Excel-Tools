@@ -1,30 +1,14 @@
-import warnings
-
 from tkinter import messagebox
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image
-warnings.filterwarnings("ignore")
+from colorama import Fore, Style
 
-base_path = ".\\img\\"
+base_path = "./img/"
 
-def resize_image(input_image_path, base_width, base_height):
-    with Image.open(input_image_path) as img:
-        orig_width, orig_height = img.size
+def red_text(text):
+    return Fore.RED+Style.BRIGHT+text+Style.RESET_ALL
 
-        ratio = min(base_width / orig_width, base_height / orig_height)
-        new_width = int(orig_width * ratio)
-        new_height = int(orig_height * ratio)
-
-        img = img.convert('RGB')
-
-        img = img.resize((new_width, new_height), Image.LANCZOS)
-        return img, new_width, new_height
-
-def insert(excel_path, image_path, cell_ref):
-    global wb, ws
-    wb = load_workbook(excel_path)
-    ws = wb.active
-
+def insert(ws, image_path, cell_ref):
     # 如果w1为13，w2为None，使用w1; 如果w1为13，w2不为None，使用w2; 如果w1不为13，使用w1
     # 如果h1为None，使用h2; 如果h1不为None，使用h1
     w1 = ws.column_dimensions[cell_ref[0]].width
@@ -48,45 +32,46 @@ def insert(excel_path, image_path, cell_ref):
     height *= 1.3  # 一个单元格高为13.5，像素为18（待确认？）
 
     img = Image(image_path)
-    img_original_width, img_original_height = img.width, img.height
+    original_width, original_height = img.width, img.height
+
     # 计算图片缩放比例（保持宽高比）
-    scale_width = width / img_original_width
-    scale_height = height / img_original_height
+    scale_width = width / original_width
+    scale_height = height / original_height
     scale = min(scale_width, scale_height)  # 选择最小的缩放比例
 
     # 调整图片的大小
-    img.width = int(img_original_width * scale)
-    img.height = int(img_original_height * scale)
+    img.width = int(original_width * scale)
+    img.height = int(original_height * scale)
 
     ws.add_image(img, f"{cell_ref[0]}{cell_ref[1]}")
 
-    try:
-        wb.save(excel_path)
-    except PermissionError:
-        messagebox.showerror('错误', '插入失败！请确保Excel不为只读文件并且Excel已关闭！')
-        raise
-    return True
+def main(cell_ref, total_img, excel_path): # start_cell 为一个列表，比如['A', 1]
+    wb = load_workbook(excel_path)
+    ws = wb.active
 
-def main(start_cell, total_img, excel_path):
-    image_names = []
+    img_names = [f'{i:03d}.png' for i in range(total_img)]
+    error_count = 0 # 没有被插入的图片
 
-    for i in range(1, total_img + 1):
-        image_names.append(f'{i:03d}.png')
-
-    error_img = 0 # 没有被插入的图片
-    for name in image_names:
+    for index, name in enumerate(img_names):
         img_path = base_path + name
-        state = insert(excel_path, img_path, start_cell)
-        if not state:
-            error_img += 1
-            print('Inserted Failed')
-        elif state == 'STOP':
-            return 'STOP'
-        else:
-            print(f'Successfully inserted {img_path}')
-        start_cell[1] += 1
 
-    return error_img
+        try:
+            insert(ws, img_path, cell_ref)
+        except Exception:
+            error_count += 1
+            print(red_text(f'[Failed]Index:{index}'))
+        cell_ref[1] += 1
+
+    while True:
+        try:
+            wb.save(excel_path)
+            break
+        except PermissionError:
+            if messagebox.askretrycancel('警告', '保存失败！请确保文件未被占用且不是只读文件。\n点击“重试”再次尝试保存。'):
+                continue
+            raise
+
+    return error_count
 
 if __name__ == '__main__':
     main(['A', 1], 30, 'test.xlsx')

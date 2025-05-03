@@ -46,7 +46,7 @@ def single_search(file_path, search_term, original_path=None):
                 single_search(output_file, search_term, file_path)
 
         except Exception as e:
-            print(yellow_text(f"[Search1 Error]{file_path}: {e}\n"))
+            print(yellow_text(f"[Failed]{file_path}\n"))
         return
 
     try:
@@ -85,7 +85,10 @@ def single_search(file_path, search_term, original_path=None):
             print(result)
 
     except Exception as e:
-        print(yellow_text(f"[Search2 Error]{original_path}: {e}\n"))
+        if original_path.endswith('.xls'):
+            print(red_text(f'[Attention]在 {original_path} 中找到了目标！但是程序出错导致无法输出对应信息。'))
+        else:
+            print(yellow_text(f"[Failed]{original_path}\n"))
 
     finally:
         if 'workbook' in locals():

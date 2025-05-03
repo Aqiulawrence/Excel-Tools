@@ -1,6 +1,8 @@
 import requests
 import os
 import time
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 from colorama import Fore, Style
 from tqdm import tqdm
@@ -33,7 +35,7 @@ def update(ver, owner=owner, repo=repo, output_dir="./", token=None):
         headers["Authorization"] = f"token {token}"
 
     try:
-        response = requests.get(api_url, headers=headers)
+        response = requests.get(api_url, headers=headers, verify=False)
         release = response.json()
     except Exception as e:
         print(f'获取更新失败：{e}')
@@ -68,7 +70,7 @@ def update(ver, owner=owner, repo=repo, output_dir="./", token=None):
             file_name = replace(file_name) # 替换点为空格
             file_path = os.path.join(output_dir, file_name)
 
-            response = requests.get(download_url, headers=headers, stream=True)
+            response = requests.get(download_url, headers=headers, stream=True, verify=False)
             total_size = int(response.headers.get('content-length', 0))
             with open(file_path, 'wb') as file, tqdm(
                     desc=file_path,
