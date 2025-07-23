@@ -143,6 +143,7 @@ def download_image(url, index, enable_filter, display_failure):
 
 def main(search_term, max_workers, enable_filter, display_failure):
     global priority, blacklist, error_count, completed
+    error_count = 0
     priority = load_config(pri_path, priority)
     blacklist = load_config(black_path, blacklist)
     if not os.path.exists(output_directory):
@@ -160,6 +161,7 @@ def main(search_term, max_workers, enable_filter, display_failure):
             future = executor.submit(download_image, url, index, enable_filter, display_failure)
             futures.append(future)
 
+    '''
     while len(completed) != len(search_term):
         correct = set(range(len(search_term)))
         missing = correct - set(completed)
@@ -167,6 +169,7 @@ def main(search_term, max_workers, enable_filter, display_failure):
         for index in missing:
             url = f'https://www.google.com.hk/search?q={search_term[index]}&udm=2'
             download_image(url, index, enable_filter, display_failure)
+    '''
 
     if error_count:
         return error_count
