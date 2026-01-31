@@ -47,7 +47,7 @@ class DragDropLabel(QLabel):
                     "border: 3px solid #4caf50; border-radius: 10px; font-size: 14px; color: #666; background: #f9f9f9; padding: 5px;")
 
 
-class ExcelComparatorUI(QWidget):
+class App(QWidget):
     def __init__(self):
         super().__init__()
         self.result_texts = []
@@ -160,6 +160,6 @@ class ExcelComparatorUI(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = ExcelComparatorUI()
+    window = App()
     window.show()
     sys.exit(app.exec())
