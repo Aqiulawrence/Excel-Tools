@@ -372,7 +372,7 @@ class ExcelToolsGUI(QMainWindow):
         self.start_cell_edit.setFixedWidth(80)
         layout.addWidget(self.start_cell_edit, 0, 1)
 
-        layout.addWidget(QLabel("搜索线程数:"), 0, 2)
+        layout.addWidget(QLabel("图片下载线程数:"), 0, 2)
         self.thread_spin = QSpinBox()
         self.thread_spin.setRange(1, 200)
         self.thread_spin.setValue(5)  # 默认5线程
