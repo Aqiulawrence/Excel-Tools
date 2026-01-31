@@ -1,0 +1,17 @@
+sqlalchemy_access-2.0.3.dist-info/AUTHORS,sha256=1nRqF8Fb2zEDPdITG4ThjYmvRVU_2uMPNUjdR9fCYO0,563
+sqlalchemy_access-2.0.3.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+sqlalchemy_access-2.0.3.dist-info/LICENSE,sha256=jiu7wM6r7RMAo6iW8cVrpMFu6azLbmnGmJ2scgzzE6M,1117
+sqlalchemy_access-2.0.3.dist-info/METADATA,sha256=mGYRYlUDxb20SVxNc8FHgcTtGavf237LmZeRoYZPsis,4319
+sqlalchemy_access-2.0.3.dist-info/RECORD,,
+sqlalchemy_access-2.0.3.dist-info/REQUESTED,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
+sqlalchemy_access-2.0.3.dist-info/WHEEL,sha256=cVxcB9AmuTcXqmwrtPhNK88dr7IR_b6qagTj0UvIEbY,91
+sqlalchemy_access-2.0.3.dist-info/entry_points.txt,sha256=v_RqyrHbLeBOFzAOSbqyGdC-_-tTVy6eHX3O9S9IZh0,84
+sqlalchemy_access-2.0.3.dist-info/top_level.txt,sha256=Sxqww2vxk62LZjpQ3c33uorjxmT9ZcrywrBxApD38dI,18
+sqlalchemy_access/__init__.py,sha256=RCmGLDmwd-5AfSqFy2HBJ-M5QeYPdwagrFv27o2zFc4,523
+sqlalchemy_access/__pycache__/__init__.cpython-313.pyc,,
+sqlalchemy_access/__pycache__/base.cpython-313.pyc,,
+sqlalchemy_access/__pycache__/pyodbc.cpython-313.pyc,,
+sqlalchemy_access/__pycache__/requirements.cpython-313.pyc,,
+sqlalchemy_access/base.py,sha256=utZ7BecauFac0fubF9mCE38FhvsxCQuYhi_gcCuM6mU,26421
+sqlalchemy_access/pyodbc.py,sha256=Ys021QS8Cr1LAO5LeCcYJeQ6JZK03jXhgBL3-4Tj9Bk,3505
+sqlalchemy_access/requirements.py,sha256=pqzrgeoFiOoto1wlNg5LFhqHtK8u_-yOVRjQpGYQckI,2195
