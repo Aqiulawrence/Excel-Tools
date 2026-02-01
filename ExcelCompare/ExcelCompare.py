@@ -1,8 +1,11 @@
 import sys
 import os
-from PyQt6.QtWidgets import *
-from PyQt6.QtCore import *
-from PyQt6.QtGui import *
+from PyQt6.QtWidgets import (
+    QApplication, QWidget, QLabel, QPushButton,
+    QTextEdit, QGroupBox, QFileDialog, QMessageBox,
+    QVBoxLayout, QHBoxLayout
+)
+from PyQt6.QtCore import Qt, pyqtSignal
 import core_logic
 
 
@@ -12,7 +15,7 @@ class DragDropLabel(QLabel):
     def __init__(self, text="拖拽Excel文件到这里"):
         super().__init__(text)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.setFixedSize(280, 70)
+        self.setFixedSize(220, 70)
         self.setStyleSheet(
             "border: 3px dashed #aaa; border-radius: 10px; font-size: 14px; color: #666; background: #f9f9f9; padding: 5px;")
         self.setAcceptDrops(True)
@@ -68,26 +71,25 @@ class App(QWidget):
 
     def init_ui(self):
         self.setWindowTitle("Excel件号数量对比工具 by Sam")
-        self.setFixedSize(700, 600)
+        self.resize(600, 550)
 
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(20, 20, 20, 20)
-        main_layout.setSpacing(15)
+        main_layout.setSpacing(10)
 
-        title = QLabel("Excel件号数量对比工具 by Sam")
-        title.setStyleSheet("font-size: 24px; font-weight: bold; color: #2c3e50;")
+        title = QLabel("Excel件号数量对比工具")
+        title.setStyleSheet("font-size: 20px; font-weight: bold; color: #2c3e50;")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_layout.addWidget(title)
 
         drop_layout = QHBoxLayout()
-        drop_layout.setSpacing(20)
 
         self.drop1 = DragDropLabel("点击或拖拽\n第一个Excel文件")
         self.drop1.file_dropped.connect(lambda f: self.set_file(1, f))
         drop_layout.addWidget(self.drop1)
 
         vs_label = QLabel("VS")
-        vs_label.setStyleSheet("font-size: 24px; font-weight: bold; color: #666;")
+        vs_label.setStyleSheet("font-size: 20px; font-weight: bold; color: #666;")
         vs_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         drop_layout.addWidget(vs_label)
 
@@ -98,7 +100,6 @@ class App(QWidget):
         main_layout.addLayout(drop_layout)
 
         self.compare_btn = QPushButton("开始对比")
-        self.compare_btn.setFixedHeight(45)
         self.compare_btn.clicked.connect(self.compare_files)
         self.compare_btn.setEnabled(False)
         self.compare_btn.setStyleSheet(
@@ -106,7 +107,6 @@ class App(QWidget):
         main_layout.addWidget(self.compare_btn)
 
         result_layout = QHBoxLayout()
-        result_layout.setSpacing(15)
 
         for title in ["前者缺失", "后者缺失", "数量差异"]:
             group = QGroupBox(title)
