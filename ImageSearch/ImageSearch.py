@@ -1,12 +1,9 @@
-# main.py
 import sys
 import os
-import shutil
 import time
 import requests
-from urllib.parse import urlparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
-
+from random import uniform
 import openpyxl
 from openpyxl.drawing.image import Image
 from bs4 import BeautifulSoup
@@ -14,21 +11,22 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QHBoxLayout, QGridLayout, QGroupBox, QLabel,
                              QLineEdit, QPushButton, QTextEdit, QFileDialog,
                              QMessageBox, QProgressBar, QCheckBox, QSpinBox)
-from PyQt6.QtCore import Qt, pyqtSignal, QThread, QTimer
-from PyQt6.QtGui import QFont, QTextCursor
+from PyQt6.QtCore import pyqtSignal, QThread, QTimer
+from PyQt6.QtGui import QFont, QTextCursor, QGuiApplication
 
 # 配置常量
 VERSION = "1.0"
-IMG_DIR = './imgs'
+WORKERS = 10
+IMG_DIR = './images'
 
 def extract_excel_data(start_cell, end_cell, excel_file):
     wb = openpyxl.load_workbook(excel_file)
     ws = wb.active
 
     # 解析单元格坐标
-    start_col = ''.join(filter(str.isalpha, start_cell))
+    start_col = ''.join(filter(str.isalpha, start_cell)).upper()
     start_row = int(''.join(filter(str.isdigit, start_cell)))
-    end_col = ''.join(filter(str.isalpha, end_cell))
+    end_col = ''.join(filter(str.isalpha, end_cell)).upper()
     end_row = int(''.join(filter(str.isdigit, end_cell)))
 
     data = []
@@ -55,7 +53,7 @@ def insert_images_to_excel(start_cell, image_count, excel_file):
     ws = wb.active
 
     # 解析起始单元格
-    col = ''.join(filter(str.isalpha, start_cell))
+    col = ''.join(filter(str.isalpha, start_cell)).upper()
     row = int(''.join(filter(str.isdigit, start_cell)))
 
     error_count = 0
@@ -77,18 +75,16 @@ def insert_images_to_excel(start_cell, image_count, excel_file):
             w2 = ws.sheet_format.defaultColWidth
             h2 = ws.sheet_format.defaultRowHeight
 
-            # 计算宽度
+            # 如果w1为13，w2为None，使用w1; 如果w1为13，w2不为None，使用w2; 如果w1不为13，使用w1
+            # 如果h1为None，使用h2; 如果h1不为None，使用h1
             if w1 == 13:
                 width = w2 if w2 is not None else w1
             else:
                 width = w1
-
-            # 计算高度
             height = h2 if h1 is None else h1
 
-            # 转换为像素
-            width *= 8
-            height *= 1.3
+            width *= 8 # 一个单元格为宽为9，像素为72（待确认？）
+            height *= 1.3 # 一个单元格高为13.5，像素为18（待确认？）
 
             # 加载并调整图片
             img = Image(img_path)
@@ -108,7 +104,6 @@ def insert_images_to_excel(start_cell, image_count, excel_file):
 
         except Exception as e:
             error_count += 1
-            print(f"插入失败 {index}: {e}")
 
         row += 1
 
@@ -130,21 +125,20 @@ class ImageSearchWorker(QThread):
     def __init__(self):
         super().__init__()
         self.search_terms = []
-        self.max_workers = 5
+        self.max_workers = WORKERS
         self.enable_filter = True
         self.priority_sites = ['ebay.com', 'amazon.com', 'cat.com', 'alibaba.com']
         self.blacklist_sites = ['farfetch.com']
         self.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:50.0) Gecko/20100101 Firefox/50.0'}
 
-    def setup(self, search_terms, max_workers=5, enable_filter=True):
+    def setup(self, search_terms, max_workers=WORKERS, enable_filter=True):
         self.search_terms = [x.strip() for x in search_terms if x.strip()]
         self.max_workers = max_workers
         self.enable_filter = enable_filter
 
-        # 清空并创建图片目录
-        if os.path.exists(IMG_DIR):
-            shutil.rmtree(IMG_DIR)
-        os.makedirs(IMG_DIR)
+        # 创建图片目录
+        if not os.path.exists(IMG_DIR):
+            os.makedirs(IMG_DIR)
 
     def search_website(self, tag):
         span_count = 0
@@ -161,16 +155,25 @@ class ImageSearchWorker(QThread):
 
     def download_image(self, url, index, term):
         file_name = os.path.join(IMG_DIR, f'{index:03d}.png')
-
-        # 获取网页内容
-        try:
-            response = requests.get(url, headers=self.headers, timeout=30)
-        except Exception as e:
-            return False, term, "网络请求失败"
+        time.sleep(uniform(0, 1.5)) # 开始前先进行随机延迟
+        times = 0
+        while True: # 获取网页内容
+            try:
+                response = requests.get(url, headers=self.headers)
+                if "if you are not redirected within a few seconds." in response.text: # 触发了Google反爬虫
+                    print(term, "触发了反爬")
+                    time.sleep(uniform(2, 4))
+                    continue
+                break
+            except Exception as e:
+                times += 1
+                if times >= 5:
+                    return False, term, "网络请求失败"
+                time.sleep(uniform(2, 4))
 
         # 检查是否被Google屏蔽
         if "Our systems have detected unusual traffic" in response.text:
-            return False, term, "被Google屏蔽"
+            return False, term, "Google检测到异常流量，请更换代理节点后再试"
 
         # 解析图片
         soup = BeautifulSoup(response.text, "html.parser")
@@ -179,9 +182,8 @@ class ImageSearchWorker(QThread):
         if len(img_tags) > 0:
             del img_tags[0]  # 删除Google logo
 
-        # 筛选图片
         record = []
-        if self.enable_filter:
+        if self.enable_filter: # 优先使用特定网站的图片
             for img in img_tags:
                 website = self.search_website(img)
                 for pri in self.priority_sites:
@@ -194,41 +196,42 @@ class ImageSearchWorker(QThread):
                 website = self.search_website(img)
                 for black in self.blacklist_sites:
                     if black in website:
-                        if img in record:
-                            record.remove(img)
+                        record.remove(img) # 删除黑名单网站的图片
 
         # 下载图片
         for img in record:
-            try:
-                src = img.attrs.get("src", "")
-                if src.startswith("http"):  # 防止base64图片
-                    img_response = requests.get(src, headers=self.headers, timeout=30)
+            src = img.attrs.get("src", "")
+            if src.startswith("http"):  # 防止base64图片
+                for i in range(10): # 尝试10次
+                    try:
+                        img_response = requests.get(src, headers=self.headers)
 
-                    with open(file_name, 'wb') as f:
-                        f.write(img_response.content)
+                        with open(file_name, 'wb') as f:
+                            f.write(img_response.content)
 
-                    return True, term, "成功"
+                        return True, term, "成功"
 
-            except Exception:
-                continue
+                    except Exception:
+                        time.sleep(uniform(2, 4))
 
         # 创建空文件
         open(file_name, 'w').close()
+        print(record, img_tags, response.text)
         return False, term, "未找到图片"
 
     def run(self):
-        try:
-            # 测试网络连接
-            test_url = "https://www.google.com"
-            response = requests.get(test_url, timeout=10)
+        for i in range(3): # 测试网络连接，尝试3次
+            try:
+                test_url = "https://www.google.com.hk/search?q=test&udm=2"
+                response = requests.get(test_url, timeout=7)
+                if "Our systems have detected unusual traffic" in response.text:
+                    self.search_error.emit("Google检测到异常流量，请更换代理节点后再试")
+                    return
+                break
 
-            if "Our systems have detected unusual traffic" in response.text:
-                self.search_error.emit("Google检测到异常流量，请稍后再试")
+            except Exception as e:
+                self.search_error.emit(f"无法连接至Google服务器，请重试")
                 return
-
-        except Exception as e:
-            self.search_error.emit(f"网络连接失败: {str(e)}")
-            return
 
         # 通知开始搜索
         total_tasks = len(self.search_terms)
@@ -295,10 +298,18 @@ class ExcelToolsGUI(QMainWindow):
         self.init_ui()
         self.setup_connections()
 
+    def center_window(self):
+        screen = QGuiApplication.primaryScreen().geometry()
+        size = self.geometry()
+        self.move(
+            (screen.width() - size.width()) // 2,
+            (screen.height() - size.height()) // 2
+        )
+
     def init_ui(self):
-        """初始化界面"""
         self.setWindowTitle(f"件号搜图工具 by Sam v{VERSION}")
-        self.resize(0, 700)
+        self.resize(450, 600)
+        self.center_window()
 
         # 设置字体
         font = QFont("Microsoft YaHei", 10)
@@ -310,18 +321,18 @@ class ExcelToolsGUI(QMainWindow):
 
         # 主布局
         main_layout = QVBoxLayout(central_widget)
-        main_layout.setSpacing(10)
+        main_layout.setSpacing(5)
         main_layout.setContentsMargins(10, 10, 10, 10)
 
         # 文件选择区域
         file_group = self.create_file_group()
         main_layout.addWidget(file_group)
 
-        # 参数设置区域（统一的参数框）
+        # 参数设置区域
         param_group = self.create_param_group()
         main_layout.addWidget(param_group)
 
-        # 内容和日志区域（并排放置）
+        # 内容和日志区域
         content_log_group = self.create_content_log_group()
         main_layout.addWidget(content_log_group, 1)  # 设置伸缩因子为1
 
@@ -329,44 +340,41 @@ class ExcelToolsGUI(QMainWindow):
         button_group = self.create_button_group()
         main_layout.addWidget(button_group)
 
-        # 进度条区域（始终显示）
         progress_group = self.create_progress_group()
         main_layout.addWidget(progress_group)
 
-        # 删除状态栏
         self.setStatusBar(None)
 
+    # 文件选择区域
     def create_file_group(self):
-        """创建文件选择区域"""
         group = QGroupBox("文件设置")
         layout = QHBoxLayout()
-        layout.setSpacing(10)
+        layout.setSpacing(5)
 
-        layout.addWidget(QLabel("Excel文件:"))
+        layout.addWidget(QLabel("选择文件:"))
 
         # 使用支持拖拽的自定义控件
         self.file_path_edit = DragDropLineEdit()
         self.file_path_edit.setReadOnly(True)
         layout.addWidget(self.file_path_edit, 1)
 
-        self.select_file_btn = QPushButton("选择文件")
-        self.select_file_btn.setFixedWidth(100)
+        self.select_file_btn = QPushButton("选择")
+        self.select_file_btn.setFixedWidth(50)
         layout.addWidget(self.select_file_btn)
 
-        self.open_file_btn = QPushButton("打开文件")
-        self.open_file_btn.setFixedWidth(100)
+        self.open_file_btn = QPushButton("打开")
+        self.open_file_btn.setFixedWidth(50)
         layout.addWidget(self.open_file_btn)
 
         group.setLayout(layout)
         return group
 
+    # 参数设置区域
     def create_param_group(self):
-        """创建统一的参数设置区域"""
         group = QGroupBox("参数设置")
         layout = QGridLayout()
-        layout.setSpacing(15)
+        layout.setSpacing(10)
 
-        # 第一行：提取起始 和 搜索线程数
         layout.addWidget(QLabel("提取起始单元格:"), 0, 0)
         self.start_cell_edit = QLineEdit()  # 默认空
         self.start_cell_edit.setFixedWidth(80)
@@ -374,12 +382,11 @@ class ExcelToolsGUI(QMainWindow):
 
         layout.addWidget(QLabel("图片下载线程数:"), 0, 2)
         self.thread_spin = QSpinBox()
-        self.thread_spin.setRange(1, 200)
-        self.thread_spin.setValue(5)  # 默认5线程
+        self.thread_spin.setRange(1, 30)
+        self.thread_spin.setValue(WORKERS)
         self.thread_spin.setFixedWidth(80)
         layout.addWidget(self.thread_spin, 0, 3)
 
-        # 第二行：提取结束 和 启用网站筛选
         layout.addWidget(QLabel("提取结束单元格:"), 1, 0)
         self.end_cell_edit = QLineEdit()  # 默认空
         self.end_cell_edit.setFixedWidth(80)
@@ -389,7 +396,6 @@ class ExcelToolsGUI(QMainWindow):
         self.filter_check.setChecked(True)
         layout.addWidget(self.filter_check, 1, 2, 1, 2)
 
-        # 第三行：插入起始
         layout.addWidget(QLabel("插入起始单元格:"), 2, 0)
         self.insert_cell_edit = QLineEdit()  # 默认空
         self.insert_cell_edit.setFixedWidth(80)
@@ -398,13 +404,12 @@ class ExcelToolsGUI(QMainWindow):
         group.setLayout(layout)
         return group
 
+    # 内容与日志区域
     def create_content_log_group(self):
-        """创建内容和日志区域 - 并排放置"""
         group = QGroupBox("内容与日志")
         layout = QHBoxLayout()
-        layout.setSpacing(10)
+        layout.setSpacing(5)
 
-        # 左列：待搜索内容
         content_widget = QWidget()
         content_layout = QVBoxLayout(content_widget)
         content_layout.setContentsMargins(0, 0, 0, 0)
@@ -438,31 +443,33 @@ class ExcelToolsGUI(QMainWindow):
         group.setLayout(layout)
         return group
 
+    # 操作按钮区域
     def create_button_group(self):
-        """创建操作按钮区域"""
         group = QGroupBox("操作")
         layout = QHBoxLayout()
-        layout.setSpacing(20)
+        layout.setSpacing(5)
 
         # 四个主要按钮
+        bt_w = 100
+        bt_h = 30
         self.extract_btn = QPushButton("提取件号")
-        self.extract_btn.setFixedWidth(120)
-        self.extract_btn.setFixedHeight(40)
+        self.extract_btn.setFixedWidth(bt_w)
+        self.extract_btn.setFixedHeight(bt_h)
         layout.addWidget(self.extract_btn)
 
         self.search_btn = QPushButton("搜索图片")
-        self.search_btn.setFixedWidth(120)
-        self.search_btn.setFixedHeight(40)
+        self.search_btn.setFixedWidth(bt_w)
+        self.search_btn.setFixedHeight(bt_h)
         layout.addWidget(self.search_btn)
 
         self.insert_btn = QPushButton("插入图片")
-        self.insert_btn.setFixedWidth(120)
-        self.insert_btn.setFixedHeight(40)
+        self.insert_btn.setFixedWidth(bt_w)
+        self.insert_btn.setFixedHeight(bt_h)
         layout.addWidget(self.insert_btn)
 
         self.auto_btn = QPushButton("一键操作")
-        self.auto_btn.setFixedWidth(120)
-        self.auto_btn.setFixedHeight(40)
+        self.auto_btn.setFixedWidth(bt_w)
+        self.auto_btn.setFixedHeight(bt_h)
         self.auto_btn.setStyleSheet("background-color: #4CAF50; color: white; font-weight: bold;")
         layout.addWidget(self.auto_btn)
 
@@ -472,8 +479,8 @@ class ExcelToolsGUI(QMainWindow):
         group.setLayout(layout)
         return group
 
+    # 搜索进度条区域
     def create_progress_group(self):
-        """创建进度区域 - 完全重构"""
         group = QGroupBox("搜索进度")
         layout = QVBoxLayout()
 
@@ -484,14 +491,11 @@ class ExcelToolsGUI(QMainWindow):
         self.progress_bar.setFormat("就绪")
         layout.addWidget(self.progress_bar)
 
-        # 删除进度条底下的文字提示
-        # 原来的self.progress_label已删除
-
         group.setLayout(layout)
         return group
 
+    # 创建连接
     def setup_connections(self):
-        """设置信号连接"""
         # 文件操作
         self.select_file_btn.clicked.connect(self.select_excel_file)
         self.open_file_btn.clicked.connect(self.open_excel_file)
@@ -509,7 +513,6 @@ class ExcelToolsGUI(QMainWindow):
         self.search_worker.search_error.connect(self.on_search_error)
 
     def select_excel_file(self):
-        """选择Excel文件"""
         file_path, _ = QFileDialog.getOpenFileName(
             self, "选择Excel文件", "", "Excel文件 (*.xlsx)"
         )
@@ -518,7 +521,6 @@ class ExcelToolsGUI(QMainWindow):
             self.file_path_edit.setText(file_path)
 
     def open_excel_file(self):
-        """打开Excel文件"""
         file_path = self.file_path_edit.text()
         if file_path and os.path.exists(file_path):
             try:
@@ -529,7 +531,6 @@ class ExcelToolsGUI(QMainWindow):
             QMessageBox.warning(self, "警告", "文件不存在")
 
     def extract_content(self):
-        """提取Excel内容"""
         excel_file = self.file_path_edit.text()
         start_cell = self.start_cell_edit.text()
         end_cell = self.end_cell_edit.text()
@@ -571,7 +572,6 @@ class ExcelToolsGUI(QMainWindow):
             self.add_log(f"提取失败: {str(e)}", is_error=True)
 
     def start_search(self):
-        """开始搜索图片"""
         # 获取搜索内容
         content = self.search_text.toPlainText()
         if not content.strip():
@@ -585,12 +585,14 @@ class ExcelToolsGUI(QMainWindow):
             QMessageBox.warning(self, "警告", "没有可搜索的内容")
             return
 
-        # 不清理日志，只添加开始标记（删除等号分割线）
         self.add_log(f"开始搜索，共 {len(search_terms)} 个件号，使用 {self.thread_spin.value()} 线程")
 
         # 重置进度
         self.completed_count = 0
-        self.total_tasks = 0
+        self.total_tasks = len(search_terms)
+        self.progress_bar.setMaximum(100)
+        self.progress_bar.setValue(0)
+        self.progress_bar.setFormat(f"0% (0/{self.total_tasks})")
 
         # 设置搜索参数
         self.search_worker.setup(
@@ -599,28 +601,28 @@ class ExcelToolsGUI(QMainWindow):
             enable_filter=self.filter_check.isChecked()
         )
 
-        # 更新界面状态
+        # 禁用其他按钮
         self.search_btn.setEnabled(False)
         self.extract_btn.setEnabled(False)
+        self.insert_btn.setEnabled(False)
+        self.auto_btn.setEnabled(False)
 
-        # 开始搜索
         self.search_worker.start()
 
     def on_search_started(self, total_tasks):
-        """搜索开始"""
         self.total_tasks = total_tasks
         self.completed_count = 0
 
         if total_tasks > 0:
             self.progress_bar.setMaximum(100)
             self.progress_bar.setValue(0)
-            self.progress_bar.setFormat("0% (0/0)")
+            self.progress_bar.setFormat(f"0% (0/{self.total_tasks})")
         else:
             self.progress_bar.setValue(0)
             self.progress_bar.setFormat("无任务")
 
+    # 单个任务完成
     def on_item_completed(self, index, success, message):
-        """单个任务完成"""
         self.completed_count += 1
 
         if self.total_tasks > 0:
@@ -652,10 +654,12 @@ class ExcelToolsGUI(QMainWindow):
             cursor.insertHtml(html + "<br>")
             self.log_text.ensureCursorVisible()
 
+    # 搜索完成时触发
     def on_search_finished(self, failed_items):
-        """搜索完成"""
         self.search_btn.setEnabled(True)
         self.extract_btn.setEnabled(True)
+        self.insert_btn.setEnabled(True)
+        self.auto_btn.setEnabled(True)
 
         # 完成时进度条设为100%
         self.progress_bar.setValue(100)
@@ -670,10 +674,12 @@ class ExcelToolsGUI(QMainWindow):
             self.add_log("搜索完成，所有图片已成功下载")
             QMessageBox.information(self, "完成", "搜索完成！")
 
+    # 搜索出现全局错误时触发
     def on_search_error(self, error_message):
-        """搜索出错"""
         self.search_btn.setEnabled(True)
         self.extract_btn.setEnabled(True)
+        self.insert_btn.setEnabled(True)
+        self.auto_btn.setEnabled(True)
 
         self.progress_bar.setValue(0)
         self.progress_bar.setFormat("错误")
@@ -682,7 +688,6 @@ class ExcelToolsGUI(QMainWindow):
         QMessageBox.critical(self, "错误", error_message)
 
     def add_log(self, message, is_error=False, is_warning=False):
-        """添加普通日志"""
         timestamp = time.strftime("%H:%M:%S")
 
         if is_error:
@@ -707,7 +712,6 @@ class ExcelToolsGUI(QMainWindow):
         self.log_text.ensureCursorVisible()
 
     def insert_images(self):
-        """插入图片到Excel"""
         excel_file = self.file_path_edit.text()
         insert_cell = self.insert_cell_edit.text()
 
@@ -759,17 +763,14 @@ class ExcelToolsGUI(QMainWindow):
             QMessageBox.critical(self, "错误", f"插入失败: {str(e)}")
             self.add_log(f"插入失败: {str(e)}", is_error=True)
 
+    # 一键操作
     def auto_process(self):
-        """一键操作：提取->搜索->插入"""
-        # 第一步：提取内容
         self.extract_content()
 
-        # 等待提取完成
         QApplication.processEvents()
         QTimer.singleShot(500, self.auto_process_step2)
 
     def auto_process_step2(self):
-        """一键操作第二步：搜索"""
         content = self.search_text.toPlainText()
         if not content.strip():
             return
@@ -785,7 +786,6 @@ class ExcelToolsGUI(QMainWindow):
         self.search_worker.search_finished.connect(self.auto_insert_after_search)
 
     def auto_insert_after_search(self, failed_items):
-        """搜索完成后自动插入"""
         try:
             self.search_worker.search_finished.disconnect(self.auto_insert_after_search)
         except:
@@ -794,7 +794,6 @@ class ExcelToolsGUI(QMainWindow):
         QTimer.singleShot(1000, self.insert_images)
 
     def closeEvent(self, event):
-        """关闭窗口事件"""
         if self.search_worker.isRunning():
             self.search_worker.terminate()
             self.search_worker.wait()
@@ -802,11 +801,11 @@ class ExcelToolsGUI(QMainWindow):
 
 
 def main():
-    """主函数"""
     app = QApplication(sys.argv)
     app.setStyle('Fusion')
     window = ExcelToolsGUI()
     window.show()
+
     sys.exit(app.exec())
 
 

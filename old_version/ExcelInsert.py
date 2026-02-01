@@ -45,7 +45,7 @@ def insert(ws, image_path, cell_ref):
 
     ws.add_image(img, f"{cell_ref[0]}{cell_ref[1]}")
 
-def main(cell_ref, total_img, excel_path): # start_cell 为一个列表，比如['A', 1]
+def main(cell_ref, total_img, excel_path): # cell_ref 为一个列表，比如['A', 1]
     wb = load_workbook(excel_path)
     ws = wb.active
 

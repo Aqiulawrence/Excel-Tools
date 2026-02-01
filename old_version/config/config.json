@@ -1,0 +1,7 @@
+{
+  "auto_update": 1,
+  "filter": 1,
+  "display_failure": 0,
+  "excel_search_max_workers": 8,
+  "google_search_max_workers": 9999
+}
