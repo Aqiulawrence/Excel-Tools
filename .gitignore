@@ -1,6 +1,0 @@
-release
-.idea
-*/build
-*/__pycache__
-*/dist
-*.spec

@@ -1,2 +1,0 @@
-part,件号
-qty,quantit,pcs in ctn,数量,每箱数
