@@ -14,7 +14,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
 from PyQt6.QtCore import pyqtSignal, QThread, QTimer
 from PyQt6.QtGui import QFont, QTextCursor, QGuiApplication
 
-# 配置常量
+
 VERSION = "1.0"
 WORKERS = 10
 IMG_DIR = './images'
@@ -308,7 +308,7 @@ class ExcelToolsGUI(QMainWindow):
 
     def init_ui(self):
         self.setWindowTitle(f"件号搜图工具 by Sam v{VERSION}")
-        self.resize(450, 600)
+        self.resize(450, 580)
         self.center_window()
 
         # 设置字体

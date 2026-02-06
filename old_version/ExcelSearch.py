@@ -108,4 +108,4 @@ def batch_search(folder_path, data_to_find, max_workers=8):
         pool.starmap(single_search, [(fp, search_term) for fp in file_paths])
 
 if __name__ == '__main__':
-    batch_search(r'D:\stress test', 'ACTUATOR  8431499900')
+    batch_search(r'D:/', '11EK-42200')
