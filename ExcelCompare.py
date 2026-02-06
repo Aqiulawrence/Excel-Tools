@@ -1,16 +1,24 @@
 import sys
-import os
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QLabel, QPushButton,
     QTextEdit, QGroupBox, QFileDialog, QMessageBox,
-    QVBoxLayout, QHBoxLayout
+    QVBoxLayout, QHBoxLayout, QDialog, QLineEdit,
+    QDialogButtonBox, QFormLayout
 )
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSignal, QSettings
+from PyQt6.QtGui import QAction
 import pandas as pd
 
+VERSION = "1.0"
+
 class ExcelComparator:
-    PART_KEYWORDS = ['part']
-    QTY_KEYWORDS = ['qty', 'pcs in ctn']
+    def __init__(self):
+        self.PART_KEYWORDS = ['part']
+        self.QTY_KEYWORDS = ['qty', 'pcs in ctn']
+
+    def set_keywords(self, part_keywords, qty_keywords):
+        self.PART_KEYWORDS = part_keywords
+        self.QTY_KEYWORDS = qty_keywords
 
     def read_excel_file(self, file_path):
         try:
@@ -35,7 +43,7 @@ class ExcelComparator:
                             result[part] = result.get(part, 0) + int(qty)
                     return result
 
-            raise ValueError("未找到件号或数量关键词！请修改 keywords.txt 中的关键词（用英文逗号分割）并重启程序")
+            raise ValueError("未找到件号或数量关键词！请右键选择'设置关键词'来修改关键词")
         except Exception as e:
             raise Exception(f"读取失败: {str(e)}")
 
@@ -49,6 +57,7 @@ class ExcelComparator:
         result["数量差异："] = {k: d1[k] - d2[k] for k in d1 if k in d2 and d1[k] != d2[k]}
 
         return result
+
 
 class DragDropLabel(QLabel):
     file_dropped = pyqtSignal(str)
@@ -91,27 +100,110 @@ class DragDropLabel(QLabel):
                     "border: 3px solid #4caf50; border-radius: 10px; font-size: 14px; color: #666; background: #f9f9f9; padding: 5px;")
 
 
+class KeywordsDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("关键词设置")
+        self.setup_ui()
+
+    def setup_ui(self):
+        layout = QVBoxLayout(self)
+        form_layout = QFormLayout()
+
+        self.part_input = QLineEdit()
+        form_layout.addRow("件号关键词:", self.part_input)
+
+        self.qty_input = QLineEdit()
+        form_layout.addRow("数量关键词:", self.qty_input)
+
+        layout.addLayout(form_layout)
+
+        button_box = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok |
+            QDialogButtonBox.StandardButton.Cancel |
+            QDialogButtonBox.StandardButton.Reset
+        )
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+        button_box.button(QDialogButtonBox.StandardButton.Reset).clicked.connect(self.reset_default)
+        layout.addWidget(button_box)
+
+    def reset_default(self):
+        self.part_input.setText("part,件号")
+        self.qty_input.setText("qty,pcs in ctn,数量")
+
+    def get_keywords(self):
+        part_text = self.part_input.text().strip()
+        qty_text = self.qty_input.text().strip()
+
+        # 处理关键词，移除空格和空值
+        part_keywords = [k.strip() for k in part_text.split(',') if k.strip()]
+        qty_keywords = [k.strip() for k in qty_text.split(',') if k.strip()]
+
+        return part_keywords, qty_keywords
+
+    def set_keywords(self, part_keywords, qty_keywords):
+        self.part_input.setText(','.join(part_keywords))
+        self.qty_input.setText(','.join(qty_keywords))
+
+
 class App(QWidget):
     def __init__(self):
         super().__init__()
         self.result_texts = []
         self.comparator = ExcelComparator()
+        self.settings = QSettings("ExcelComparator", "Keywords")
         self.load_keywords()
         self.file1 = ""
         self.file2 = ""
         self.init_ui()
+        self.setup_context_menu()
 
     def load_keywords(self):
-        if not os.path.exists('./keywords.txt'):
-            with open('./keywords.txt', 'w', encoding='utf-8') as f:
-                f.write("part,件号\nqty,quantit,pcs in ctn,数量,每箱数")
-        with open('./keywords.txt', 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-            self.comparator.PART_KEYWORDS = lines[0].strip().split(',')
-            self.comparator.QTY_KEYWORDS = lines[1].strip().split(',')
+        part_keywords = self.settings.value("part_keywords", ["part", "件号"])
+        qty_keywords = self.settings.value("qty_keywords", ["qty", "pcs in ctn", "数量"])
+
+        # 确保返回的是列表
+        if isinstance(part_keywords, str):
+            part_keywords = [k.strip() for k in part_keywords.split(',') if k.strip()]
+        elif isinstance(part_keywords, list):
+            # 如果是列表，确保所有元素都是字符串
+            part_keywords = [str(k).strip() for k in part_keywords if str(k).strip()]
+
+        if isinstance(qty_keywords, str):
+            qty_keywords = [k.strip() for k in qty_keywords.split(',') if k.strip()]
+        elif isinstance(qty_keywords, list):
+            # 如果是列表，确保所有元素都是字符串
+            qty_keywords = [str(k).strip() for k in qty_keywords if str(k).strip()]
+
+        self.comparator.set_keywords(part_keywords, qty_keywords)
+
+    def save_keywords(self, part_keywords, qty_keywords):
+        self.settings.setValue("part_keywords", part_keywords)
+        self.settings.setValue("qty_keywords", qty_keywords)
+        self.comparator.set_keywords(part_keywords, qty_keywords)
+
+    def setup_context_menu(self):
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
+
+        settings_action = QAction("设置关键词（用英文逗号分割）", self)
+        settings_action.triggered.connect(self.show_keywords_dialog)
+        self.addAction(settings_action)
+
+    def show_keywords_dialog(self):
+        dialog = KeywordsDialog(self)
+        dialog.set_keywords(self.comparator.PART_KEYWORDS, self.comparator.QTY_KEYWORDS)
+
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            part_keywords, qty_keywords = dialog.get_keywords()
+            if part_keywords and qty_keywords:
+                self.save_keywords(part_keywords, qty_keywords)
+                QMessageBox.information(self, "提示", "关键词已更新！")
+            else:
+                QMessageBox.warning(self, "警告", "关键词不能为空！")
 
     def init_ui(self):
-        self.setWindowTitle("Excel件号数量对比工具 by Sam")
+        self.setWindowTitle(f"Excel件号数量对比工具 by Sam v{VERSION}")
         self.resize(600, 550)
 
         main_layout = QVBoxLayout()
