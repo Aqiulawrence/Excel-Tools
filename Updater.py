@@ -9,7 +9,6 @@ import tempfile
 from pathlib import Path
 import zipfile
 import winreg
-from time import sleep
 
 VERSION = "v2026.02"
 SERVER_URL = "http://www.wublog.site/update"
@@ -137,5 +136,5 @@ def main():
 
 if __name__ == "__main__":
     add_startup() # 添加启动项
-    sleep(60)
+    time.sleep(60)
     main()
