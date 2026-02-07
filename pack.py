@@ -10,7 +10,7 @@ def build_and_merge(scripts, output_name="Merged-Tools"):
     for script in scripts:
         subprocess.run(['pyinstaller', '-w', '--onedir', script], check=True)
 
-    target = f'dist/{output_name}'
+    target = 'dist'
     os.makedirs(target, exist_ok=True)
     internal_target = os.path.join(target, '_internal')
     os.makedirs(internal_target, exist_ok=True)
@@ -43,5 +43,5 @@ def build_and_merge(scripts, output_name="Merged-Tools"):
     input()
 
 if __name__ == "__main__":
-    scripts = ['ImageSearch.py', 'ExcelCompare.py', 'ExcelSearch.py']
+    scripts = ['ImageSearch.py', 'ExcelCompare.py', 'ExcelSearch.py', 'Updater.py']
     build_and_merge(scripts, "Excel-Tools")
