@@ -39,9 +39,6 @@ def build_and_merge(scripts, output_name="Merged-Tools"):
         if os.path.exists(empty_dir):
             shutil.rmtree(empty_dir)
 
-    print(f"完成！文件在: {target}")
-    input()
-
 if __name__ == "__main__":
     scripts = ['ImageSearch.py', 'ExcelCompare.py', 'ExcelSearch.py', 'Updater.py']
     build_and_merge(scripts, "Excel-Tools")

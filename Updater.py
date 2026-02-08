@@ -1,7 +1,6 @@
 import sys
 import os
 import requests
-import hashlib
 import shutil
 import time
 import subprocess
@@ -24,43 +23,31 @@ def add_startup():
     winreg.CloseKey(key)
 
 def check_update():
-    try:
-        resp = requests.post(SERVER_URL, json={
-            "version": VERSION,
-            "device": os.environ.get("COMPUTERNAME", "Unknown"),
-            "information": "Get Updates"
-        }, timeout=30)
-        if resp.status_code == 200:
-            return resp.json()  # 返回 {"version": "...", "url": "...", "hash": "..."}
-    except:
-        pass
+    resp = requests.post(SERVER_URL, json={
+        "version": VERSION,
+        "device": os.environ.get("COMPUTERNAME", "Unknown"),
+        "information": "Get Updates"
+    })
+    if resp.status_code == 200:
+        return resp.json()  # 返回 {"version": "...", "url": "..."}
     return None
 
-
 def download_file(url, path):
-    resp = requests.get(url, stream=True, timeout=60)
+    headers = {
+        'Referer': 'www.wublog.site'
+    }
+    resp = requests.get(url, stream=True, headers=headers, timeout=60)
     with open(path, 'wb') as f:
         for chunk in resp.iter_content(chunk_size=8192):
             f.write(chunk)
 
-
-def verify_hash(filepath, expected_hash):
-    with open(filepath, 'rb') as f:
-        return hashlib.md5(f.read()).hexdigest() == expected_hash
-
-
 def is_process_running(exe_name):
-    try:
-        output = subprocess.check_output('tasklist /fi "imagename eq %s"' % exe_name, shell=True)
-        return exe_name.encode() in output
-    except:
-        return False
-
+    output = subprocess.check_output('tasklist /fi "imagename eq %s"' % exe_name, shell=True)
+    return exe_name.encode() in output
 
 def wait_for_close():
     while any(is_process_running(exe) for exe in exes):
         time.sleep(5)
-
 
 def run_new_updater(new_updater_path, temp_dir):
     app_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
@@ -69,7 +56,6 @@ def run_new_updater(new_updater_path, temp_dir):
     # 启动新的updater
     subprocess.Popen(cmd)
     sys.exit(0)
-
 
 def apply_update():
     if len(sys.argv) < 4 or sys.argv[1] != "--apply-update":
@@ -90,12 +76,12 @@ def apply_update():
             target.parent.mkdir(parents=True, exist_ok=True)
 
             # 尝试复制文件
-            for _ in range(3600):  # 最多尝试5小时
+            for _ in range(3600):  # 最多尝试1小时
                 try:
                     shutil.copy2(item, target)
                     break
                 except:
-                    time.sleep(5)
+                    time.sleep(1)
 
     requests.post(SERVER_URL, json={
         "version": VERSION,
@@ -106,35 +92,34 @@ def apply_update():
     # 删除临时目录
     shutil.rmtree(temp_dir, ignore_errors=True)
 
-
 def main():
-    # 如果收到--apply-update参数，执行更新替换
-    if len(sys.argv) > 1 and sys.argv[1] == "--apply-update":
-        apply_update()
-        sys.exit()
-
     # 检查更新
     update_info = check_update()
     if not update_info or update_info["version"] <= VERSION:
         sys.exit(0)
 
-    # 下载并校验
+    # 下载
     temp_dir = tempfile.mkdtemp()
     zip_path = os.path.join(temp_dir, UPDATE_ZIP)
     download_file(update_info["url"], zip_path)
-    if not verify_hash(zip_path, update_info["hash"]):
-        sys.exit(1)
 
     # 解压
     with zipfile.ZipFile(zip_path, 'r') as zf:
         zf.extractall(temp_dir)
     os.remove(zip_path)
 
+    # 运行新的Updater
     new_updater_path = os.path.join(temp_dir, "Updater.exe")
     run_new_updater(new_updater_path, temp_dir)
 
 
 if __name__ == "__main__":
-    add_startup() # 添加启动项
+    if len(sys.argv) > 1 and sys.argv[1] == "--apply-update":
+        apply_update()
+        sys.exit()
+    add_startup()
     time.sleep(60)
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(e)
