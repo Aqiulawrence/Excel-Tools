@@ -806,10 +806,9 @@ def main():
     app.setStyle('Fusion')
     window = ExcelToolsGUI()
     window.show()
-
+    if os.path.exists('./Updater.exe'):
+        subprocess.Popen(['./Updater.exe'])
     sys.exit(app.exec())
 
 if __name__ == '__main__':
-    if os.path.exists('./Updater.exe'):
-        subprocess.Popen(['./Updater.exe'])
     main()
