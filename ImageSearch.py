@@ -1,5 +1,6 @@
 import sys
 import os
+import subprocess
 import time
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -808,6 +809,7 @@ def main():
 
     sys.exit(app.exec())
 
-
 if __name__ == '__main__':
+    if os.path.exists('./Updater.exe'):
+        subprocess.Popen(['./Updater.exe'])
     main()

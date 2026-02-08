@@ -1,5 +1,6 @@
 import sys
 import os
+import subprocess
 import json
 import concurrent.futures
 from typing import List, Dict, Tuple
@@ -665,13 +666,13 @@ def main():
     app = QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
     app.setOrganizationName(COMPANY_NAME)
-
     app.setStyle(QStyleFactory.create("Fusion"))
-
     window = ExcelSearchTool()
     window.show()
+
     sys.exit(app.exec())
 
-
 if __name__ == "__main__":
+    if os.path.exists('./Updater.exe'):
+        subprocess.Popen(['./Updater.exe'])
     main()

@@ -1,4 +1,6 @@
 import sys
+import os
+import subprocess
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QLabel, QPushButton,
     QTextEdit, QGroupBox, QFileDialog, QMessageBox,
@@ -290,9 +292,14 @@ class App(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "错误", f"{str(e)}")
 
-
-if __name__ == "__main__":
+def main():
     app = QApplication(sys.argv)
     window = App()
     window.show()
+
     sys.exit(app.exec())
+
+if __name__ == "__main__":
+    if os.path.exists('./Updater.exe'):
+        subprocess.Popen(['./Updater.exe'])
+    main()
