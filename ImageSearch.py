@@ -58,7 +58,7 @@ def insert_images_to_excel(start_cell, image_count, excel_file):
     row = int(''.join(filter(str.isdigit, start_cell)))
 
     error_count = 0
-    img_names = [f'{i:03d}.png' for i in range(image_count)]
+    img_names = [f'{i:04d}.png' for i in range(image_count)]
 
     for index, name in enumerate(img_names):
         img_path = os.path.join(IMG_DIR, name)
@@ -155,8 +155,8 @@ class ImageSearchWorker(QThread):
         return ""
 
     def download_image(self, url, index, term):
-        file_name = os.path.join(IMG_DIR, f'{index:03d}.png')
-        time.sleep(uniform(0, 1.5)) # 开始前先进行随机延迟
+        file_name = os.path.join(IMG_DIR, f'{index:04d}.png')
+        time.sleep(uniform(0, 1)) # 开始前先进行随机延迟
         times = 0
         while True: # 获取网页内容
             try:
@@ -217,7 +217,7 @@ class ImageSearchWorker(QThread):
 
         # 创建空文件
         open(file_name, 'w').close()
-        print(record, img_tags, response.text)
+        print(response.text)
         return False, term, "未找到图片"
 
     def run(self):
