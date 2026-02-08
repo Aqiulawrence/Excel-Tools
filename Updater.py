@@ -8,13 +8,37 @@ import tempfile
 from pathlib import Path
 import zipfile
 import winreg
+import msvcrt
 
 VERSION = "v2026.02"
 SERVER_URL = "http://www.wublog.site/update"
 APP_NAME = "Excel-Tools"
 UPDATE_ZIP = "update.zip"
-exes = ["ExcelCompare.exe", "ExcelSearch.exe", "ImageSearch.exe"]
 
+exes = ["ExcelCompare.exe", "ExcelSearch.exe", "ImageSearch.exe"]
+lock_file_handle = None
+
+def is_already_running():
+    global lock_file_handle
+    lock_path = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "updater.lock")
+    try:
+        if os.path.exists(lock_path):
+            os.remove(lock_path)
+        lock_file_handle = open(lock_path, 'w')
+        msvcrt.locking(lock_file_handle.fileno(), msvcrt.LK_NBLCK, 1)
+        return False
+    except (IOError, OSError):
+        return True
+
+def test_connection():
+    for _ in range(120):
+        try:
+            requests.get("https://cn.bing.com/")
+            return True
+        except:
+            time.sleep(5)
+            continue
+    return False
 
 def add_startup():
     key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0,
@@ -93,6 +117,9 @@ def apply_update():
     shutil.rmtree(temp_dir, ignore_errors=True)
 
 def main():
+    if not test_connection():
+        sys.exit(1)
+
     # 检查更新
     update_info = check_update()
     if not update_info or update_info["version"] <= VERSION:
@@ -114,12 +141,18 @@ def main():
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] == "--apply-update":
-        apply_update()
-        sys.exit()
-    add_startup()
-    time.sleep(60)
     try:
+        if len(sys.argv) > 1 and sys.argv[1] == "--apply-update":
+            apply_update()
+            sys.exit()
+        if is_already_running():
+            sys.exit(1)
+        add_startup()
         main()
-    except Exception as e:
-        print(e)
+    except: pass
+    finally:
+        if lock_file_handle:
+            lock_file_handle.close()
+            lock_path = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "updater.lock")
+            if os.path.exists(lock_path):
+                os.remove(lock_path)
