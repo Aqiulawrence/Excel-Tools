@@ -157,28 +157,40 @@ class ImageSearchWorker(QThread):
     def download_image(self, url, index, term):
         file_name = os.path.join(IMG_DIR, f'{index:04d}.png')
         time.sleep(uniform(0, 1)) # 开始前先进行随机延迟
-        times = 0
+        times = 0 # 重试次数
+        img_tags = []
         while True: # 获取网页内容
             try:
                 response = requests.get(url, headers=self.headers)
-                if "if you are not redirected within a few seconds." in response.text: # 触发了Google反爬虫
+                # 检查是否被Google屏蔽
+                if "Our systems have detected unusual traffic" in response.text:
+                    open(file_name, 'w').close()
+                    return False, term, "Google检测到异常流量，请更换代理节点后再试"
+                # 检测是否触发Google反爬，如果是则无限重试
+                if ("if you are not redirected within a few seconds." in response.text) or ("若您在數秒內仍未能自動跳轉，請點擊" in response.text):
                     print(term, "触发了反爬")
-                    time.sleep(uniform(2, 4))
+                    time.sleep(uniform(0, 1))
+                    continue
+                # 解析图片
+                soup = BeautifulSoup(response.text, "html.parser")
+                img_tags = soup.find_all("img")
+                # 没有图片一般有两种情况：1.件号有误 2.触发了Google反爬
+                if not img_tags: # 重试五次
+                    print(term, '未找到图片，重试：', times)
+                    times += 1
+                    if times >= 5:
+                        print(response.text)
+                        open(file_name, 'w').close()
+                        return False, term, "未找到图片"
+                    time.sleep(uniform(0, 1))
                     continue
                 break
-            except Exception as e:
+            except Exception as e: # 重试五次
                 times += 1
                 if times >= 5:
+                    open(file_name, 'w').close()
                     return False, term, "网络请求失败"
-                time.sleep(uniform(2, 4))
-
-        # 检查是否被Google屏蔽
-        if "Our systems have detected unusual traffic" in response.text:
-            return False, term, "Google检测到异常流量，请更换代理节点后再试"
-
-        # 解析图片
-        soup = BeautifulSoup(response.text, "html.parser")
-        img_tags = soup.find_all("img")
+                time.sleep(uniform(0, 1))
 
         if len(img_tags) > 0:
             del img_tags[0]  # 删除Google logo
@@ -213,11 +225,10 @@ class ImageSearchWorker(QThread):
                         return True, term, "成功"
 
                     except Exception:
-                        time.sleep(uniform(2, 4))
+                        time.sleep(uniform(0, 1))
 
-        # 创建空文件
-        open(file_name, 'w').close()
         print(response.text)
+        open(file_name, 'w').close()
         return False, term, "未找到图片"
 
     def run(self):
