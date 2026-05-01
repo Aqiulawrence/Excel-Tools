@@ -14,9 +14,18 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QMessageBox, QProgressBar, QCheckBox, QSpinBox)
 from PyQt6.QtCore import pyqtSignal, QThread, QTimer
 from PyQt6.QtGui import QFont, QTextCursor, QGuiApplication
+from selenium.webdriver import Chrome
+from selenium.webdriver.chrome.options import Options
+
+options = Options()
+options.add_argument('--headless')
+options.add_argument(
+    '--user-agent=Mozilla/5.0 (Windows NT 6.1; WOW64; rv:33.0) Gecko/20120101 Firefox/33.0')
+options.add_argument('--disable-blink-features=AutomationControlled')
+options.add_experimental_option('excludeSwitches', ['enable-automation'])
 
 
-VERSION = "1.0"
+VERSION = "1.1"
 WORKERS = 10
 IMG_DIR = './images'
 
@@ -130,7 +139,7 @@ class ImageSearchWorker(QThread):
         self.enable_filter = True
         self.priority_sites = ['ebay.com', 'amazon.com', 'cat.com', 'alibaba.com']
         self.blacklist_sites = ['farfetch.com']
-        self.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:50.0) Gecko/20100101 Firefox/50.0'}
+        self.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:33.0) Gecko/20120101 Firefox/33.0'}
 
     def setup(self, search_terms, max_workers=WORKERS, enable_filter=True):
         self.search_terms = [x.strip() for x in search_terms if x.strip()]
@@ -161,25 +170,35 @@ class ImageSearchWorker(QThread):
         img_tags = []
         while True: # 获取网页内容
             try:
-                response = requests.get(url, headers=self.headers)
+                driver = Chrome(options=options)
+                driver.get(url)
+                while driver.execute_script("return document.readyState") != "complete":
+                    pass
+                page_source = driver.page_source
+                driver.quit()
+
                 # 检查是否被Google屏蔽
-                if "Our systems have detected unusual traffic" in response.text:
+                if "Our systems have detected unusual traffic" in page_source:
                     open(file_name, 'w').close()
                     return False, term, "Google检测到异常流量，请更换代理节点后再试"
-                # 检测是否触发Google反爬，如果是则无限重试
-                if ("if you are not redirected within a few seconds." in response.text) or ("若您在數秒內仍未能自動跳轉，請點擊" in response.text):
-                    print(term, "触发了反爬")
+
+                # 检测是否触发Google反爬
+                if ("if you are not redirected within a few seconds." in page_source) or ("若您在數秒內仍未能自動跳轉，請點擊" in page_source):
+                    print(term, '触发了反爬，重试：', times)
+                    times += 1
+                    if times >= 15:
+                        open(file_name, 'w').close()
+                        return False, term, "触发了Google反爬"
                     time.sleep(uniform(0, 1))
                     continue
                 # 解析图片
-                soup = BeautifulSoup(response.text, "html.parser")
+                soup = BeautifulSoup(page_source, "html.parser")
                 img_tags = soup.find_all("img")
                 # 没有图片一般有两种情况：1.件号有误 2.触发了Google反爬
                 if not img_tags: # 重试五次
                     print(term, '未找到图片，重试：', times)
                     times += 1
                     if times >= 5:
-                        print(response.text)
                         open(file_name, 'w').close()
                         return False, term, "未找到图片"
                     time.sleep(uniform(0, 1))
@@ -227,24 +246,10 @@ class ImageSearchWorker(QThread):
                     except Exception:
                         time.sleep(uniform(0, 1))
 
-        print(response.text)
         open(file_name, 'w').close()
         return False, term, "未找到图片"
 
     def run(self):
-        for i in range(3): # 测试网络连接，尝试3次
-            try:
-                test_url = "https://www.google.com.hk/search?q=test&udm=2"
-                response = requests.get(test_url, timeout=7)
-                if "Our systems have detected unusual traffic" in response.text:
-                    self.search_error.emit("Google检测到异常流量，请更换代理节点后再试")
-                    return
-                break
-
-            except Exception as e:
-                self.search_error.emit(f"无法连接至Google服务器，请重试")
-                return
-
         # 通知开始搜索
         total_tasks = len(self.search_terms)
         self.search_started.emit(total_tasks)
@@ -597,8 +602,6 @@ class ExcelToolsGUI(QMainWindow):
             QMessageBox.warning(self, "警告", "没有可搜索的内容")
             return
 
-        self.add_log(f"开始搜索，共 {len(search_terms)} 个件号，使用 {self.thread_spin.value()} 线程")
-
         # 重置进度
         self.completed_count = 0
         self.total_tasks = len(search_terms)
@@ -619,6 +622,25 @@ class ExcelToolsGUI(QMainWindow):
         self.insert_btn.setEnabled(False)
         self.auto_btn.setEnabled(False)
 
+        '''self.add_log("正在测试网络连接状态...")
+        QApplication.processEvents()
+
+        try: # 测试网络连接
+            driver = Chrome(options=options)
+            driver.get(f'https://www.google.com.hk/search?q=test&udm=2')
+            while driver.execute_script("return document.readyState") != "complete":
+                pass
+            page_source = driver.page_source
+            driver.quit()
+            if "Our systems have detected unusual traffic" in page_source:
+                self.on_search_error("Google检测到异常流量，请更换代理节点后再试")
+                return
+
+        except Exception as e:
+            self.on_search_error(f"无法连接至Google服务器，请重试")
+            return'''
+
+        self.add_log(f"开始搜索，共 {len(search_terms)} 个件号，使用 {self.thread_spin.value()} 线程")
         self.search_worker.start()
 
     def on_search_started(self, total_tasks):
