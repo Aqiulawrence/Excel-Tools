@@ -19,11 +19,9 @@ from selenium.webdriver.chrome.options import Options
 
 options = Options()
 options.add_argument('--headless')
-options.add_argument(
-    '--user-agent=Mozilla/5.0 (Windows NT 6.1; WOW64; rv:33.0) Gecko/20120101 Firefox/33.0')
+options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 6.1; WOW64; rv:33.0) Gecko/20120101 Firefox/33.0')
 options.add_argument('--disable-blink-features=AutomationControlled')
 options.add_experimental_option('excludeSwitches', ['enable-automation'])
-
 
 VERSION = "1.1"
 WORKERS = 10
@@ -173,7 +171,7 @@ class ImageSearchWorker(QThread):
                 driver = Chrome(options=options)
                 driver.get(url)
                 while driver.execute_script("return document.readyState") != "complete":
-                    pass
+                    time.sleep(0.2)
                 page_source = driver.page_source
                 driver.quit()
 
