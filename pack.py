@@ -2,13 +2,15 @@ import os
 import shutil
 import subprocess
 
-def build_and_merge(scripts, output_name="Merged-Tools"):
-    for d in ['dist']:
-        if os.path.exists(d):
-            shutil.rmtree(d)
+def build_and_merge(scripts, output_name):
+    if os.path.exists('dist'):
+        shutil.rmtree('dist')
 
     for script in scripts:
-        subprocess.run(['pyinstaller', '-w', '--onedir', script], check=True)
+        if script == "ImageSearch.py":
+            subprocess.run(['pyinstaller', '-w', '--onedir', '--hidden-import=selenium.webdriver.chrome.webdriver', script], check=True)
+        else:
+            subprocess.run(['pyinstaller', '-w', '--onedir', script], check=True)
 
     target = 'dist'
     os.makedirs(target, exist_ok=True)
