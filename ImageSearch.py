@@ -16,11 +16,14 @@ from PyQt6.QtCore import pyqtSignal, QThread, QTimer
 from PyQt6.QtGui import QFont, QTextCursor, QGuiApplication
 from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 
 options = Options()
 options.add_argument('--headless')
 options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 6.1; WOW64; rv:33.0) Gecko/20120101 Firefox/33.0')
 options.add_argument('--disable-blink-features=AutomationControlled')
+options.add_argument("--disable-webrtc")
 options.add_experimental_option('excludeSwitches', ['enable-automation'])
 
 VERSION = "1.1"
@@ -163,15 +166,36 @@ class ImageSearchWorker(QThread):
 
     def download_image(self, url, index, term):
         file_name = os.path.join(IMG_DIR, f'{index:04d}.png')
-        time.sleep(uniform(0, 1)) # 开始前先进行随机延迟
         times = 0 # 重试次数
         img_tags = []
+        # time.sleep(uniform(0, 1)) # 开始前先进行随机延迟
         while True: # 获取网页内容
             try:
+                print(term)
                 driver = Chrome(options=options)
+                driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+                driver.execute_script("""
+                    var getContext = HTMLCanvasElement.prototype.getContext;
+                    HTMLCanvasElement.prototype.getContext = function(type, attrs) {
+                        var ctx = getContext.apply(this, arguments);
+                        if (type === 'webgl' || type === 'experimental-webgl') {
+                            var getParameter = ctx.getParameter;
+                            ctx.getParameter = function(parameter) {
+                                if (parameter === 37446) {
+                                    return "Intel(R) HD Graphics 630";
+                                }
+                                return getParameter(parameter);
+                            };
+                        }
+                        return ctx;
+                    };
+                """)
                 driver.get(url)
+                a = time.time()
                 while driver.execute_script("return document.readyState") != "complete":
                     time.sleep(0.2)
+                b = time.time()
+                print(b-a)
                 page_source = driver.page_source
                 driver.quit()
 
@@ -203,6 +227,7 @@ class ImageSearchWorker(QThread):
                     continue
                 break
             except Exception as e: # 重试五次
+                print(e)
                 times += 1
                 if times >= 5:
                     open(file_name, 'w').close()
