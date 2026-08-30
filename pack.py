@@ -44,3 +44,4 @@ def build_and_merge(scripts, output_name):
 if __name__ == "__main__":
     scripts = ['ImageSearch.py', 'ExcelCompare.py', 'ExcelSearch.py', 'Updater.py']
     build_and_merge(scripts, "Excel-Tools")
+    
