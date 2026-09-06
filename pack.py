@@ -8,7 +8,7 @@ def build_and_merge(scripts, output_name):
 
     for script in scripts:
         if script == "ImageSearch.py":
-            subprocess.run(['pyinstaller', '-w', '--onedir', '--hidden-import=selenium.webdriver.chrome.webdriver', script], check=True)
+            subprocess.run(['pyinstaller', '-w', '--onedir', script], check=True)
         else:
             subprocess.run(['pyinstaller', '-w', '--onedir', script], check=True)
 
@@ -44,4 +44,3 @@ def build_and_merge(scripts, output_name):
 if __name__ == "__main__":
     scripts = ['ImageSearch.py', 'ExcelCompare.py', 'ExcelSearch.py', 'Updater.py']
     build_and_merge(scripts, "Excel-Tools")
-    

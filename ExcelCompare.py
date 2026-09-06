@@ -1,6 +1,10 @@
 import sys
 import os
 import winreg
+from decimal import Decimal, InvalidOperation
+from pathlib import Path
+
+from openpyxl import load_workbook
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QLabel, QPushButton,
     QTextEdit, QGroupBox, QFileDialog, QMessageBox,
@@ -9,9 +13,8 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt, pyqtSignal, QSettings
 from PyQt6.QtGui import QAction
-import pandas as pd
 
-VERSION = "1.0"
+VERSION = "1.1"
 
 class ExcelComparator:
     def __init__(self):
@@ -22,28 +25,62 @@ class ExcelComparator:
         self.PART_KEYWORDS = part_keywords
         self.QTY_KEYWORDS = qty_keywords
 
+    @staticmethod
+    def _cell_text(value):
+        return "" if value is None else str(value)
+
+    @staticmethod
+    def _to_number(value):
+        text = ExcelComparator._cell_text(value).strip()
+        if not text:
+            return None
+
+        try:
+            number = Decimal(text)
+        except InvalidOperation:
+            return None
+
+        return number if number.is_finite() else None
+
+    def _open_rows(self, file_path):
+        if Path(file_path).suffix.lower() == ".xls":
+            from xlrd import open_workbook
+
+            workbook = open_workbook(file_path)
+            sheet = workbook.sheet_by_index(0)
+            rows = (sheet.row_values(index) for index in range(sheet.nrows))
+            return rows, workbook.release_resources
+
+        workbook = load_workbook(file_path, read_only=True, data_only=True)
+        rows = workbook.worksheets[0].iter_rows(values_only=True)
+        return rows, workbook.close
+
     def read_excel_file(self, file_path):
         try:
-            df = pd.read_excel(file_path, header=None, dtype=str).fillna('')
+            rows, close_workbook = self._open_rows(file_path)
+            try:
+                for raw_row in rows:  # 遍历每行
+                    row = [self._cell_text(value).lower() for value in raw_row]
+                    if any(p in ' '.join(row) for p in self.PART_KEYWORDS) and \
+                            any(q in ' '.join(row) for q in self.QTY_KEYWORDS):  # 如果这一行同时出现件号和数量关键词
+                        part_col = next(c for c in range(len(row))
+                                        if any(p in row[c] for p in self.PART_KEYWORDS))
+                        qty_col = next(c for c in range(len(row))
+                                       if any(q in row[c] for q in self.QTY_KEYWORDS))
+                        if part_col == qty_col:
+                            continue
 
-            for i in range(len(df)):  # 遍历每行
-                row = df.iloc[i].astype(str).str.lower()
-                if any(p in ' '.join(row) for p in self.PART_KEYWORDS) and \
-                        any(q in ' '.join(row) for q in self.QTY_KEYWORDS):  # 如果这一行同时出现件号和数量关键词
-                    part_col = next(c for c in range(len(df.columns))
-                                    if any(p in row[c].lower() for p in self.PART_KEYWORDS))
-                    qty_col = next(c for c in range(len(df.columns))
-                                   if any(q in row[c].lower() for q in self.QTY_KEYWORDS))
-                    if part_col == qty_col:
-                        continue
-
-                    result = {}
-                    for j in range(i + 1, len(df)):
-                        part = df.iat[j, part_col].strip()
-                        qty = pd.to_numeric(df.iat[j, qty_col], errors='coerce')
-                        if part and pd.notna(qty) and qty:
-                            result[part] = result.get(part, 0) + int(qty)
-                    return result
+                        result = {}
+                        for data_row in rows:
+                            part_value = data_row[part_col] if part_col < len(data_row) else None
+                            qty_value = data_row[qty_col] if qty_col < len(data_row) else None
+                            part = self._cell_text(part_value).strip()
+                            qty = self._to_number(qty_value)
+                            if part and qty:
+                                result[part] = result.get(part, 0) + int(qty)
+                        return result
+            finally:
+                close_workbook()
 
             raise ValueError("未找到件号或数量关键词！请右键选择'设置关键词'来修改关键词")
         except Exception as e:
