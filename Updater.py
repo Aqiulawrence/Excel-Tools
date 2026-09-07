@@ -10,7 +10,7 @@ import zipfile
 import winreg
 import msvcrt
 
-VERSION = "v2026.09"
+VERSION = "v2026.091"
 SERVER_URL = "http://www.wublog.site/update"
 APP_NAME = "Excel-Tools"
 UPDATE_ZIP = "update.zip"
@@ -81,6 +81,20 @@ def run_new_updater(new_updater_path, temp_dir):
     subprocess.Popen(cmd)
     sys.exit(0)
 
+def clear_internal_directory(target_path):
+    internal_path = target_path / "_internal"
+
+    for attempt in range(3600):  # 文件被占用时最多等待1小时
+        try:
+            shutil.rmtree(internal_path)
+            break
+        except FileNotFoundError:
+            break
+        except OSError:
+            if attempt == 3599:
+                raise
+            time.sleep(1)
+
 def apply_update():
     if len(sys.argv) < 4 or sys.argv[1] != "--apply-update":
         return False
@@ -91,8 +105,10 @@ def apply_update():
     # 等待其他进程关闭
     wait_for_close()
 
-    # 替换文件
+    # 只清理旧版本的_internal目录，其他文件在复制时同名覆盖
     target_path = Path(target_dir)
+    clear_internal_directory(target_path)
+
     for item in Path(temp_dir).rglob("*"):
         if item.is_file():
             rel_path = item.relative_to(temp_dir)

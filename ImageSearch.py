@@ -3,9 +3,9 @@ import os
 import winreg
 import time
 import base64
+from random import uniform
 from io import BytesIO
 from PIL import Image as PILImage
-from random import uniform
 import openpyxl
 from openpyxl.drawing.image import Image
 from bs4 import BeautifulSoup
@@ -128,6 +128,7 @@ class ImageSearchWorker(QThread):
         super().__init__()
         self.search_terms = []
         self.enable_filter = True
+        self.random_delay = False
         self.priority_sites = ['ebay', 'amazon', 'cat', 'alibaba']
         self.blacklist_sites = ['farfetch']
         self.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:33.0) Gecko/20120101 Firefox/33.0'}
@@ -135,9 +136,10 @@ class ImageSearchWorker(QThread):
         self.captcha_detected = False
         self.stop_requested = False
 
-    def setup(self, search_terms, enable_filter=True):
+    def setup(self, search_terms, enable_filter=True, random_delay=False):
         self.search_terms = [x.strip() for x in search_terms if x.strip()]
-        self.enable_filter = enable_filter
+        self.enable_filter = True
+        self.random_delay = random_delay
         self.captcha_detected = False
         self.stop_requested = False
 
@@ -178,11 +180,7 @@ class ImageSearchWorker(QThread):
             if not is_new_document:
                 time.sleep(0.1)
                 continue
-            if ready_state == "complete":
-                current_source = self.driver.page_source
-                if len(current_source.encode("utf-8")) <= 4 * 1024:
-                    return current_source
-            if image_count >= 15:
+            if image_count >= 20:
                 self.driver.execute_script("window.stop();")
                 return self.driver.page_source
             if image_count > last_image_count:
@@ -205,15 +203,19 @@ class ImageSearchWorker(QThread):
             return True
         return not ((0 < width < 100) or (0 < height < 100))
 
+    @staticmethod
+    def _is_captcha_page(page_source):
+        normalized = page_source.lower()
+        return (
+            "我们的系统检测到您的计算机网络中存在异常流量" in page_source
+            or "our systems have detected unusual traffic" in normalized
+        )
     def _wait_for_captcha(self, timeout=6000):
-        """Wait until the page source grows beyond the captcha-page size threshold."""
+        """Wait until the Google abnormal-traffic markers disappear."""
         deadline = time.time() + timeout
         while time.time() < deadline and not self.stop_requested:
             try:
-                page_size = self.driver.execute_script(
-                    "return document.documentElement ? new TextEncoder().encode(document.documentElement.outerHTML).length : 0;"
-                )
-                if page_size > 4 * 1024:
+                if not self._is_captcha_page(self.driver.page_source):
                     time.sleep(1)
                     return True
             except Exception:
@@ -234,18 +236,18 @@ class ImageSearchWorker(QThread):
             # 解析图片
             soup = BeautifulSoup(page_source, "html.parser")
 
-            captcha_page = len(page_source.encode("utf-8")) <= 4 * 1024
+            captcha_page = self._is_captcha_page(page_source)
             
             while captcha_page:
                 self.captcha_detected = True
-                self.captcha_required.emit("Google要求人机验证，请在浏览器窗口中完成验证或更换代理节点。")
+                self.captcha_required.emit("Google要求人机验证，请在浏览器窗口中完成验证。")
                 if not self._wait_for_captcha():
                     open(file_name, 'w').close()
                     return False, term, "人机验证超时"
                 self.captcha_detected = False
                 page_source = self._load_page_source(url)
                 soup = BeautifulSoup(page_source, "html.parser")
-                captcha_page = len(page_source.encode("utf-8")) <= 4 * 1024
+                captcha_page = self._is_captcha_page(page_source)
             
             # 只保留 Google 搜索结果缩略图，包含没有 alt 的 Base64 缩略图。
             img_tags = [
@@ -291,6 +293,16 @@ class ImageSearchWorker(QThread):
         open(file_name, 'w').close()
         return False, term, "未找到图片"
 
+    def _wait_between_searches(self):
+        """Wait 2-5 seconds between consecutive Google searches."""
+        if not self.random_delay:
+            return True
+        deadline = time.time() + uniform(2.0, 5.0)
+        while time.time() < deadline:
+            if self.stop_requested:
+                return False
+            time.sleep(0.1)
+        return True
     def run(self):
         # 通知开始搜索
         total_tasks = len(self.search_terms)
@@ -305,6 +317,8 @@ class ImageSearchWorker(QThread):
 
             # 单线程顺序搜索，整个批次复用同一个浏览器实例。
             for index, term in enumerate(self.search_terms):
+                if index > 0 and not self._wait_between_searches():
+                    break
                 url = f'https://www.google.com.hk/search?q={term}&udm=2'
                 try:
                     success, item_term, message = self.download_image(url, index, term)
@@ -448,18 +462,18 @@ class ExcelToolsGUI(QMainWindow):
         self.start_cell_edit.setFixedWidth(80)
         layout.addWidget(self.start_cell_edit, 0, 1)
 
-        layout.addWidget(QLabel("提取结束单元格:"), 0, 2)
-        self.end_cell_edit = QLineEdit()
-        self.end_cell_edit.setFixedWidth(80)
-        layout.addWidget(self.end_cell_edit, 0, 3)
-
-        layout.addWidget(QLabel("插入起始单元格:"), 1, 0)
+        layout.addWidget(QLabel("插入起始单元格:"), 0, 2)
         self.insert_cell_edit = QLineEdit()
         self.insert_cell_edit.setFixedWidth(80)
-        layout.addWidget(self.insert_cell_edit, 1, 1)
+        layout.addWidget(self.insert_cell_edit, 0, 3)
 
-        self.filter_check = QCheckBox("启用网站筛选")
-        self.filter_check.setChecked(True)
+        layout.addWidget(QLabel("提取结束单元格:"), 1, 0)
+        self.end_cell_edit = QLineEdit()
+        self.end_cell_edit.setFixedWidth(80)
+        layout.addWidget(self.end_cell_edit, 1, 1)
+
+        self.filter_check = QCheckBox("启用随机延迟（防止人机验证）")
+        self.filter_check.setChecked(False)
         layout.addWidget(self.filter_check, 1, 2, 1, 2)
 
         group.setLayout(layout)
@@ -561,19 +575,20 @@ class ExcelToolsGUI(QMainWindow):
         self.start_cell_edit.setText(self.settings.value("start_cell", "", type=str))
         self.end_cell_edit.setText(self.settings.value("end_cell", "", type=str))
         self.insert_cell_edit.setText(self.settings.value("insert_cell", "", type=str))
-        self.filter_check.setChecked(self.settings.value("enable_filter", True, type=bool))
+        self.filter_check.setChecked(self.settings.value("random_delay", False, type=bool))
 
     def save_settings(self):
         self.settings.setValue("file_path", self.file_path_edit.text())
         self.settings.setValue("start_cell", self.start_cell_edit.text())
         self.settings.setValue("end_cell", self.end_cell_edit.text())
         self.settings.setValue("insert_cell", self.insert_cell_edit.text())
-        self.settings.setValue("enable_filter", self.filter_check.isChecked())
+        self.settings.setValue("random_delay", self.filter_check.isChecked())
         self.settings.sync()
     def setup_connections(self):
         # 文件操作
         self.select_file_btn.clicked.connect(self.select_excel_file)
         self.open_file_btn.clicked.connect(self.open_excel_file)
+        self.file_path_edit.textChanged.connect(self.on_excel_file_changed)
 
         # 操作按钮
         self.extract_btn.clicked.connect(self.extract_content)
@@ -587,6 +602,12 @@ class ExcelToolsGUI(QMainWindow):
         self.search_worker.search_finished.connect(self.on_search_finished)
         self.search_worker.search_error.connect(self.on_search_error)
         self.search_worker.captcha_required.connect(self.on_captcha_required)
+
+    def on_excel_file_changed(self):
+        """选择新的 Excel 文件后，重置依赖文件内容的单元格范围。"""
+        self.start_cell_edit.clear()
+        self.end_cell_edit.clear()
+        self.insert_cell_edit.clear()
 
     def select_excel_file(self):
         file_path, _ = QFileDialog.getOpenFileName(
@@ -677,7 +698,8 @@ class ExcelToolsGUI(QMainWindow):
         # 设置搜索参数
         self.search_worker.setup(
             search_terms=search_terms,
-            enable_filter=self.filter_check.isChecked()
+            enable_filter=True,
+            random_delay=self.filter_check.isChecked()
         )
 
         # 搜索按钮切换为停止；其他按钮保持禁用。
@@ -719,14 +741,8 @@ class ExcelToolsGUI(QMainWindow):
         terms = self.search_text.toPlainText().split('\n')
         if index < len(terms):
             term = terms[index]
-            timestamp = time.strftime("%H:%M:%S")
-
-            if success:
-                log_msg = f"[{timestamp}] ✓ {term}"
-                color = "green"
-            else:
-                log_msg = f"[{timestamp}] ✗ {term} - {message}"
-                color = "red"
+            log_msg = f"✗ {term} - {message}"
+            color = "red"
 
             cursor = self.log_text.textCursor()
             cursor.movePosition(QTextCursor.MoveOperation.End)
@@ -782,16 +798,14 @@ class ExcelToolsGUI(QMainWindow):
         self._show_topmost_alert("错误", error_message, QMessageBox.Icon.Critical)
 
     def add_log(self, message, is_error=False, is_warning=False):
-        timestamp = time.strftime("%H:%M:%S")
-
         if is_error:
-            log_msg = f"[{timestamp}] ✗ {message}"
+            log_msg = f"✗ {message}"
             color = "red"
         elif is_warning:
-            log_msg = f"[{timestamp}] ⚠ {message}"
+            log_msg = f"⚠ {message}"
             color = "#FFA500"  # 橙色
         else:
-            log_msg = f"[{timestamp}] ● {message}"
+            log_msg = f"● {message}"
             color = "blue"
 
         cursor = self.log_text.textCursor()
