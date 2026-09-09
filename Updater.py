@@ -10,7 +10,12 @@ import zipfile
 import winreg
 import msvcrt
 
-VERSION = "v2026.091"
+'''
+1. 更改Updater.py的VERSION
+2. 存储桶上传新的dist.zip
+3. 更改server.py的VERSION，然后重启server.py
+'''
+VERSION = "v2026.092"
 SERVER_URL = "http://www.wublog.site/update"
 APP_NAME = "Excel-Tools"
 UPDATE_ZIP = "update.zip"
