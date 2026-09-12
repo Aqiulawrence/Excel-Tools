@@ -26,7 +26,7 @@ from xlrd import open_workbook
 
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
 
-VERSION = "2.0"
+VERSION = "2.1"
 APP_NAME = "Excel价格搜索工具 by Sam"
 COMPANY_NAME = "Sam"
 HEADER_SCAN_ROWS = 30

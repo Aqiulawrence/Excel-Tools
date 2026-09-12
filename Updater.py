@@ -15,6 +15,8 @@ import msvcrt
 2. 存储桶上传新的dist.zip
 3. 更改server.py的VERSION，然后重启server.py
 '''
+# python Updater.py --apply-update "D:\temp" "D:\Excel-Tools\release"
+
 VERSION = "v2026.092"
 SERVER_URL = "http://www.wublog.site/update"
 APP_NAME = "Excel-Tools"

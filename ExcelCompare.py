@@ -8,10 +8,10 @@ from PyQt6.QtWidgets import (
     QDialogButtonBox, QFormLayout
 )
 from PyQt6.QtCore import Qt, pyqtSignal, QSettings
-from PyQt6.QtGui import QAction
+from PyQt6.QtGui import QAction, QFont
 import pandas as pd
 
-VERSION = "1.0"
+VERSION = "1.1"
 
 class ExcelComparator:
     def __init__(self):
@@ -69,28 +69,30 @@ class DragDropLabel(QLabel):
         super().__init__(text)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setFixedSize(220, 70)
-        self.setStyleSheet(
-            "border: 3px dashed #aaa; border-radius: 10px; font-size: 14px; color: #666; background: #f9f9f9; padding: 5px;")
+        self.setStyleSheet(self._style())
         self.setAcceptDrops(True)
         self.selected = False
+
+    def _style(self, selected=False, active=False):
+        border = '#2f80ed' if active else ('#27ae60' if selected else '#b8c4d0')
+        bg = '#edf5ff' if active else ('#edf9f1' if selected else '#f7f9fc')
+        color = '#1769aa' if active else '#52606d'
+        return f"border: 2px dashed {border}; border-radius: 8px; font-size: 14px; color: {color}; background: {bg}; padding: 8px;"
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls() and event.mimeData().urls()[0].toLocalFile().lower().endswith(('.xlsx', '.xls')):
             event.accept()
-            self.setStyleSheet(
-                "border: 3px dashed #0078d7; border-radius: 10px; font-size: 14px; color: #0078d7; background: #e6f2ff; padding: 5px;")
+            self.setStyleSheet(self._style(active=True))
 
     def dragLeaveEvent(self, event):
-        self.setStyleSheet(
-            "border: 3px solid #4caf50; border-radius: 10px; font-size: 14px; color: #666; background: #f9f9f9; padding: 5px;" if self.selected else "border: 3px dashed #aaa; border-radius: 10px; font-size: 14px; color: #666; background: #f9f9f9; padding: 5px;")
+        self.setStyleSheet(self._style(selected=self.selected))
 
     def dropEvent(self, event):
         file = event.mimeData().urls()[0].toLocalFile()
         self.file_dropped.emit(file)
         self.setText(f"已选择:\n{file.split('/')[-1]}")
         self.selected = True
-        self.setStyleSheet(
-            "border: 3px solid #4caf50; border-radius: 10px; font-size: 14px; color: #666; background: #f9f9f9; padding: 5px;")
+        self.setStyleSheet(self._style(selected=True))
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
@@ -99,8 +101,7 @@ class DragDropLabel(QLabel):
                 self.file_dropped.emit(file)
                 self.setText(f"已选择:\n{file.split('/')[-1]}")
                 self.selected = True
-                self.setStyleSheet(
-                    "border: 3px solid #4caf50; border-radius: 10px; font-size: 14px; color: #666; background: #f9f9f9; padding: 5px;")
+                self.setStyleSheet(self._style(selected=True))
 
 
 class KeywordsDialog(QDialog):
@@ -214,7 +215,7 @@ class App(QWidget):
         main_layout.setSpacing(10)
 
         title = QLabel("Excel件号数量对比工具")
-        title.setStyleSheet("font-size: 20px; font-weight: bold; color: #2c3e50;")
+        title.setStyleSheet("font-size: 15pt; font-weight: 700; color: #1f2937; padding: 2px;")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_layout.addWidget(title)
 
@@ -225,7 +226,7 @@ class App(QWidget):
         drop_layout.addWidget(self.drop1)
 
         vs_label = QLabel("VS")
-        vs_label.setStyleSheet("font-size: 20px; font-weight: bold; color: #666;")
+        vs_label.setStyleSheet("font-size: 14px; font-weight: 700; color: #9aa5b1; padding: 12px;")
         vs_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         drop_layout.addWidget(vs_label)
 
@@ -238,27 +239,35 @@ class App(QWidget):
         self.compare_btn = QPushButton("开始对比")
         self.compare_btn.clicked.connect(self.compare_files)
         self.compare_btn.setEnabled(False)
-        self.compare_btn.setStyleSheet(
-            "background: #e0e0e0; color: #666; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; padding: 10px;")
+        self.compare_btn.setMinimumHeight(44)
+        self.compare_btn.setStyleSheet("QPushButton { background: #d9e2ec; color: #829ab1; border: none; border-radius: 7px; font-size: 15px; font-weight: 700; padding: 10px; } QPushButton:enabled { background: #2f80ed; color: white; } QPushButton:enabled:hover { background: #1769aa; }")
         main_layout.addWidget(self.compare_btn)
 
         result_layout = QHBoxLayout()
 
         for title in ["前者缺失", "后者缺失", "数量差异"]:
-            group = QGroupBox(title)
-            group.setStyleSheet(
-                "font-size: 16px; font-weight: bold; color: #2c3e50; border: 2px solid #ddd; border-radius: 8px; margin-top: 10px; padding-top: 10px;")
-            layout = QVBoxLayout()
+            group = QGroupBox()
+            group.setStyleSheet("QGroupBox { border: 1px solid #b8c4d0; border-radius: 8px; background: #ffffff; }")
+            layout = QVBoxLayout(group)
+            layout.setContentsMargins(10, 5, 10, 8)
+            layout.setSpacing(4)
+            heading = QLabel(title)
+            heading_font = QFont("Microsoft YaHei", 13)
+            heading_font.setBold(True)
+            heading_font.setStyleStrategy(QFont.StyleStrategy.PreferAntialias)
+            heading.setFont(heading_font)
+            heading.setStyleSheet("color: #172b4d; background: transparent; border: none;")
+            layout.addWidget(heading)
             text_edit = QTextEdit()
             text_edit.setReadOnly(True)
-            text_edit.setStyleSheet("font-size: 14px;")
+            text_edit.setStyleSheet("font-size: 10pt; color: #243b53; border: none; background: #fbfcfe; padding: 6px;")
             layout.addWidget(text_edit)
-            group.setLayout(layout)
             result_layout.addWidget(group)
             self.result_texts.append(text_edit)
 
         main_layout.addLayout(result_layout)
         self.setLayout(main_layout)
+        self.setStyleSheet("QWidget { background: #f4f7fb; }")
         self.center()
 
     def center(self):
@@ -295,6 +304,7 @@ class App(QWidget):
 
 def main():
     app = QApplication(sys.argv)
+    app.setStyle("Fusion")
     window = App()
     window.show()
     add_startup()

@@ -18,8 +18,12 @@ from PyQt6.QtCore import pyqtSignal, QThread, QTimer, Qt, QSettings
 from PyQt6.QtGui import QFont, QTextCursor, QGuiApplication
 import undetected_chromedriver as uc
 
-VERSION = "2.0"
-APP_DIR = os.path.dirname(os.path.abspath(__file__))
+VERSION = "2.1"
+APP_DIR = (
+    os.path.dirname(os.path.abspath(sys.executable))
+    if getattr(sys, "frozen", False)
+    else os.path.dirname(os.path.abspath(__file__))
+)
 IMG_DIR = os.path.join(APP_DIR, 'images')
 
 def extract_excel_data(start_cell, end_cell, excel_file):
