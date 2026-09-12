@@ -3,6 +3,7 @@ import os
 import winreg
 import time
 import base64
+from urllib.parse import quote_plus
 from random import uniform
 from io import BytesIO
 from PIL import Image as PILImage
@@ -18,7 +19,8 @@ from PyQt6.QtGui import QFont, QTextCursor, QGuiApplication
 import undetected_chromedriver as uc
 
 VERSION = "2.0"
-IMG_DIR = './images'
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
+IMG_DIR = os.path.join(APP_DIR, 'images')
 
 def extract_excel_data(start_cell, end_cell, excel_file):
     wb = openpyxl.load_workbook(excel_file)
@@ -210,10 +212,9 @@ class ImageSearchWorker(QThread):
             "我们的系统检测到您的计算机网络中存在异常流量" in page_source
             or "our systems have detected unusual traffic" in normalized
         )
-    def _wait_for_captcha(self, timeout=6000):
-        """Wait until the Google abnormal-traffic markers disappear."""
-        deadline = time.time() + timeout
-        while time.time() < deadline and not self.stop_requested:
+    def _wait_for_captcha(self):
+        """Wait indefinitely until the Google abnormal-traffic markers disappear."""
+        while not self.stop_requested:
             try:
                 if not self._is_captcha_page(self.driver.page_source):
                     time.sleep(1)
@@ -258,7 +259,7 @@ class ImageSearchWorker(QThread):
 
         except Exception as e:
             open(file_name, 'w').close()
-            return False, term, "网络请求失败"
+            return False, term, f"{type(e).__name__}"
 
         # 先排除黑名单，再按 alt 中的网站关键词排序。
         available = [
@@ -313,13 +314,19 @@ class ImageSearchWorker(QThread):
         try:
             options = uc.ChromeOptions()
             options.page_load_strategy = "none"
+            options.add_argument("--start-minimized")
             self.driver = uc.Chrome(options=options)
+            self.driver.minimize_window()
 
             # 单线程顺序搜索，整个批次复用同一个浏览器实例。
             for index, term in enumerate(self.search_terms):
                 if index > 0 and not self._wait_between_searches():
+                    for pending_index in range(index, total_tasks):
+                        pending_term = self.search_terms[pending_index]
+                        failed_items.append((pending_index, pending_term, "已停止"))
+                        self.item_completed.emit(pending_index, False, "已停止")
                     break
-                url = f'https://www.google.com.hk/search?q={term}&udm=2'
+                url = f'https://www.google.com.hk/search?q={quote_plus(term)}&udm=2'
                 try:
                     success, item_term, message = self.download_image(url, index, term)
                     if not success:
@@ -329,6 +336,10 @@ class ImageSearchWorker(QThread):
                     failed_items.append((index, term, f"任务异常: {str(e)}"))
                     self.item_completed.emit(index, False, f"异常: {str(e)}")
                 if self.stop_requested:
+                    for pending_index in range(index + 1, total_tasks):
+                        pending_term = self.search_terms[pending_index]
+                        failed_items.append((pending_index, pending_term, "已停止"))
+                        self.item_completed.emit(pending_index, False, "已停止")
                     break
         except Exception as e:
             self.search_error.emit(f"无法启动浏览器驱动: {str(e)}")

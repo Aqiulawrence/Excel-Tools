@@ -19,8 +19,9 @@ class ExcelComparator:
         self.QTY_KEYWORDS = ['qty', 'pcs in ctn']
 
     def set_keywords(self, part_keywords, qty_keywords):
-        self.PART_KEYWORDS = part_keywords
-        self.QTY_KEYWORDS = qty_keywords
+        # 关键词统一转为小写，确保配置大小写不影响匹配
+        self.PART_KEYWORDS = [str(k).strip().lower() for k in part_keywords if str(k).strip()]
+        self.QTY_KEYWORDS = [str(k).strip().lower() for k in qty_keywords if str(k).strip()]
 
     def read_excel_file(self, file_path):
         try:
@@ -41,7 +42,7 @@ class ExcelComparator:
                     for j in range(i + 1, len(df)):
                         part = df.iat[j, part_col].strip()
                         qty = pd.to_numeric(df.iat[j, qty_col], errors='coerce')
-                        if part and pd.notna(qty) and qty:
+                        if part and pd.notna(qty):
                             result[part] = result.get(part, 0) + int(qty)
                     return result
 
