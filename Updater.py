@@ -17,7 +17,7 @@ import msvcrt
 '''
 # python Updater.py --apply-update "D:\temp" "D:\Excel-Tools\release"
 
-VERSION = "v2026.092"
+VERSION = "v2026.093"
 SERVER_URL = "http://www.wublog.site/update"
 APP_NAME = "Excel-Tools"
 UPDATE_ZIP = "update.zip"
