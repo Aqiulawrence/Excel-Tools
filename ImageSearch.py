@@ -9,16 +9,18 @@ from io import BytesIO
 from PIL import Image as PILImage
 import openpyxl
 from openpyxl.drawing.image import Image
+from openpyxl.utils.cell import range_boundaries, get_column_letter
 from bs4 import BeautifulSoup
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QHBoxLayout, QGridLayout, QGroupBox, QLabel,
                              QLineEdit, QPushButton, QTextEdit, QFileDialog,
                              QMessageBox, QProgressBar, QCheckBox)
-from PyQt6.QtCore import pyqtSignal, QThread, QTimer, Qt, QSettings
+from PyQt6.QtCore import pyqtSignal, QThread, Qt, QSettings
 from PyQt6.QtGui import QFont, QTextCursor, QGuiApplication
 import undetected_chromedriver as uc
+from selenium.common.exceptions import TimeoutException, WebDriverException
 
-VERSION = "2.1"
+VERSION = "2.2"
 APP_DIR = (
     os.path.dirname(os.path.abspath(sys.executable))
     if getattr(sys, "frozen", False)
@@ -26,22 +28,42 @@ APP_DIR = (
 )
 IMG_DIR = os.path.join(APP_DIR, 'images')
 
+
+class UserFacingError(Exception):
+    """A short, application-authored message that is safe to display."""
+
+
+def error_summary(error):
+    return str(error) if isinstance(error, UserFacingError) else type(error).__name__
+
+
+def validate_excel_range(start_cell, end_cell):
+    try:
+        bounds = range_boundaries(f"{start_cell.strip().upper()}:{end_cell.strip().upper()}")
+        start_col, start_row, end_col, end_row = bounds
+        if any(value is None for value in bounds):
+            raise ValueError
+        if not (1 <= start_col <= 16384 and 1 <= end_col <= 16384
+                and 1 <= start_row <= 1048576 and 1 <= end_row <= 1048576):
+            raise ValueError
+    except (TypeError, ValueError):
+        raise UserFacingError("单元格地址无效，请输入有效地址，例如 A1。") from None
+    if start_col > end_col or start_row > end_row:
+        raise UserFacingError("插入范围无效。")
+    return bounds
+
+
 def extract_excel_data(start_cell, end_cell, excel_file):
+    start_col, start_row, end_col, end_row = validate_excel_range(start_cell, end_cell)
     wb = openpyxl.load_workbook(excel_file)
     ws = wb.active
-
-    # 解析单元格坐标
-    start_col = ''.join(filter(str.isalpha, start_cell)).upper()
-    start_row = int(''.join(filter(str.isdigit, start_cell)))
-    end_col = ''.join(filter(str.isalpha, end_cell)).upper()
-    end_row = int(''.join(filter(str.isdigit, end_cell)))
 
     data = []
     for row in range(start_row, end_row + 1):
         row_data = []
-        for col in range(ord(start_col) - 64, ord(end_col) - 64 + 1):
+        for col in range(start_col, end_col + 1):
             cell = ws.cell(row=row, column=col)
-            value = str(cell.value).split('\n')[0] if cell.value else ''
+            value = str(cell.value).split('\n')[0] if cell.value is not None else ''
             row_data.append(value)
 
         if len(row_data) == 1:
@@ -53,15 +75,17 @@ def extract_excel_data(start_cell, end_cell, excel_file):
 
 
 def insert_images_to_excel(start_cell, image_count, excel_file):
+    col_index, row, _, _ = validate_excel_range(start_cell, start_cell)
+    if image_count <= 0 or row + image_count - 1 > 1048576:
+        raise UserFacingError("插入范围无效，请检查起始单元格和图片数量。")
     if not os.path.exists(IMG_DIR):
-        return 0
+        raise UserFacingError("未找到图片文件夹，请先搜索图片。")
 
     wb = openpyxl.load_workbook(excel_file)
     ws = wb.active
 
     # 解析起始单元格
-    col = ''.join(filter(str.isalpha, start_cell)).upper()
-    row = int(''.join(filter(str.isdigit, start_cell)))
+    col = get_column_letter(col_index)
 
     error_count = 0
     img_names = [f'{i:04d}.png' for i in range(image_count)]
@@ -118,7 +142,7 @@ def insert_images_to_excel(start_cell, image_count, excel_file):
     try:
         wb.save(excel_file)
     except PermissionError as e:
-        raise Exception("保存失败！请确保文件未被占用且不是只读文件。")
+        raise UserFacingError("保存失败！请确保文件未被占用且不是只读文件。") from e
 
     return error_count
 
@@ -141,17 +165,17 @@ class ImageSearchWorker(QThread):
         self.driver = None
         self.captcha_detected = False
         self.stop_requested = False
+        self.error_message = None
+        self.was_stopped = False
 
     def setup(self, search_terms, enable_filter=True, random_delay=False):
-        self.search_terms = [x.strip() for x in search_terms if x.strip()]
+        self.search_terms = [x.strip() for x in search_terms]
         self.enable_filter = True
         self.random_delay = random_delay
         self.captcha_detected = False
         self.stop_requested = False
-
-        # 创建图片目录
-        if not os.path.exists(IMG_DIR):
-            os.makedirs(IMG_DIR)
+        self.error_message = None
+        self.was_stopped = False
 
     def request_stop(self):
         self.stop_requested = True
@@ -160,9 +184,11 @@ class ImageSearchWorker(QThread):
         return tag.get("alt", "").strip().lower()
 
     def _load_page_source(self, url):
-        """加载搜索页，检测到前 15 张已完成的搜索结果图片后停止。"""
+        """加载搜索页，检测到前 20 张已完成的搜索结果图片后停止。"""
+        if self.stop_requested:
+            raise InterruptedError("已停止")
         if self.driver is None:
-            raise RuntimeError("浏览器驱动未初始化")
+            raise UserFacingError("浏览器驱动未初始化")
 
         # 标记旧文档，避免导航尚未完成时误读上一条搜索的 DOM。
         self.driver.execute_script(
@@ -170,11 +196,11 @@ class ImageSearchWorker(QThread):
             "window.location.href = arguments[0];",
             url
         )
-        deadline = time.time() + 60
+        deadline = time.monotonic() + 60
         stable_since = None
         last_image_count = 0
 
-        while time.time() < deadline and not self.stop_requested:
+        while time.monotonic() < deadline and not self.stop_requested:
             image_count, ready_state, is_new_document = self.driver.execute_script("""
                 const isNewDocument = !document.documentElement ||
                     document.documentElement.getAttribute('data-image-search-old') !== '1';
@@ -191,14 +217,16 @@ class ImageSearchWorker(QThread):
                 return self.driver.page_source
             if image_count > last_image_count:
                 last_image_count = image_count
-                stable_since = time.time()
+                stable_since = time.monotonic()
             elif stable_since is None and ready_state == "complete":
-                stable_since = time.time()
-            elif stable_since is not None and time.time() - stable_since >= 5:
+                stable_since = time.monotonic()
+            elif stable_since is not None and time.monotonic() - stable_since >= 5:
                 return self.driver.page_source
             time.sleep(0.1)
 
-        raise TimeoutError("网页加载超时")
+        if self.stop_requested:
+            raise InterruptedError("已停止")
+        raise UserFacingError("网页加载超时，请检查网络连接后重试")
     @staticmethod
     def _is_large_image(img):
         """过滤搜索结果顶部的小图和站点图标。"""
@@ -219,12 +247,9 @@ class ImageSearchWorker(QThread):
     def _wait_for_captcha(self):
         """Wait indefinitely until the Google abnormal-traffic markers disappear."""
         while not self.stop_requested:
-            try:
-                if not self._is_captcha_page(self.driver.page_source):
-                    time.sleep(1)
-                    return True
-            except Exception:
-                pass
+            if not self._is_captcha_page(self.driver.page_source):
+                time.sleep(1)
+                return not self.stop_requested
             time.sleep(1)
         return False
 
@@ -247,8 +272,7 @@ class ImageSearchWorker(QThread):
                 self.captcha_detected = True
                 self.captcha_required.emit("Google要求人机验证，请在浏览器窗口中完成验证。")
                 if not self._wait_for_captcha():
-                    open(file_name, 'w').close()
-                    return False, term, "人机验证超时"
+                    return False, term, "已停止"
                 self.captcha_detected = False
                 page_source = self._load_page_source(url)
                 soup = BeautifulSoup(page_source, "html.parser")
@@ -261,9 +285,18 @@ class ImageSearchWorker(QThread):
                 and self._is_large_image(img)
             ]
 
+        except InterruptedError:
+            return False, term, "已停止"
+        except UserFacingError as e:
+            return False, term, error_summary(e)
+        except (TimeoutError, TimeoutException) as e:
+            return False, term, f"网页加载超时: {type(e).__name__}"
+        except WebDriverException:
+            raise
         except Exception as e:
-            open(file_name, 'w').close()
-            return False, term, f"{type(e).__name__}"
+            return False, term, f"解析搜索结果失败: {type(e).__name__}"
+        finally:
+            self.captcha_detected = False
 
         # 先排除黑名单，再按 alt 中的网站关键词排序。
         available = [
@@ -280,7 +313,10 @@ class ImageSearchWorker(QThread):
             record = available
 
         # 只保存筛选结果中的第一张 Base64 图片。
+        invalid_images = 0
         for img in record:
+            if self.stop_requested:
+                return False, term, "已停止"
             src = img.attrs.get("src", "")
             if src.startswith("data:image/") and ";base64," in src:
                 try:
@@ -289,17 +325,30 @@ class ImageSearchWorker(QThread):
                     with PILImage.open(BytesIO(image_bytes)) as image:
                         if image.width < 100 or image.height < 100:
                             continue
+                        image.load()
+                except (ValueError, OSError, PILImage.DecompressionBombError):
+                    invalid_images += 1
+                    continue
+                # 写入错误属于存储故障，不能当成坏图跳过。
+                try:
                     with open(file_name, 'wb') as f:
                         f.write(image_bytes)
-                    return True, term, "成功"
-                except (ValueError, OSError):
-                    continue
+                except OSError as e:
+                    try:
+                        os.remove(file_name)
+                    except OSError:
+                        pass
+                    raise UserFacingError("保存图片失败，请检查图片目录的写入权限和磁盘空间。") from e
+                return True, term, "成功"
 
-        open(file_name, 'w').close()
+        if invalid_images:
+            return False, term, f"图片数据损坏或格式不支持（{invalid_images} 张）"
         return False, term, "未找到图片"
 
     def _wait_between_searches(self):
         """Wait 2-5 seconds between consecutive Google searches."""
+        if self.stop_requested:
+            return False
         if not self.random_delay:
             return True
         deadline = time.time() + uniform(2.0, 5.0)
@@ -314,50 +363,70 @@ class ImageSearchWorker(QThread):
         self.search_started.emit(total_tasks)
 
         failed_items = []
+        completed_tasks = 0
+        stage = "准备图片目录失败"
 
         try:
+            os.makedirs(IMG_DIR, exist_ok=True)
+            # 清空本批次的旧图，避免失败或停止后插入上次搜索的图片。
+            for index in range(total_tasks):
+                with open(os.path.join(IMG_DIR, f'{index:04d}.png'), 'wb'):
+                    pass
+            if self.stop_requested:
+                return
+            stage = "无法启动浏览器驱动"
             options = uc.ChromeOptions()
             options.page_load_strategy = "none"
             options.add_argument("--start-minimized")
             self.driver = uc.Chrome(options=options)
+            self.driver.set_script_timeout(15)
+            self.driver.set_page_load_timeout(60)
             self.driver.minimize_window()
+            stage = "搜索中断"
 
             # 单线程顺序搜索，整个批次复用同一个浏览器实例。
             for index, term in enumerate(self.search_terms):
-                if index > 0 and not self._wait_between_searches():
-                    for pending_index in range(index, total_tasks):
-                        pending_term = self.search_terms[pending_index]
-                        failed_items.append((pending_index, pending_term, "已停止"))
-                        self.item_completed.emit(pending_index, False, "已停止")
+                if self.stop_requested or (index > 0 and not self._wait_between_searches()):
                     break
+                if not term:
+                    message = "件号为空，已跳过"
+                    failed_items.append((index, term, message))
+                    self.item_completed.emit(index, False, message)
+                    completed_tasks = index + 1
+                    continue
                 url = f'https://www.google.com.hk/search?q={quote_plus(term)}&udm=2'
                 try:
                     success, item_term, message = self.download_image(url, index, term)
                     if not success:
                         failed_items.append((index, term, message))
                     self.item_completed.emit(index, success, message)
+                except (WebDriverException, OSError, UserFacingError):
+                    raise
                 except Exception as e:
-                    failed_items.append((index, term, f"任务异常: {str(e)}"))
-                    self.item_completed.emit(index, False, f"异常: {str(e)}")
+                    message = f"任务异常: {type(e).__name__}"
+                    failed_items.append((index, term, message))
+                    self.item_completed.emit(index, False, message)
+                completed_tasks = index + 1
                 if self.stop_requested:
-                    for pending_index in range(index + 1, total_tasks):
-                        pending_term = self.search_terms[pending_index]
-                        failed_items.append((pending_index, pending_term, "已停止"))
-                        self.item_completed.emit(pending_index, False, "已停止")
                     break
         except Exception as e:
-            self.search_error.emit(f"无法启动浏览器驱动: {str(e)}")
+            self.error_message = f"{stage}: {error_summary(e)}"
+            self.search_error.emit(self.error_message)
         finally:
+            self.was_stopped = self.stop_requested
+            reason = self.error_message or "已停止"
+            for pending_index in range(completed_tasks, total_tasks):
+                failed_items.append((pending_index, self.search_terms[pending_index], reason))
+                self.item_completed.emit(pending_index, False, reason)
             if self.driver is not None:
                 try:
                     self.driver.quit()
                 except Exception:
                     pass
                 self.driver = None
-        self.captcha_detected = False
-        self.stop_requested = False
-        # 发射完成信号
-        self.search_finished.emit(failed_items)
+            self.captcha_detected = False
+            self.stop_requested = False
+            self.search_finished.emit(failed_items)
 
 
 # 支持拖拽的文本输入框
@@ -390,6 +459,7 @@ class ExcelToolsGUI(QMainWindow):
         self.search_worker = ImageSearchWorker()
         self.completed_count = 0
         self.total_tasks = 0
+        self.auto_processing = False
         self.init_ui()
         self.settings = QSettings("Sam", "ExcelTools")
         self.load_settings()
@@ -638,7 +708,7 @@ class ExcelToolsGUI(QMainWindow):
             try:
                 os.startfile(file_path)
             except Exception as e:
-                QMessageBox.warning(self, "警告", f"无法打开文件: {str(e)}")
+                QMessageBox.warning(self, "警告", f"无法打开文件: {error_summary(e)}")
         else:
             QMessageBox.warning(self, "警告", "文件不存在")
 
@@ -665,23 +735,19 @@ class ExcelToolsGUI(QMainWindow):
             data = extract_excel_data(start_cell, end_cell, excel_file)
 
             # 显示数据
-            self.search_text.clear()
-            if isinstance(data[0], list):
-                for item in data:
-                    self.search_text.append(" | ".join(item))
-            else:
-                for item in data:
-                    self.search_text.append(item)
+            lines = [
+                (" | ".join(item) if any(value.strip() for value in item) else "")
+                if isinstance(item, list) else item
+                for item in data
+            ]
+            self.search_text.setPlainText("\n".join(lines))
 
-            # 检查空值
-            if any("None" in str(item) for item in data):
-                QMessageBox.warning(self, "警告", "提取出空值，请检查选择的文件以及输入的单元格是否正确！")
-
-            self.add_log(f"提取完成，共{len(data)}个件号")
+            self.add_log(f"提取完成，共 {len(data)} 个件号")
+            return True
 
         except Exception as e:
-            QMessageBox.critical(self, "错误", f"提取失败: {str(e)}")
-            self.add_log(f"提取失败: {str(e)}", is_error=True)
+            QMessageBox.critical(self, "错误", f"提取失败: {error_summary(e)}")
+            self.add_log(f"提取失败: {error_summary(e)}", is_error=True)
 
     def start_search(self):
         if self.search_worker.isRunning():
@@ -697,7 +763,7 @@ class ExcelToolsGUI(QMainWindow):
             return
 
         search_terms = content.split('\n')
-        search_terms = [term.strip() for term in search_terms if term.strip()]
+        search_terms = [term.strip() for term in search_terms]
 
         if not search_terms:
             QMessageBox.warning(self, "警告", "没有可搜索的内容")
@@ -726,6 +792,7 @@ class ExcelToolsGUI(QMainWindow):
 
         self.add_log(f"开始搜索，共 {len(search_terms)} 个件号")
         self.search_worker.start()
+        return True
 
     def on_search_started(self, total_tasks):
         self.total_tasks = total_tasks
@@ -753,9 +820,9 @@ class ExcelToolsGUI(QMainWindow):
             return
 
         # 添加日志
-        terms = self.search_text.toPlainText().split('\n')
+        terms = self.search_worker.search_terms
         if index < len(terms):
-            term = terms[index]
+            term = terms[index] or f"第 {index + 1} 行（空白）"
             log_msg = f"✗ {term} - {message}"
             color = "red"
 
@@ -783,29 +850,39 @@ class ExcelToolsGUI(QMainWindow):
         self.insert_btn.setEnabled(True)
         self.auto_btn.setEnabled(True)
 
+        if self.search_worker.error_message:
+            self.auto_processing = False
+            self.progress_bar.setValue(0)
+            self.progress_bar.setFormat("错误")
+            return
+        if self.search_worker.was_stopped:
+            self.auto_processing = False
+            self.progress_bar.setFormat("已停止")
+            self.add_log("搜索已停止", is_warning=True)
+            return
+
         # 完成时进度条设为100%
         self.progress_bar.setValue(100)
         self.progress_bar.setFormat("100% (完成)")
 
+        failure_count = len(failed_items)
+        message = f"搜索完成。成功：{self.total_tasks - failure_count}，失败：{failure_count}"
+        self.add_log(message, is_warning=bool(failure_count))
         if failed_items:
-            # 使用黄色显示失败消息
-            self.add_log(f"搜索完成，{len(failed_items)} 个件号失败", is_warning=True)
-            self._show_topmost_alert("完成", f"搜索完成！但有 {len(failed_items)} 个件号图片无法搜到")
+            if not self.auto_processing:
+                self._show_topmost_alert("完成", message)
         else:
-            self.add_log("搜索完成，所有图片已成功下载")
-            QMessageBox.information(self, "完成", "搜索完成！")
+            if not self.auto_processing:
+                QMessageBox.information(self, "完成", message)
+
+        if self.auto_processing:
+            self.auto_insert_after_search(failed_items)
 
     # 搜索出现全局错误时触发
     def on_captcha_required(self, message):
         self.add_log(f"搜索暂停: {message}", is_warning=True)
         self._show_topmost_alert("需要人机验证", message, QMessageBox.Icon.Warning)
     def on_search_error(self, error_message):
-        self.search_btn.setText("搜索图片")
-        self.search_btn.setEnabled(True)
-        self.extract_btn.setEnabled(True)
-        self.insert_btn.setEnabled(True)
-        self.auto_btn.setEnabled(True)
-
         self.progress_bar.setValue(0)
         self.progress_bar.setFormat("错误")
 
@@ -866,55 +943,51 @@ class ExcelToolsGUI(QMainWindow):
 
         try:
             # 提取单元格行号
-            start_row = int(''.join(filter(str.isdigit, start_cell)))
-            end_row = int(''.join(filter(str.isdigit, end_cell)))
+            _, start_row, _, end_row = validate_excel_range(start_cell, end_cell)
             image_count = end_row - start_row + 1
-
-            self.add_log(f"开始插入图片，从 {insert_cell} 开始，共 {image_count} 张")
 
             # 插入图片
             error_count = insert_images_to_excel(insert_cell, image_count, excel_file)
 
+            message = f"插入完成。成功：{image_count - error_count}，失败：{error_count}"
+            self.add_log(message, is_warning=error_count > 0)
             if error_count > 0:
-                self.add_log(f"插入完成，{error_count} 个图片插入失败", is_warning=True)
-                QMessageBox.warning(self, "完成", f"有 {error_count} 个图片插入失败！其余插入成功。")
+                if not self.auto_processing:
+                    QMessageBox.warning(self, "完成", message)
             else:
-                self.add_log("插入完成，所有图片已成功插入")
-                QMessageBox.information(self, "完成", "插入完成！")
+                if not self.auto_processing:
+                    QMessageBox.information(self, "完成", message)
+            return error_count
 
         except Exception as e:
-            QMessageBox.critical(self, "错误", f"插入失败: {str(e)}")
-            self.add_log(f"插入失败: {str(e)}", is_error=True)
+            QMessageBox.critical(self, "错误", f"插入失败: {error_summary(e)}")
+            self.add_log(f"插入失败: {error_summary(e)}", is_error=True)
 
     # 一键操作
     def auto_process(self):
-        self.extract_content()
-
-        QApplication.processEvents()
-        QTimer.singleShot(500, self.auto_process_step2)
-
-    def auto_process_step2(self):
-        content = self.search_text.toPlainText()
-        if not content.strip():
+        if self.auto_processing or self.search_worker.isRunning():
             return
-
-        self.start_search()
-
-        # 当搜索完成时自动插入
-        try:
-            self.search_worker.search_finished.disconnect(self.auto_insert_after_search)
-        except:
-            pass
-
-        self.search_worker.search_finished.connect(self.auto_insert_after_search)
+        if not self.extract_content():
+            return
+        self.auto_processing = True
+        if not self.start_search():
+            self.auto_processing = False
 
     def auto_insert_after_search(self, failed_items):
         try:
-            self.search_worker.search_finished.disconnect(self.auto_insert_after_search)
-        except:
-            pass
-
-        QTimer.singleShot(1000, self.insert_images)
+            error_count = self.insert_images()
+            if error_count is None:
+                return
+            if failed_items or error_count:
+                QMessageBox.warning(
+                    self, "完成",
+                    f"一键操作完成！{len(failed_items)} 个件号搜图失败，"
+                    f"{error_count} 个图片未能插入。"
+                )
+            else:
+                QMessageBox.information(self, "完成", "一键操作完成！")
+        finally:
+            self.auto_processing = False
 
     def closeEvent(self, event):
         self.save_settings()
