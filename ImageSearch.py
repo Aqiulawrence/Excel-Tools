@@ -3,6 +3,10 @@ import os
 import winreg
 import time
 import base64
+import ctypes
+import re
+import subprocess
+from ctypes import wintypes
 from urllib.parse import quote_plus
 from random import uniform
 from io import BytesIO
@@ -20,7 +24,7 @@ from PyQt6.QtGui import QFont, QTextCursor, QGuiApplication
 import undetected_chromedriver as uc
 from selenium.common.exceptions import TimeoutException, WebDriverException
 
-VERSION = "2.2"
+VERSION = "2.3"
 APP_DIR = (
     os.path.dirname(os.path.abspath(sys.executable))
     if getattr(sys, "frozen", False)
@@ -37,6 +41,72 @@ def error_summary(error):
     return str(error) if isinstance(error, UserFacingError) else type(error).__name__
 
 
+def get_chrome_configuration():
+    browser_path = uc.find_chrome_executable()
+    if not browser_path or not os.path.isfile(browser_path):
+        raise UserFacingError("未找到 Chrome，请先安装 Chrome 浏览器。")
+
+    try:
+        version_api = ctypes.WinDLL("version", use_last_error=True)
+        get_size = version_api.GetFileVersionInfoSizeW
+        get_size.argtypes = [wintypes.LPCWSTR, ctypes.POINTER(wintypes.DWORD)]
+        get_size.restype = wintypes.DWORD
+        get_info = version_api.GetFileVersionInfoW
+        get_info.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, ctypes.c_void_p]
+        get_info.restype = wintypes.BOOL
+        query_value = version_api.VerQueryValueW
+        query_value.argtypes = [ctypes.c_void_p, wintypes.LPCWSTR,
+                               ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(wintypes.UINT)]
+        query_value.restype = wintypes.BOOL
+
+        size = get_size(browser_path, None)
+        if not size:
+            raise ctypes.WinError(ctypes.get_last_error())
+        buffer = ctypes.create_string_buffer(size)
+        if not get_info(browser_path, 0, size, buffer):
+            raise ctypes.WinError(ctypes.get_last_error())
+        info = ctypes.c_void_p()
+        length = wintypes.UINT()
+        if not query_value(buffer, "\\", ctypes.byref(info), ctypes.byref(length)):
+            raise ValueError("Missing file version")
+        # VS_FIXEDFILEINFO has 13 DWORDs; dwFileVersionMS stores major/minor.
+        if not info.value or length.value < 13 * ctypes.sizeof(wintypes.DWORD):
+            raise ValueError("Invalid file version")
+        fields = ctypes.cast(info, ctypes.POINTER(wintypes.DWORD))
+        if fields[0] != 0xFEEF04BD:
+            raise ValueError("Invalid version signature")
+        major_version = fields[2] >> 16
+        if not major_version:
+            raise ValueError("Invalid Chrome version")
+    except (OSError, ValueError) as e:
+        raise UserFacingError("无法读取 Chrome 版本，请检查 Chrome 安装是否完整。") from e
+
+    return browser_path, major_version
+
+
+def get_cached_chromedriver(major_version):
+    driver_path = os.path.join(uc.Patcher.data_path, "undetected_chromedriver.exe")
+    if not os.path.isfile(driver_path):
+        return None
+    try:
+        result = subprocess.run(
+            [driver_path, "--version"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=5,
+            check=True,
+            creationflags=subprocess.CREATE_NO_WINDOW
+        )
+        match = re.match(r"ChromeDriver\s+(\d+)\.", result.stdout.strip())
+        if match and int(match.group(1)) == major_version:
+            return driver_path
+    except (OSError, subprocess.SubprocessError):
+        pass
+    return None
+
+
 def validate_excel_range(start_cell, end_cell):
     try:
         bounds = range_boundaries(f"{start_cell.strip().upper()}:{end_cell.strip().upper()}")
@@ -49,7 +119,7 @@ def validate_excel_range(start_cell, end_cell):
     except (TypeError, ValueError):
         raise UserFacingError("单元格地址无效，请输入有效地址，例如 A1。") from None
     if start_col > end_col or start_row > end_row:
-        raise UserFacingError("插入范围无效。")
+        raise UserFacingError("范围无效。")
     return bounds
 
 
@@ -378,7 +448,13 @@ class ImageSearchWorker(QThread):
             options = uc.ChromeOptions()
             options.page_load_strategy = "none"
             options.add_argument("--start-minimized")
-            self.driver = uc.Chrome(options=options)
+            browser_path, major_version = get_chrome_configuration()
+            self.driver = uc.Chrome(
+                options=options,
+                browser_executable_path=browser_path,
+                driver_executable_path=get_cached_chromedriver(major_version),
+                version_main=major_version
+            )
             self.driver.set_script_timeout(15)
             self.driver.set_page_load_timeout(60)
             self.driver.minimize_window()
