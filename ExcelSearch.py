@@ -8,7 +8,9 @@ import sys
 import threading
 import warnings
 import winreg
+from bisect import bisect_left, bisect_right
 from dataclasses import dataclass
+from decimal import Decimal, InvalidOperation
 from itertools import chain, islice
 from typing import Mapping, Sequence
 
@@ -26,11 +28,13 @@ from xlrd import open_workbook
 
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
 
-VERSION = "2.1"
+VERSION = "2.3"
 APP_NAME = "Excel价格搜索工具 by Sam"
 COMPANY_NAME = "Sam"
 HEADER_SCAN_ROWS = 30
 DEFAULT_MAX_WORKERS = min(8, os.cpu_count() or 4)
+PRICE_MATCH_ABSOLUTE_TOLERANCE = Decimal("1e-9")
+PRICE_MATCH_RELATIVE_TOLERANCE = Decimal("1e-12")
 EXCEL_EXTENSIONS = (".xls", ".xlsx", ".xlsm")
 DEFAULT_KEYWORDS = {
     "description": ["品名", "description", "desc"],
@@ -53,6 +57,138 @@ class SearchResult:
     description: str = ""
     rmb_price: str = ""
     usd_price: str = ""
+
+
+def open_excel_at_cell(result):
+    """Open or reuse a workbook in desktop Excel and reveal the matching cell."""
+    try:
+        import pythoncom
+        import win32com.client
+    except ImportError as exc:
+        raise RuntimeError(
+            "自动定位需要 Microsoft Excel 和 pywin32，请安装：pip install pywin32"
+        ) from exc
+
+    file_path = os.path.abspath(result.file_path)
+    pythoncom.CoInitialize()
+    try:
+        try:
+            excel = win32com.client.GetActiveObject("Excel.Application")
+        except pythoncom.com_error:
+            excel = win32com.client.Dispatch("Excel.Application")
+
+        if excel.WindowState == -4140:  # xlMinimized
+            excel.WindowState = -4143  # xlNormal
+        excel.Visible = True
+        # Show Excel in front before the potentially slow workbook load.
+        try:
+            bring_excel_to_front(int(excel.Hwnd))
+        except Exception:
+            # A newly started window may not accept focus yet. The caller
+            # retries after navigation and reports a persistent focus failure.
+            pass
+        workbook = None
+        normalized_path = os.path.normcase(file_path)
+        for candidate in excel.Workbooks:
+            if os.path.normcase(os.path.abspath(candidate.FullName)) == normalized_path:
+                workbook = candidate
+                break
+        if workbook is None:
+            workbook = excel.Workbooks.Open(file_path)
+
+        worksheet = workbook.Worksheets(result.sheet_name)
+        workbook.Activate()
+        worksheet.Activate()
+        target = worksheet.Range(result.cell_address)
+        excel.Goto(target, True)
+        center_excel_cell(excel.ActiveWindow, worksheet, target)
+        # Keep Excel and the workbook open for the user; do not save or quit.
+        return int(excel.Hwnd)
+    finally:
+        pythoncom.CoUninitialize()
+
+
+def centered_scroll_index(target_index, minimum, viewport_size, span_size):
+    """Find the scroll boundary closest to centering the target, in points."""
+    half_cell = span_size(target_index) / 2
+    half_viewport = viewport_size / 2
+    low, high = minimum, target_index
+    # Range dimensions account for unequal sizes and hidden rows/columns.
+    while low < high:
+        middle = (low + high) // 2
+        if span_size(middle) - half_cell > half_viewport:
+            low = middle + 1
+        else:
+            high = middle
+    candidates = {low, max(minimum, low - 1)}
+    return min(
+        candidates,
+        key=lambda index: (abs(span_size(index) - half_cell - half_viewport), index),
+    )
+
+
+def center_excel_cell(window, worksheet, target):
+    """Keep the target visible with maximum left context and vertical centering."""
+    frozen_rows = int(window.SplitRow) if window.FreezePanes else 0
+    frozen_columns = int(window.SplitColumn) if window.FreezePanes else 0
+    # The final pane is the scrollable bottom/right area for frozen headers.
+    pane = window.Panes(window.Panes.Count)
+    visible = pane.VisibleRange
+    row, column = int(target.Row), int(target.Column)
+    if column > frozen_columns:
+        pane.ScrollColumn = leftmost_visible_scroll_index(
+            column, frozen_columns + 1, float(visible.Width),
+            lambda start: float(worksheet.Range(
+                worksheet.Cells(row, start), worksheet.Cells(row, column)
+            ).Width),
+        )
+    if row > frozen_rows:
+        pane.ScrollRow = centered_scroll_index(
+            row, frozen_rows + 1, float(visible.Height),
+            lambda start: float(worksheet.Range(
+                worksheet.Cells(start, column), worksheet.Cells(row, column)
+            ).Height),
+        )
+
+
+def leftmost_visible_scroll_index(target_index, minimum, viewport_size, span_size):
+    """Show as much left context as fits while keeping the target visible."""
+    low, high = minimum, target_index
+    while low < high:
+        middle = (low + high) // 2
+        if span_size(middle) > viewport_size:
+            low = middle + 1
+        else:
+            high = middle
+    return low
+
+
+def bring_excel_to_front(hwnd):
+    """Transfer foreground focus to Excel from the search UI."""
+    import win32api
+    import win32con
+    import win32gui
+    import win32process
+
+    if win32gui.IsIconic(hwnd):
+        win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+
+    current_thread = win32api.GetCurrentThreadId()
+    foreground = win32gui.GetForegroundWindow()
+    foreground_thread = (
+        win32process.GetWindowThreadProcessId(foreground)[0] if foreground else 0
+    )
+    attached = False
+    try:
+        # Excel may have a different UI thread from the window currently focused.
+        if foreground_thread and foreground_thread != current_thread:
+            win32process.AttachThreadInput(current_thread, foreground_thread, True)
+            attached = True
+        win32gui.BringWindowToTop(hwnd)
+        win32gui.SetForegroundWindow(hwnd)
+    finally:
+        if attached:
+            win32process.AttachThreadInput(current_thread, foreground_thread, False)
 
 
 def clean_keywords(keywords: Mapping[str, Sequence[str]]) -> dict[str, list[str]]:
@@ -88,13 +224,79 @@ def find_keyword_columns(rows, keywords):
     return columns
 
 
-def build_result(file_path, sheet_name, row_number, column, value, row, columns):
+def numeric_value(value):
+    """Read a finite numeric cell, including numbers stored as plain text."""
+    if value is None or isinstance(value, bool):
+        return None
+    try:
+        number = Decimal(str(value).strip())
+    except InvalidOperation:
+        return None
+    return number if number.is_finite() else None
+
+
+def find_unit_price_columns(row, columns):
+    """Infer unit prices from three distinct cells: quantity * price = amount."""
+    prices = {}
+    for name in ("rmb", "usd"):
+        column = columns[name]
+        if column is not None and column < len(row):
+            price = numeric_value(row[column])
+            if price is not None and price > 0:
+                prices[column] = price
+    if not prices:
+        return set()
+
+    # Index values once, excluding the first column from the scan.
+    value_columns = {}
+    quantities = []
+    for column in range(1, len(row)):
+        number = numeric_value(row[column])
+        if number is None or number <= 0:
+            continue
+        value_columns.setdefault(number, set()).add(column)
+        if number == number.to_integral_value():
+            quantities.append((column, number))
+
+    sorted_values = sorted(value_columns)
+    unit_prices = set()
+    for price_column, price in prices.items():
+        for quantity_column, quantity in quantities:
+            if quantity_column == price_column:
+                continue
+            product = quantity * price
+            # Excel's binary formula cache may store 35.70 as
+            # 35.699999999999996. Allow numerical noise, not cent rounding.
+            tolerance = max(
+                PRICE_MATCH_ABSOLUTE_TOLERANCE,
+                abs(product) * PRICE_MATCH_RELATIVE_TOLERANCE,
+            )
+            start = bisect_left(sorted_values, product - tolerance)
+            end = bisect_right(sorted_values, product + tolerance)
+            if any(
+                column != price_column and column != quantity_column
+                for amount in sorted_values[start:end]
+                for column in value_columns[amount]
+            ):
+                unit_prices.add(price_column)
+                break
+    return unit_prices
+
+
+def build_result(
+    file_path, sheet_name, row_number, column, value, row, columns,
+    unit_price_columns=None,
+):
     """Create one result and copy values from the detected columns."""
+    if unit_price_columns is None:
+        unit_price_columns = find_unit_price_columns(row, columns)
     details = {}
     for keyword, field in RESULT_FIELDS:
         index = columns[keyword]
         if index is not None and index < len(row) and row[index] is not None:
             details[field] = str(row[index])
+            if keyword in ("rmb", "usd") and index in unit_price_columns:
+                details[field] += "/件"
     address = f"{get_column_letter(column + 1)}{row_number}"
     return SearchResult(file_path, sheet_name, address, str(value), **details)
 
@@ -115,8 +317,11 @@ def search_rows(file_path, sheet_name, rows, search_term, keywords, cancel_event
         if cancel_event.is_set():
             return None
 
+        unit_price_columns = None
         for column, value in enumerate(row):
             if value is not None and search_term in str(value).lower():
+                if unit_price_columns is None:
+                    unit_price_columns = find_unit_price_columns(row, columns)
                 matches.append(
                     build_result(
                         file_path,
@@ -126,6 +331,7 @@ def search_rows(file_path, sheet_name, rows, search_term, keywords, cancel_event
                         value,
                         row,
                         columns,
+                        unit_price_columns,
                     )
                 )
 
@@ -397,15 +603,40 @@ class ResultTableWidget(QTableWidget):
 
     def open_excel_file(self):
         if result := self.selected_result():
-            if os.path.exists(result.file_path):
-                os.startfile(result.file_path)
+            if not os.path.isfile(result.file_path):
+                QMessageBox.warning(self, "打开失败", f"文件不存在：\n{result.file_path}")
+                return
+            try:
+                excel_hwnd = open_excel_at_cell(result)
+            except Exception as exc:
+                try:
+                    os.startfile(result.file_path)
+                except OSError as open_error:
+                    QMessageBox.warning(
+                        self, "打开失败", f"{exc}\n\n打开文件也失败：{open_error}"
+                    )
+                    return
+                QMessageBox.warning(
+                    self, "未能自动定位",
+                    f"已尝试用默认程序打开文件，但未能跳转到 "
+                    f"{result.sheet_name}!{result.cell_address}。\n\n{exc}",
+                )
+            else:
+                try:
+                    bring_excel_to_front(excel_hwnd)
+                except Exception as exc:
+                    QMessageBox.warning(
+                        self, "未能切换窗口",
+                        f"Excel 已定位到 {result.sheet_name}!{result.cell_address}，"
+                        f"但未能切到前台，请从任务栏切换到 Excel。\n\n{exc}",
+                    )
 
     def show_context_menu(self, position):
         menu = QMenu(self)
         copy_action = menu.addAction("复制")
         copy_action.triggered.connect(self.copy_cell_content)
         menu.addSeparator()
-        open_file_action = menu.addAction("打开文件")
+        open_file_action = menu.addAction("打开文件并定位单元格")
         open_file_action.triggered.connect(self.open_excel_file)
         location_action = menu.addAction("打开文件所在目录")
         location_action.triggered.connect(self.open_file_location)

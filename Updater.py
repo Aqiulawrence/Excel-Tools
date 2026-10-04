@@ -12,15 +12,21 @@ import msvcrt
 
 '''
 1. 更改Updater.py的VERSION
-2. 存储桶上传新的dist.zip
+2. 打包，然后在存储桶上传新的dist.zip
 3. 更改server.py的VERSION，然后重启server.py
+4. 将dist.zip保存至/release
 '''
 # python Updater.py --apply-update "D:\temp" "D:\Excel-Tools\release"
 
-VERSION = "v2026.094"
+VERSION = "v2026.095"
 SERVER_URL = "http://www.wublog.site/update"
 APP_NAME = "Excel-Tools"
 UPDATE_ZIP = "update.zip"
+CHANGE_LOG = """
+ExcelSearch.py:
+1. 添加显示单价的功能
+2. 添加打开Excel直接跳到目标单元格的功能
+"""
 
 exes = ["ExcelCompare.exe", "ExcelSearch.exe", "ImageSearch.exe"]
 lock_file_handle = None
