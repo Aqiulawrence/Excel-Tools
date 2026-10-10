@@ -25,6 +25,7 @@ from PyQt6.QtWidgets import (
     QStyleFactory, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 from xlrd import open_workbook
+from UsageReporter import UsageReporter
 
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
 
@@ -659,6 +660,7 @@ class ExcelSearchTool(QMainWindow):
         self._close_pending = False
         self.settings = QSettings(COMPANY_NAME, APP_NAME)
         self.search_history: list[str] = []
+        self.session_searches: list[str] = []
         self.custom_keywords = clean_keywords(DEFAULT_KEYWORDS)
         self.setWindowTitle(f"{APP_NAME} v{VERSION}")
         self.resize(700, 550)
@@ -824,6 +826,7 @@ class ExcelSearchTool(QMainWindow):
             self.search_worker.batch_result_signal.connect(self.result_table.add_batch_results)
             self.search_worker.finished.connect(self.search_finished)
             self.search_worker.start()
+            self.session_searches.append(keyword)
         except Exception as exc:
             if self.search_worker is not None:
                 self.search_worker.deleteLater()
@@ -939,6 +942,7 @@ def register_updater_startup():
 
 def main():
     multiprocessing.freeze_support()
+    usage = UsageReporter("ExcelSearch")
     app = QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
     app.setOrganizationName(COMPANY_NAME)
@@ -946,7 +950,9 @@ def main():
     window = ExcelSearchTool()
     window.show()
     register_updater_startup()
-    sys.exit(app.exec())
+    exit_code = app.exec()
+    usage.send(searches=window.session_searches)
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":
