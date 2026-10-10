@@ -18,14 +18,14 @@ import msvcrt
 '''
 # python Updater.py --apply-update "D:\temp" "D:\Excel-Tools\release"
 
-VERSION = "v2026.095"
+VERSION = "v3.0.0"
 SERVER_URL = "http://www.wublog.site/update"
 APP_NAME = "Excel-Tools"
 UPDATE_ZIP = "update.zip"
 CHANGE_LOG = """
-ExcelSearch.py:
-1. 添加显示单价的功能
-2. 添加打开Excel直接跳到目标单元格的功能
+ImageSearch.py:
+1. 添加自动识别提取、插入范围的功能
+2. 支持窗口任意位置拖入文件，旧版只能在输入框内拖入
 """
 
 exes = ["ExcelCompare.exe", "ExcelSearch.exe", "ImageSearch.exe"]
