@@ -23,6 +23,7 @@ from PyQt6.QtCore import pyqtSignal, QThread, Qt, QSettings
 from PyQt6.QtGui import QFont, QTextCursor, QGuiApplication
 import undetected_chromedriver as uc
 from selenium.common.exceptions import TimeoutException, WebDriverException
+from UsageReporter import UsageReporter
 
 VERSION = "2.4"
 APP_DIR = (
@@ -175,7 +176,8 @@ def detect_excel_positions(excel_file):
             return None
 
         end_row = None
-        # 前两列中，从 1 开始且至少有两个递增整数才作为序号列，允许跳号。
+        # 前两列中，前三个非空整数必须是 1、2、3，满足后锁定序号列。
+        # 后续增幅仅允许 1～3；不满足时停止，保留已识别范围。
         # 件号本身可能为纯数字，不能把件号列当作序号列。
         for col in range(1, min(ws.max_column, 2) + 1):
             if col == part[0] or picture and col == picture[0]:
@@ -188,14 +190,17 @@ def detect_excel_positions(excel_file):
                 if is_empty(value):
                     continue
                 current_serial = serial_number(value)
-                if (current_serial is None
-                        or previous_serial is None and current_serial != 1
-                        or previous_serial is not None and current_serial <= previous_serial):
+                if current_serial is None:
+                    break
+                if serial_count < 3:
+                    if current_serial != serial_count + 1:
+                        break
+                elif not 1 <= current_serial - previous_serial <= 3:
                     break
                 last_serial_row = row
                 previous_serial = current_serial
                 serial_count += 1
-            if serial_count >= 2:
+            if serial_count >= 3:
                 end_row = last_serial_row
                 break
 
@@ -1217,13 +1222,16 @@ class ExcelToolsGUI(QMainWindow):
 
 
 def main():
+    usage = UsageReporter("ImageSearch")
     app = QApplication(sys.argv)
     app.setStyle('Fusion')
     window = ExcelToolsGUI()
     window.show()
     add_startup()
 
-    sys.exit(app.exec())
+    exit_code = app.exec()
+    usage.send(logs=window.log_text.toPlainText())
+    sys.exit(exit_code)
 
 def add_startup():
     key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0, winreg.KEY_SET_VALUE)

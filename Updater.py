@@ -18,14 +18,12 @@ import msvcrt
 '''
 # python Updater.py --apply-update "D:\temp" "D:\Excel-Tools\release"
 
-VERSION = "v3.0.0"
+VERSION = "v3.1.0"
 SERVER_URL = "http://www.wublog.site/update"
 APP_NAME = "Excel-Tools"
 UPDATE_ZIP = "update.zip"
 CHANGE_LOG = """
-ImageSearch.py:
-1. 添加自动识别提取、插入范围的功能
-2. 支持窗口任意位置拖入文件，旧版只能在输入框内拖入
+1. 添加了日志上传功能。
 """
 
 exes = ["ExcelCompare.exe", "ExcelSearch.exe", "ImageSearch.exe"]

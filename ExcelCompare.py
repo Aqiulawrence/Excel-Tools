@@ -10,6 +10,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, pyqtSignal, QSettings
 from PyQt6.QtGui import QAction, QFont
 import pandas as pd
+from UsageReporter import UsageReporter
 
 VERSION = "1.1"
 
@@ -303,13 +304,16 @@ class App(QWidget):
             QMessageBox.critical(self, "错误", f"{str(e)}")
 
 def main():
+    usage = UsageReporter("ExcelCompare")
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
     window = App()
     window.show()
     add_startup()
 
-    sys.exit(app.exec())
+    exit_code = app.exec()
+    usage.send()
+    sys.exit(exit_code)
 
 def add_startup():
     key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0, winreg.KEY_SET_VALUE)
