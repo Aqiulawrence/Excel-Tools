@@ -24,7 +24,7 @@ from PyQt6.QtGui import QFont, QTextCursor, QGuiApplication
 import undetected_chromedriver as uc
 from selenium.common.exceptions import TimeoutException, WebDriverException
 
-VERSION = "2.3"
+VERSION = "2.4"
 APP_DIR = (
     os.path.dirname(os.path.abspath(sys.executable))
     if getattr(sys, "frozen", False)
@@ -121,6 +121,115 @@ def validate_excel_range(start_cell, end_cell):
     if start_col > end_col or start_row > end_row:
         raise UserFacingError("范围无效。")
     return bounds
+
+
+def detect_excel_positions(excel_file):
+    """识别活动工作表的三个位置；缺少表头、数据或插图列时返回 None。"""
+    def contains_keyword(value, keywords):
+        text = str(value if value is not None else "").casefold()
+        return any(keyword in text for keyword in keywords)
+
+    def is_empty(value):
+        return value is None or not str(value).strip()
+
+    def serial_number(value):
+        if isinstance(value, bool):
+            return None
+        if isinstance(value, (int, float)):
+            return int(value) if value > 0 and value % 1 == 0 else None
+        text = str(value or "").strip()
+        return int(text) if re.fullmatch(r"[0-9]+", text) else None
+
+    wb = openpyxl.load_workbook(excel_file)
+    try:
+        ws = wb.active
+        parts, images = [], []
+        merges = list(ws.merged_cells.ranges)
+        # 限制表头扫描区域，避免整列格式造成界面长时间卡住。
+        for row in ws.iter_rows(max_row=min(ws.max_row, 50),
+                                max_col=min(ws.max_column, 20)):
+            for cell in row:
+                if cell.value is None:
+                    continue
+                if contains_keyword(cell.value, ("part no", "件号")):
+                    target = parts
+                elif contains_keyword(cell.value, ("remark", "图片")):
+                    target = images
+                else:
+                    continue
+                merged = next((area for area in merges if cell.coordinate in area), None)
+                target.append((cell.column, cell.row,
+                               merged.max_row if merged else cell.row))
+
+        if not parts:
+            return None
+        # 按从上到下、从左到右的顺序使用首个匹配单元格。
+        part = parts[0]
+        picture = next((item for item in images if item[0] != part[0]), None)
+        header_end = part[2]
+        if picture and max(part[1], picture[1]) <= min(part[2], picture[2]):
+            header_end = max(header_end, picture[2])
+        start_row = next((row for row in range(header_end + 1, ws.max_row + 1)
+                          if not is_empty(ws.cell(row, part[0]).value)), None)
+        if start_row is None:
+            return None
+
+        end_row = None
+        # 前两列中，从 1 开始且至少有两个递增整数才作为序号列，允许跳号。
+        # 件号本身可能为纯数字，不能把件号列当作序号列。
+        for col in range(1, min(ws.max_column, 2) + 1):
+            if col == part[0] or picture and col == picture[0]:
+                continue
+            previous_serial = None
+            serial_count = 0
+            last_serial_row = None
+            for row in range(start_row, ws.max_row + 1):
+                value = ws.cell(row, col).value
+                if is_empty(value):
+                    continue
+                current_serial = serial_number(value)
+                if (current_serial is None
+                        or previous_serial is None and current_serial != 1
+                        or previous_serial is not None and current_serial <= previous_serial):
+                    break
+                last_serial_row = row
+                previous_serial = current_serial
+                serial_count += 1
+            if serial_count >= 2:
+                end_row = last_serial_row
+                break
+
+        if end_row is None:
+            end_row = start_row
+            while end_row < ws.max_row and not is_empty(ws.cell(end_row + 1, part[0]).value):
+                end_row += 1
+
+        if picture is None:
+            row_count = end_row - start_row + 1
+            for col in range(part[0] + 1, 21):
+                if not is_empty(ws.cell(start_row, col).value):
+                    continue
+                empty_count = sum(is_empty(ws.cell(row, col).value)
+                                  for row in range(start_row, end_row + 1))
+                if empty_count * 10 >= row_count * 9:
+                    picture = (col, part[1], part[2])
+                    break
+            if picture is None:
+                return None
+        for area in merges:
+            touches_data = area.min_row <= end_row and area.max_row >= start_row
+            touches_columns = any(area.min_col <= col <= area.max_col
+                                  for col in (part[0], picture[0]))
+            if touches_data and touches_columns and (area.min_row != area.max_row
+                    or area.min_col <= min(part[0], picture[0])
+                    and area.max_col >= max(part[0], picture[0])):
+                raise UserFacingError("件号或插图区域存在无法按行对应的合并单元格，请手动填写三个位置。")
+
+        part_col = get_column_letter(part[0])
+        return (f"{part_col}{start_row}", f"{part_col}{end_row}",
+                f"{get_column_letter(picture[0])}{start_row}")
+    finally:
+        wb.close()
 
 
 def extract_excel_data(start_cell, end_cell, excel_file):
@@ -505,29 +614,6 @@ class ImageSearchWorker(QThread):
             self.search_finished.emit(failed_items)
 
 
-# 支持拖拽的文本输入框
-class DragDropLineEdit(QLineEdit):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setAcceptDrops(True)
-
-    def dragEnterEvent(self, event):
-        if event.mimeData().hasUrls():
-            event.accept()
-        else:
-            event.ignore()
-
-    def dropEvent(self, event):
-        files = [u.toLocalFile() for u in event.mimeData().urls()]
-        if files:
-            # 只取第一个文件
-            file_path = files[0]
-            if file_path.lower().endswith('.xlsx'):
-                self.setText(file_path)
-            else:
-                QMessageBox.warning(self, "警告", "请拖拽.xlsx格式的Excel文件")
-
-
 # 主界面
 class ExcelToolsGUI(QMainWindow):
     def __init__(self):
@@ -537,9 +623,44 @@ class ExcelToolsGUI(QMainWindow):
         self.total_tasks = 0
         self.auto_processing = False
         self.init_ui()
+        self.setAcceptDrops(True)
+        # 文本框及其 viewport 会接收拖拽，统一交给主窗口处理文件。
+        for widget in self.findChildren(QWidget):
+            widget.setAcceptDrops(False)
         self.settings = QSettings("Sam", "ExcelTools")
         self.load_settings()
         self.setup_connections()
+
+    @staticmethod
+    def excel_file_from_drop(event):
+        for url in event.mimeData().urls():
+            if url.isLocalFile():
+                file_path = url.toLocalFile()
+                if file_path.lower().endswith('.xlsx') and os.path.isfile(file_path):
+                    return file_path
+        return None
+
+    def dragEnterEvent(self, event):
+        if self.excel_file_from_drop(event):
+            event.setDropAction(Qt.DropAction.CopyAction)
+            event.accept()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):
+        self.dragEnterEvent(event)
+
+    def dropEvent(self, event):
+        file_path = self.excel_file_from_drop(event)
+        if not file_path:
+            event.ignore()
+            return
+        event.setDropAction(Qt.DropAction.CopyAction)
+        event.accept()
+        if file_path == self.file_path_edit.text():
+            self.on_excel_file_changed()
+        else:
+            self.file_path_edit.setText(file_path)
 
     def center_window(self):
         screen = QGuiApplication.primaryScreen().geometry()
@@ -596,8 +717,7 @@ class ExcelToolsGUI(QMainWindow):
 
         layout.addWidget(QLabel("选择文件:"))
 
-        # 使用支持拖拽的自定义控件
-        self.file_path_edit = DragDropLineEdit()
+        self.file_path_edit = QLineEdit()
         self.file_path_edit.setReadOnly(True)
         layout.addWidget(self.file_path_edit, 1)
 
@@ -765,10 +885,30 @@ class ExcelToolsGUI(QMainWindow):
         self.search_worker.captcha_required.connect(self.on_captcha_required)
 
     def on_excel_file_changed(self):
-        """选择新的 Excel 文件后，重置依赖文件内容的单元格范围。"""
+        """选择或拖入 Excel 文件后，自动填写范围；失败时允许手动填写。"""
         self.start_cell_edit.clear()
         self.end_cell_edit.clear()
         self.insert_cell_edit.clear()
+        self.search_text.clear()
+        excel_file = self.file_path_edit.text()
+        if not excel_file:
+            return
+        try:
+            positions = detect_excel_positions(excel_file)
+            if positions is None:
+                return
+            start_cell, end_cell, insert_cell = positions
+        except UserFacingError as e:
+            self.add_log(str(e), is_warning=True)
+            return
+        except Exception as e:
+            self.add_log(f"自动识别失败：{error_summary(e)}。请检查文件或手动填写三个位置。",
+                         is_warning=True)
+            return
+        self.start_cell_edit.setText(start_cell)
+        self.end_cell_edit.setText(end_cell)
+        self.insert_cell_edit.setText(insert_cell)
+        self.add_log(f"自动识别完成：件号 {start_cell}:{end_cell}，插图从 {insert_cell} 开始。")
 
     def select_excel_file(self):
         file_path, _ = QFileDialog.getOpenFileName(
