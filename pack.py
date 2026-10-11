@@ -100,7 +100,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--publish-only', action='store_true', help='仅重试发送版本，不重新打包')
     args = parser.parse_args()
-    if not args.publish_only and input('是否开始打包：').strip().lower() not in ('', 'y', 'yes'):
+    if not args.publish_only and input('请先确认版本号是否修改：').strip().lower() not in ('', 'y', 'yes'):
         print('已取消打包。')
         raise SystemExit(0)
     os.chdir(ROOT)

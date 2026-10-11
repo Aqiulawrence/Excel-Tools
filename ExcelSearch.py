@@ -12,6 +12,7 @@ from bisect import bisect_left, bisect_right
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from itertools import chain, islice
+from time import monotonic
 from typing import Mapping, Sequence
 
 from openpyxl import load_workbook
@@ -443,6 +444,7 @@ class ExcelSearchWorker(QThread):
         self.counts = (0, 0, 0)
         self.error = ""
         self.file_errors = []
+        self.duration_seconds = 0.0
 
     def setup(self, search_term, search_paths, max_workers, keywords):
         self.search_term = search_term.lower().strip()
@@ -451,6 +453,7 @@ class ExcelSearchWorker(QThread):
         self.keywords = clean_keywords(keywords)
 
     def run(self):
+        started_at = monotonic()
         completed = succeeded = failed = found = 0
         try:
             files = list(self.collect_files())
@@ -511,6 +514,7 @@ class ExcelSearchWorker(QThread):
             self.error = f"{type(exc).__name__}: {exc}"
         finally:
             self.counts = (succeeded, failed, found)
+            self.duration_seconds = round(monotonic() - started_at, 3)
 
     def collect_files(self):
         for path in self.search_paths:
@@ -660,7 +664,7 @@ class ExcelSearchTool(QMainWindow):
         self._close_pending = False
         self.settings = QSettings(COMPANY_NAME, APP_NAME)
         self.search_history: list[str] = []
-        self.session_searches: list[str] = []
+        self.session_searches: list[dict[str, str | float]] = []
         self.custom_keywords = clean_keywords(DEFAULT_KEYWORDS)
         self.setWindowTitle(f"{APP_NAME} v{VERSION}")
         self.resize(700, 550)
@@ -826,7 +830,7 @@ class ExcelSearchTool(QMainWindow):
             self.search_worker.batch_result_signal.connect(self.result_table.add_batch_results)
             self.search_worker.finished.connect(self.search_finished)
             self.search_worker.start()
-            self.session_searches.append(keyword)
+            self.session_searches.append({"keyword": keyword, "duration_seconds": 0.0})
         except Exception as exc:
             if self.search_worker is not None:
                 self.search_worker.deleteLater()
@@ -861,6 +865,7 @@ class ExcelSearchTool(QMainWindow):
         worker = self.search_worker
         if worker is None:
             return
+        self.session_searches[-1]["duration_seconds"] = worker.duration_seconds
         success, failed, found = worker.counts
         error = worker.error
         details = "\n".join(([error] if error else []) + worker.file_errors)
