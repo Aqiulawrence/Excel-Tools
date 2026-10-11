@@ -216,7 +216,7 @@ def detect_excel_positions(excel_file):
                     continue
                 empty_count = sum(is_empty(ws.cell(row, col).value)
                                   for row in range(start_row, end_row + 1))
-                if empty_count * 10 >= row_count * 9:
+                if empty_count * 100 >= row_count * 95:
                     picture = (col, part[1], part[2])
                     break
             if picture is None:
@@ -228,7 +228,7 @@ def detect_excel_positions(excel_file):
             if touches_data and touches_columns and (area.min_row != area.max_row
                     or area.min_col <= min(part[0], picture[0])
                     and area.max_col >= max(part[0], picture[0])):
-                raise UserFacingError("件号或插图区域存在无法按行对应的合并单元格，请手动填写三个位置。")
+                return None
 
         part_col = get_column_letter(part[0])
         return (f"{part_col}{start_row}", f"{part_col}{end_row}",
