@@ -1,16 +1,34 @@
+import ast
+import argparse
+import json
 import os
 import shutil
 import subprocess
+import zipfile
+from pathlib import Path
+from urllib.request import Request, urlopen
 
-def build_and_merge(scripts, output_name):
+# 自动打包、存档并发送新版本号至服务器
+
+ROOT = Path(__file__).resolve().parent
+SCRIPTS = ['ImageSearch.py', 'ExcelCompare.py', 'ExcelSearch.py', 'Updater.py']
+
+
+def updater_settings():
+    # 不导入 Updater，避免触发其 Windows 依赖和全局初始化。
+    tree = ast.parse((ROOT / 'Updater.py').read_text(encoding='utf-8'))
+    return {target.id: ast.literal_eval(node.value)
+            for node in tree.body if isinstance(node, ast.Assign)
+            for target in node.targets if isinstance(target, ast.Name)
+            and target.id in {'VERSION', 'SERVER_URL'}}
+
+
+def build_and_merge(scripts):
     if os.path.exists('dist'):
         shutil.rmtree('dist')
 
     for script in scripts:
-        if script == "ImageSearch.py":
-            subprocess.run(['pyinstaller', '-w', '--onedir', script], check=True)
-        else:
-            subprocess.run(['pyinstaller', '-w', '--onedir', script], check=True)
+        subprocess.run(['pyinstaller', '-w', '--onedir', script], check=True)
 
     target = 'dist'
     os.makedirs(target, exist_ok=True)
@@ -20,8 +38,7 @@ def build_and_merge(scripts, output_name):
     for script in scripts:
         name = script.replace('.py', '')
         exe_src = f'dist/{name}/{name}.exe'
-        if os.path.exists(exe_src):
-            shutil.copy(exe_src, target)
+        shutil.copy(exe_src, target)
         internal_src = f'dist/{name}/_internal'
         if os.path.exists(internal_src):
             for item in os.listdir(internal_src):
@@ -41,6 +58,54 @@ def build_and_merge(scripts, output_name):
         if os.path.exists(empty_dir):
             shutil.rmtree(empty_dir)
 
+
+def archive_dist(version):
+    target = ROOT / 'dist'
+    archive = target / 'dist.zip'
+    # 只压缩四个 EXE 及依赖目录，避免把旧 dist.zip 压进新包。
+    files = [target / Path(script).with_suffix('.exe') for script in SCRIPTS]
+    if not all(path.is_file() for path in files) or not (target / '_internal').is_dir():
+        raise RuntimeError('dist 中缺少 EXE 或 _internal 依赖目录。')
+    files.extend(path for path in (target / '_internal').rglob('*') if path.is_file())
+    with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as zf:
+        for path in files:
+            zf.write(path, path.relative_to(target))
+    release = ROOT / 'release'
+    release.mkdir(exist_ok=True)
+    saved = release / f'{version}.zip'
+    shutil.copy2(archive, saved)
+    print(f'已生成 {archive} 和 {saved}', flush=True)
+
+
+def publish_version(settings):
+    token_file = ROOT / 'release_token.txt'
+    try:
+        token = token_file.read_text(encoding='utf-8-sig').strip()
+    except OSError as e:
+        raise RuntimeError('压缩包已保留；请在 pack.py 同目录创建 release_token.txt 并填写令牌。') from e
+    if not token:
+        raise RuntimeError('release_token.txt 中的令牌不能为空。')
+    url = settings['SERVER_URL'].rsplit('/', 1)[0] + '/publish'
+    request = Request(url, data=json.dumps({'version': settings['VERSION']}).encode('utf-8'),
+                      headers={'Authorization': f'Bearer {token}',
+                               'Content-Type': 'application/json'}, method='POST')
+    with urlopen(request, timeout=30) as response:
+        result = json.load(response)
+    if result.get('version') != settings['VERSION']:
+        raise RuntimeError('服务器返回的版本不一致，请检查发布接口。')
+    print(f"服务器版本已更新为 {settings['VERSION']}，请上传 dist.zip。")
+
+
 if __name__ == "__main__":
-    scripts = ['ImageSearch.py', 'ExcelCompare.py', 'ExcelSearch.py', 'Updater.py']
-    build_and_merge(scripts, "Excel-Tools")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--publish-only', action='store_true', help='仅重试发送版本，不重新打包')
+    args = parser.parse_args()
+    if not args.publish_only and input('是否开始打包：').strip().lower() not in ('', 'y', 'yes'):
+        print('已取消打包。')
+        raise SystemExit(0)
+    os.chdir(ROOT)
+    settings = updater_settings()
+    if not args.publish_only:
+        build_and_merge(SCRIPTS)
+        archive_dist(settings['VERSION'])
+    publish_version(settings)

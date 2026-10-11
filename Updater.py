@@ -10,22 +10,15 @@ import zipfile
 import winreg
 import msvcrt
 
-'''
-1. 更改Updater.py的VERSION
-2. 打包，然后在存储桶上传新的dist.zip
-3. 更改server.py的VERSION，然后重启server.py
-4. 将dist.zip保存至/release，然后把名字改成当前版本号如v3.0.0.zip
-'''
-# python Updater.py --apply-update "D:\temp" "D:\Excel-Tools\release"
-
-VERSION = "v3.1.1"
+VERSION = "v3.2.0"
 SERVER_URL = "http://www.wublog.site/update"
 APP_NAME = "Excel-Tools"
 UPDATE_ZIP = "update.zip"
 CHANGE_LOG = """
-1. 添加了日志上传功能。
+1. pack.py现可自动打包、存档并发送新版本号至服务器
 """
 
+# python Updater.py --apply-update "D:\temp" "D:\Excel-Tools\release"
 exes = ["ExcelCompare.exe", "ExcelSearch.exe", "ImageSearch.exe"]
 lock_file_handle = None
 
