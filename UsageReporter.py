@@ -12,8 +12,8 @@ class UsageReporter:
     def __init__(self, app):
         self.started_at = monotonic()
         self.report = {
-            "app": app,
             "device": os.environ.get("COMPUTERNAME", "Unknown"),
+            "app": app,
         }
 
     def send(self, **details):
