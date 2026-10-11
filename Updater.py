@@ -14,11 +14,11 @@ import msvcrt
 1. 更改Updater.py的VERSION
 2. 打包，然后在存储桶上传新的dist.zip
 3. 更改server.py的VERSION，然后重启server.py
-4. 将dist.zip保存至/release
+4. 将dist.zip保存至/release，然后把名字改成当前版本号如v3.0.0.zip
 '''
 # python Updater.py --apply-update "D:\temp" "D:\Excel-Tools\release"
 
-VERSION = "v3.1.0"
+VERSION = "v3.1.1"
 SERVER_URL = "http://www.wublog.site/update"
 APP_NAME = "Excel-Tools"
 UPDATE_ZIP = "update.zip"
