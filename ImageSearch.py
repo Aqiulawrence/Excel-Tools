@@ -351,6 +351,7 @@ class ImageSearchWorker(QThread):
         self.stop_requested = False
         self.error_message = None
         self.was_stopped = False
+        self.elapsed_seconds = 0.0
 
     def setup(self, search_terms, enable_filter=True, random_delay=False):
         self.search_terms = [x.strip() for x in search_terms]
@@ -542,6 +543,7 @@ class ImageSearchWorker(QThread):
             time.sleep(0.1)
         return True
     def run(self):
+        started_at = time.monotonic()
         # 通知开始搜索
         total_tasks = len(self.search_terms)
         self.search_started.emit(total_tasks)
@@ -616,6 +618,7 @@ class ImageSearchWorker(QThread):
                 self.driver = None
             self.captcha_detected = False
             self.stop_requested = False
+            self.elapsed_seconds = time.monotonic() - started_at
             self.search_finished.emit(failed_items)
 
 
@@ -627,6 +630,7 @@ class ExcelToolsGUI(QMainWindow):
         self.completed_count = 0
         self.total_tasks = 0
         self.auto_processing = False
+        self.session_events = []
         self.init_ui()
         self.setAcceptDrops(True)
         # 文本框及其 viewport 会接收拖拽，统一交给主窗口处理文件。
@@ -877,6 +881,9 @@ class ExcelToolsGUI(QMainWindow):
         self.file_path_edit.textChanged.connect(self.on_excel_file_changed)
 
         # 操作按钮
+        for button in (self.extract_btn, self.search_btn, self.insert_btn, self.auto_btn):
+            button.clicked.connect(lambda checked=False, button=button:
+                                   self.record_action(button.text()))
         self.extract_btn.clicked.connect(self.extract_content)
         self.search_btn.clicked.connect(self.start_search)
         self.insert_btn.clicked.connect(self.insert_images)
@@ -888,6 +895,9 @@ class ExcelToolsGUI(QMainWindow):
         self.search_worker.search_finished.connect(self.on_search_finished)
         self.search_worker.search_error.connect(self.on_search_error)
         self.search_worker.captcha_required.connect(self.on_captcha_required)
+
+    def record_action(self, button_text):
+        self.session_events.append(button_text)
 
     def on_excel_file_changed(self):
         """选择或拖入 Excel 文件后，自动填写范围；失败时允许手动填写。"""
@@ -1089,6 +1099,7 @@ class ExcelToolsGUI(QMainWindow):
         failure_count = len(failed_items)
         message = f"搜索完成。成功：{self.total_tasks - failure_count}，失败：{failure_count}"
         self.add_log(message, is_warning=bool(failure_count))
+        self.add_log(f"搜索耗时：{self.search_worker.elapsed_seconds:.2f} 秒")
         if failed_items:
             if not self.auto_processing:
                 self._show_topmost_alert("完成", message)
@@ -1230,7 +1241,9 @@ def main():
     add_startup()
 
     exit_code = app.exec()
-    usage.send(logs=window.log_text.toPlainText())
+    usage.send(logs=window.log_text.toPlainText(),
+               random_delay=window.filter_check.isChecked(),
+               events=window.session_events)
     sys.exit(exit_code)
 
 def add_startup():

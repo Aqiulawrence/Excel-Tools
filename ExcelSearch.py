@@ -547,6 +547,7 @@ class ResultTableWidget(QTableWidget):
     def __init__(self):
         super().__init__()
         self.results: list[SearchResult] = []
+        self.session_events = []
 
         self.setColumnCount(len(self.HEADERS))
         self.setHorizontalHeaderLabels(self.HEADERS)
@@ -606,8 +607,13 @@ class ResultTableWidget(QTableWidget):
         row = self.currentRow()
         return self.results[row] if 0 <= row < len(self.results) else None
 
+    def record_action(self, action, result, **details):
+        self.session_events.append({"action": action, "file_path": result.file_path,
+                                    **details})
+
     def open_excel_file(self):
         if result := self.selected_result():
+            self.record_action("open_file", result)
             if not os.path.isfile(result.file_path):
                 QMessageBox.warning(self, "打开失败", f"文件不存在：\n{result.file_path}")
                 return
@@ -649,11 +655,14 @@ class ResultTableWidget(QTableWidget):
 
     def copy_cell_content(self):
         if item := self.currentItem():
+            if result := self.selected_result():
+                self.record_action("copy", result, text=item.text())
             QApplication.clipboard().setText(item.text())
 
     def open_file_location(self):
         for row in {item.row() for item in self.selectedItems()}:
             if row < len(self.results):
+                self.record_action("open_folder", self.results[row])
                 os.startfile(os.path.dirname(self.results[row].file_path))
 
 
@@ -818,6 +827,7 @@ class ExcelSearchTool(QMainWindow):
         self.progress_bar.setValue(0)
         self.progress_bar.setFormat("准备搜索…")
         self.progress_bar.setToolTip("")
+        search_record = None
         try:
             self.search_worker = ExcelSearchWorker()
             self.search_worker.setup(
@@ -829,9 +839,14 @@ class ExcelSearchTool(QMainWindow):
             self.search_worker.progress_signal.connect(self.update_progress)
             self.search_worker.batch_result_signal.connect(self.result_table.add_batch_results)
             self.search_worker.finished.connect(self.search_finished)
+            search_record = {
+                "keyword": keyword, "folder": folder, "duration": 0.0,
+                "overview": "准备搜索"}
+            self.session_searches.append(search_record)
             self.search_worker.start()
-            self.session_searches.append({"keyword": keyword, "duration_seconds": 0.0})
         except Exception as exc:
+            if search_record is not None:
+                search_record["overview"] = "搜索失败"
             if self.search_worker is not None:
                 self.search_worker.deleteLater()
                 self.search_worker = None
@@ -865,7 +880,7 @@ class ExcelSearchTool(QMainWindow):
         worker = self.search_worker
         if worker is None:
             return
-        self.session_searches[-1]["duration_seconds"] = worker.duration_seconds
+        self.session_searches[-1]["duration"] = worker.duration_seconds
         success, failed, found = worker.counts
         error = worker.error
         details = "\n".join(([error] if error else []) + worker.file_errors)
@@ -881,6 +896,7 @@ class ExcelSearchTool(QMainWindow):
             self.progress_bar.setValue(100)
         self.progress_bar.setFormat(f"{status}：找到 {found} 条（成功：{success}，失败：{failed}）")
         self.progress_bar.setToolTip(details)
+        self.session_searches[-1]["overview"] = self.progress_bar.format()
         self.search_worker = None
         worker.deleteLater()
         self.restore_search_controls()
@@ -956,7 +972,8 @@ def main():
     window.show()
     register_updater_startup()
     exit_code = app.exec()
-    usage.send(searches=window.session_searches)
+    usage.send(searches=window.session_searches,
+               events=window.result_table.session_events)
     sys.exit(exit_code)
 
 
