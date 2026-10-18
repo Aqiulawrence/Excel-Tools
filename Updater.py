@@ -10,12 +10,12 @@ import zipfile
 import winreg
 import msvcrt
 
-VERSION = "v3.2.0"
+VERSION = "v3.2.5"
 SERVER_URL = "http://www.wublog.site/update"
 APP_NAME = "Excel-Tools"
 UPDATE_ZIP = "update.zip"
 CHANGE_LOG = """
-1. pack.py现可自动打包、存档并发送新版本号至服务器
+1. 增加了日志记录的详细程度。
 """
 
 # python Updater.py --apply-update "D:\temp" "D:\Excel-Tools\release"
