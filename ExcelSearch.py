@@ -67,8 +67,15 @@ def open_excel_at_cell(result):
         import pythoncom
         import win32com.client
     except ImportError as exc:
+        if getattr(sys, "frozen", False):
+            message = (
+                "打包程序的 Excel 自动定位依赖缺失或加载失败。"
+                "请使用修复后的 pack.py 重新打包，并保留完整的 _internal 目录。"
+            )
+        else:
+            message = "自动定位需要 Microsoft Excel 和 pywin32，请安装：pip install pywin32"
         raise RuntimeError(
-            "自动定位需要 Microsoft Excel 和 pywin32，请安装：pip install pywin32"
+            f"{message}\n\n详细信息：{exc}"
         ) from exc
 
     file_path = os.path.abspath(result.file_path)
