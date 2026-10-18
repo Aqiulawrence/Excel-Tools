@@ -4,6 +4,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 import zipfile
 from pathlib import Path
 from urllib.request import Request, urlopen
@@ -28,7 +29,7 @@ def build_and_merge(scripts):
         shutil.rmtree('dist')
 
     for script in scripts:
-        subprocess.run(['pyinstaller', '-w', '--onedir', script], check=True)
+        subprocess.run([sys.executable, '-m', 'PyInstaller', '-w', '--onedir', script], check=True)
 
     target = 'dist'
     os.makedirs(target, exist_ok=True)
@@ -44,11 +45,12 @@ def build_and_merge(scripts):
             for item in os.listdir(internal_src):
                 src = os.path.join(internal_src, item)
                 dst = os.path.join(internal_target, item)
-                if not os.path.exists(dst):
-                    if os.path.isdir(src):
-                        shutil.copytree(src, dst)
-                    else:
-                        shutil.copy2(src, dst)
+                # Merge directory contents: earlier programs may include only
+                # part of a shared package (e.g. pywintypes but no pythoncom).
+                if os.path.isdir(src):
+                    shutil.copytree(src, dst, dirs_exist_ok=True)
+                else:
+                    shutil.copy2(src, dst)
 
     for spec in [s.replace('.py', '.spec') for s in scripts]:
         if os.path.exists(spec):
