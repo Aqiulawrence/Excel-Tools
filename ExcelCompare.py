@@ -12,7 +12,7 @@ from PyQt6.QtGui import QAction, QFont
 import pandas as pd
 from UsageReporter import UsageReporter
 
-VERSION = "1.1"
+VERSION = "1.2"
 
 class ExcelComparator:
     def __init__(self):
@@ -75,9 +75,9 @@ class DragDropLabel(QLabel):
         self.selected = False
 
     def _style(self, selected=False, active=False):
-        border = '#2f80ed' if active else ('#27ae60' if selected else '#b8c4d0')
-        bg = '#edf5ff' if active else ('#edf9f1' if selected else '#f7f9fc')
-        color = '#1769aa' if active else '#52606d'
+        border = 'palette(highlight)' if active else ('palette(dark)' if selected else 'palette(mid)')
+        bg = 'palette(window)'
+        color = 'palette(window-text)'
         return f"border: 2px dashed {border}; border-radius: 8px; font-size: 14px; color: {color}; background: {bg}; padding: 8px;"
 
     def dragEnterEvent(self, event):
@@ -216,7 +216,7 @@ class App(QWidget):
         main_layout.setSpacing(10)
 
         title = QLabel("Excel件号数量对比工具")
-        title.setStyleSheet("font-size: 15pt; font-weight: 700; color: #1f2937; padding: 2px;")
+        title.setStyleSheet("font-size: 15pt; font-weight: 700; color: palette(window-text); padding: 2px;")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_layout.addWidget(title)
 
@@ -227,7 +227,7 @@ class App(QWidget):
         drop_layout.addWidget(self.drop1)
 
         vs_label = QLabel("VS")
-        vs_label.setStyleSheet("font-size: 14px; font-weight: 700; color: #9aa5b1; padding: 12px;")
+        vs_label.setStyleSheet("font-size: 14px; font-weight: 700; color: palette(dark); padding: 12px;")
         vs_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         drop_layout.addWidget(vs_label)
 
@@ -241,14 +241,32 @@ class App(QWidget):
         self.compare_btn.clicked.connect(self.compare_files)
         self.compare_btn.setEnabled(False)
         self.compare_btn.setMinimumHeight(44)
-        self.compare_btn.setStyleSheet("QPushButton { background: #d9e2ec; color: #829ab1; border: none; border-radius: 7px; font-size: 15px; font-weight: 700; padding: 10px; } QPushButton:enabled { background: #2f80ed; color: white; } QPushButton:enabled:hover { background: #1769aa; }")
+        self.compare_btn.setStyleSheet("""
+            QPushButton {
+                background: palette(button);
+                color: palette(button-text);
+                border: 1px solid palette(mid);
+                border-radius: 7px;
+                font-size: 15px;
+                font-weight: 700;
+                padding: 10px;
+            }
+            QPushButton:enabled:hover { background: palette(light); }
+            QPushButton:enabled:pressed { background: palette(midlight); }
+            QPushButton:enabled:focus { border-color: palette(highlight); }
+            QPushButton:disabled {
+                background: palette(midlight);
+                color: palette(dark);
+                border-color: palette(midlight);
+            }
+        """)
         main_layout.addWidget(self.compare_btn)
 
         result_layout = QHBoxLayout()
 
         for title in ["前者缺失", "后者缺失", "数量差异"]:
             group = QGroupBox()
-            group.setStyleSheet("QGroupBox { border: 1px solid #b8c4d0; border-radius: 8px; background: #ffffff; }")
+            group.setStyleSheet("QGroupBox { border: 1px solid palette(midlight); border-radius: 8px; background: palette(window); }")
             layout = QVBoxLayout(group)
             layout.setContentsMargins(10, 5, 10, 8)
             layout.setSpacing(4)
@@ -257,18 +275,17 @@ class App(QWidget):
             heading_font.setBold(True)
             heading_font.setStyleStrategy(QFont.StyleStrategy.PreferAntialias)
             heading.setFont(heading_font)
-            heading.setStyleSheet("color: #172b4d; background: transparent; border: none;")
+            heading.setStyleSheet("color: palette(window-text); background: transparent; border: none;")
             layout.addWidget(heading)
             text_edit = QTextEdit()
             text_edit.setReadOnly(True)
-            text_edit.setStyleSheet("font-size: 10pt; color: #243b53; border: none; background: #fbfcfe; padding: 6px;")
+            text_edit.setStyleSheet("font-size: 10pt; color: palette(text); border: 1px solid palette(midlight); border-radius: 7px; background: palette(window); padding: 6px;")
             layout.addWidget(text_edit)
             result_layout.addWidget(group)
             self.result_texts.append(text_edit)
 
         main_layout.addLayout(result_layout)
         self.setLayout(main_layout)
-        self.setStyleSheet("QWidget { background: #f4f7fb; }")
         self.center()
 
     def center(self):
@@ -282,8 +299,6 @@ class App(QWidget):
             self.file2 = file_path
         enabled = bool(self.file1 and self.file2)
         self.compare_btn.setEnabled(enabled)
-        self.compare_btn.setStyleSheet(
-            f"background: {'#0078d7' if enabled else '#e0e0e0'}; color: {'white' if enabled else '#666'}; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; padding: 10px;")
 
     def compare_files(self):
         try:

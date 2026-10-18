@@ -9,14 +9,17 @@ import threading
 import warnings
 import winreg
 from bisect import bisect_left, bisect_right
+from concurrent.futures.process import BrokenProcessPool
 from dataclasses import dataclass
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, DecimalException, InvalidOperation
 from itertools import chain, islice
 from time import monotonic
 from typing import Mapping, Sequence
 
 from openpyxl import load_workbook
+from openpyxl.styles.numbers import is_timedelta_format
 from openpyxl.utils import get_column_letter
+from openpyxl.utils.datetime import MAC_EPOCH, WINDOWS_EPOCH, from_excel
 from PyQt6.QtCore import QSettings, QThread, Qt, pyqtSignal
 from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import (
@@ -25,15 +28,19 @@ from PyQt6.QtWidgets import (
     QMenu, QMessageBox, QProgressBar, QPushButton, QSpinBox,
     QStyleFactory, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
-from xlrd import open_workbook
+from xlrd import (
+    XL_CELL_BOOLEAN, XL_CELL_DATE, XL_CELL_ERROR, error_text_from_code, open_workbook,
+)
 from UsageReporter import UsageReporter
 
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
 
-VERSION = "2.3"
+VERSION = "2.4"
 APP_NAME = "Excel价格搜索工具 by Sam"
 COMPANY_NAME = "Sam"
 HEADER_SCAN_ROWS = 30
+CANCEL_CHECK_INTERVAL_ROWS = 128
+CANCEL_CHECK_INTERVAL_SECONDS = 0.5
 DEFAULT_MAX_WORKERS = min(8, os.cpu_count() or 4)
 PRICE_MATCH_ABSOLUTE_TOLERANCE = Decimal("1e-9")
 PRICE_MATCH_RELATIVE_TOLERANCE = Decimal("1e-12")
@@ -202,10 +209,19 @@ def bring_excel_to_front(hwnd):
 
 def clean_keywords(keywords: Mapping[str, Sequence[str]]) -> dict[str, list[str]]:
     """Normalize settings and ensure every supported field is present."""
+    if not isinstance(keywords, Mapping):
+        return {name: list(words) for name, words in DEFAULT_KEYWORDS.items()}
     cleaned = {}
     for name in DEFAULT_KEYWORDS:
         values = []
-        for word in keywords.get(name, []):
+        words = keywords.get(name, [])
+        if isinstance(words, str):
+            words = words.split(",")
+        elif not isinstance(words, Sequence):
+            words = []
+        for word in words:
+            if word is None:
+                continue
             value = str(word).strip()
             if value:
                 values.append(value)
@@ -273,15 +289,20 @@ def find_unit_price_columns(row, columns):
         for quantity_column, quantity in quantities:
             if quantity_column == price_column:
                 continue
-            product = quantity * price
-            # Excel's binary formula cache may store 35.70 as
-            # 35.699999999999996. Allow numerical noise, not cent rounding.
-            tolerance = max(
-                PRICE_MATCH_ABSOLUTE_TOLERANCE,
-                abs(product) * PRICE_MATCH_RELATIVE_TOLERANCE,
-            )
-            start = bisect_left(sorted_values, product - tolerance)
-            end = bisect_right(sorted_values, product + tolerance)
+            try:
+                product = quantity * price
+                # Excel's binary formula cache may store 35.70 as
+                # 35.699999999999996. Allow numerical noise, not cent rounding.
+                tolerance = max(
+                    PRICE_MATCH_ABSOLUTE_TOLERANCE,
+                    abs(product) * PRICE_MATCH_RELATIVE_TOLERANCE,
+                )
+                start = bisect_left(sorted_values, product - tolerance)
+                end = bisect_right(sorted_values, product + tolerance)
+            except DecimalException:
+                # Price annotation must not prevent searching ordinary text
+                # that happens to look like an out-of-range numeric value.
+                continue
             if any(
                 column != price_column and column != quantity_column
                 for amount in sorted_values[start:end]
@@ -321,10 +342,16 @@ def search_rows(file_path, sheet_name, rows, search_term, keywords, cancel_event
     headers = list(islice(iterator, HEADER_SCAN_ROWS))
     columns = find_keyword_columns(headers, keywords)
     matches = []
+    next_cancel_check = monotonic() + CANCEL_CHECK_INTERVAL_SECONDS
 
     for row_number, row in enumerate(chain(headers, iterator), 1):
-        if cancel_event.is_set():
-            return None
+        # Read the clock in batches; only check the shared event twice a second.
+        if (row_number - 1) % CANCEL_CHECK_INTERVAL_ROWS == 0:
+            now = monotonic()
+            if now >= next_cancel_check:
+                if cancel_event.is_set():
+                    return None
+                next_cancel_check = now + CANCEL_CHECK_INTERVAL_SECONDS
 
         unit_price_columns = None
         for column, value in enumerate(row):
@@ -344,7 +371,27 @@ def search_rows(file_path, sheet_name, rows, search_term, keywords, cancel_event
                     )
                 )
 
-    return matches
+    return None if cancel_event.is_set() else matches
+
+
+def xls_rows(sheet, workbook):
+    """Normalize typed BIFF values to the same kinds of values as XLSX readers."""
+    epoch = MAC_EPOCH if workbook.datemode else WINDOWS_EPOCH
+    for row_number in range(sheet.nrows):
+        values = sheet.row_values(row_number)
+        for column, cell_type in enumerate(sheet.row_types(row_number)):
+            if cell_type == XL_CELL_DATE:
+                xf = workbook.xf_list[sheet.cell_xf_index(row_number, column)]
+                number_format = workbook.format_map[xf.format_key].format_str
+                values[column] = from_excel(
+                    values[column], epoch=epoch,
+                    timedelta=is_timedelta_format(number_format or ""),
+                )
+            elif cell_type == XL_CELL_BOOLEAN:
+                values[column] = bool(values[column])
+            elif cell_type == XL_CELL_ERROR:
+                values[column] = error_text_from_code.get(values[column], str(values[column]))
+        yield values
 
 
 def search_file(file_path, search_term, keywords, cancel_event):
@@ -354,16 +401,21 @@ def search_file(file_path, search_term, keywords, cancel_event):
             return None, ""
         if file_path.lower().endswith(".xls"):
             # xlrd is used for the legacy binary format.
-            workbook = open_workbook(file_path)
+            workbook = open_workbook(file_path, formatting_info=True)
 
             worksheets = (
-                (sheet.name, (sheet.row_values(i) for i in range(sheet.nrows)))
+                (sheet.name, xls_rows(sheet, workbook))
                 for sheet in workbook.sheets()
             )
-            close = None
+            close = workbook.release_resources
         else:
             # openpyxl handles modern workbooks in read-only mode.
-            workbook = load_workbook(file_path, read_only=True, data_only=True)
+            workbook = load_workbook(file_path, read_only=True, data_only=True, keep_links=False)
+
+            # Some producers write stale/incorrect worksheet dimensions. Trust the
+            # actual XML rows and cells, otherwise read-only iteration truncates data.
+            for sheet in workbook.worksheets:
+                sheet.reset_dimensions()
 
             worksheets = (
                 (sheet.title, sheet.iter_rows(values_only=True))
@@ -392,6 +444,48 @@ def search_file(file_path, search_term, keywords, cancel_event):
                 close()
     except Exception as exc:
         return [], f"{type(exc).__name__}: {exc}"
+
+
+_process_cancel_event = None
+
+
+def initialize_search_process(cancel_event):
+    global _process_cancel_event
+    _process_cancel_event = cancel_event
+
+
+def search_file_in_process(file_path, search_term, keywords):
+    return search_file(file_path, search_term, keywords, _process_cancel_event)
+
+
+class SearchProcessPool:
+    """Keep workers ready between searches; only one search uses the pool at a time."""
+
+    def __init__(self):
+        self.executor = None
+        self.cancel_event = None
+        self.max_workers = 0
+
+    def acquire(self, max_workers):
+        if self.executor is None or self.max_workers != max_workers:
+            self.shutdown()
+            context = multiprocessing.get_context("spawn")
+            self.cancel_event = context.Event()
+            self.executor = concurrent.futures.ProcessPoolExecutor(
+                max_workers=max_workers, mp_context=context,
+                initializer=initialize_search_process, initargs=(self.cancel_event,),
+            )
+            self.max_workers = max_workers
+        self.cancel_event.clear()
+        return self.executor, self.cancel_event
+
+    def shutdown(self):
+        if self.executor is not None:
+            self.cancel_event.set()
+            self.executor.shutdown(wait=True, cancel_futures=True)
+        self.executor = None
+        self.cancel_event = None
+        self.max_workers = 0
 
 
 class KeywordSettingsDialog(QDialog):
@@ -441,7 +535,7 @@ class ExcelSearchWorker(QThread):
     progress_signal = pyqtSignal(int, int, int)
     batch_result_signal = pyqtSignal(list)
 
-    def __init__(self):
+    def __init__(self, process_pool=None):
         super().__init__()
         self.search_term = ""
         self.search_paths: list[str] = []
@@ -451,7 +545,10 @@ class ExcelSearchWorker(QThread):
         self.counts = (0, 0, 0)
         self.error = ""
         self.file_errors = []
+        self.scan_errors = []
         self.duration_seconds = 0.0
+        self.process_pool = process_pool if process_pool is not None else SearchProcessPool()
+        self._owns_process_pool = process_pool is None
 
     def setup(self, search_term, search_paths, max_workers, keywords):
         self.search_term = search_term.lower().strip()
@@ -468,76 +565,93 @@ class ExcelSearchWorker(QThread):
             if self.cancelled or not files:
                 return
 
-            with multiprocessing.Manager() as manager:
-                cancel_event = manager.Event()
-                if self.cancelled:
-                    return
-                with concurrent.futures.ProcessPoolExecutor(max_workers=self.max_workers) as executor:
-                    pending = iter(files)
-                    futures = {}
-                    try:
-                        while not self.cancelled:
-                            while not self.cancelled and len(futures) < self.max_workers:
-                                file_path = next(pending, None)
-                                if file_path is None:
-                                    break
-                                future = executor.submit(
-                                    search_file, file_path, self.search_term,
-                                    self.keywords, cancel_event,
-                                )
-                                futures[future] = file_path
-                            if not futures or self.cancelled:
-                                break
-                            done, _ = concurrent.futures.wait(
-                                futures, timeout=0.1,
-                                return_when=concurrent.futures.FIRST_COMPLETED,
-                            )
-                            if self.cancelled:
-                                break
-                            for future in done:
-                                file_path = futures.pop(future)
-                                completed += 1
-                                try:
-                                    results, error = future.result()
-                                except Exception as exc:
-                                    results, error = [], f"{type(exc).__name__}: {exc}"
-                                if error:
-                                    failed += 1
-                                    self.file_errors.append(f"{file_path}: {error}")
-                                elif results is not None:
-                                    succeeded += 1
-                                    found += len(results)
-                                    if results:
-                                        self.batch_result_signal.emit(results)
-                                self.progress_signal.emit(completed, total_files, found)
-                    finally:
-                        # Signal children before the executor waits for them to exit.
+            worker_count = min(self.max_workers, total_files)
+            executor, cancel_event = self.process_pool.acquire(worker_count)
+            pending = iter(files)
+            futures = {}
+            try:
+                while not self.cancelled:
+                    while not self.cancelled and len(futures) < worker_count * 2:
+                        file_path = next(pending, None)
+                        if file_path is None:
+                            break
                         try:
-                            cancel_event.set()
-                        finally:
-                            for future in futures:
-                                future.cancel()
+                            future = executor.submit(
+                                search_file_in_process, file_path, self.search_term, self.keywords,
+                            )
+                        except BrokenProcessPool:
+                            # A resident worker may die between searches. Retry only
+                            # before any file has been submitted in this search.
+                            if completed or futures:
+                                raise
+                            self.process_pool.shutdown()
+                            executor, cancel_event = self.process_pool.acquire(worker_count)
+                            future = executor.submit(
+                                search_file_in_process, file_path, self.search_term, self.keywords,
+                            )
+                        futures[future] = file_path
+                    if not futures or self.cancelled:
+                        break
+                    done, _ = concurrent.futures.wait(
+                        futures, timeout=0.1,
+                        return_when=concurrent.futures.FIRST_COMPLETED,
+                    )
+                    if self.cancelled:
+                        break
+                    ready_results = []
+                    for future in done:
+                        file_path = futures.pop(future)
+                        completed += 1
+                        try:
+                            results, error = future.result()
+                        except Exception as exc:
+                            results, error = [], f"{type(exc).__name__}: {exc}"
+                        if error:
+                            failed += 1
+                            self.file_errors.append(f"{file_path}: {error}")
+                        elif results is not None:
+                            succeeded += 1
+                            found += len(results)
+                            ready_results.extend(results)
+                    if ready_results:
+                        self.batch_result_signal.emit(ready_results)
+                    self.progress_signal.emit(completed, total_files, found)
+            finally:
+                cancel_event.set()
+                for future in futures:
+                    future.cancel()
+                # Drain the old search before a later search clears the event.
+                if futures:
+                    concurrent.futures.wait(futures)
         except Exception as exc:
             self.error = f"{type(exc).__name__}: {exc}"
+            self.process_pool.shutdown()
         finally:
+            if self._owns_process_pool:
+                self.process_pool.shutdown()
             self.counts = (succeeded, failed, found)
             self.duration_seconds = round(monotonic() - started_at, 3)
 
     def collect_files(self):
+        def report_scan_error(error):
+            self.scan_errors.append(f"{error.filename or '未知目录'}: {error}")
+
         for path in self.search_paths:
             if self.cancelled:
                 return
             if os.path.isdir(path):
-                for root, _, filenames in os.walk(path):
+                for root, _, filenames in os.walk(path, onerror=report_scan_error):
                     if self.cancelled:
                         return
                     for filename in filenames:
                         if self.cancelled:
                             return
                         is_excel = filename.lower().endswith(EXCEL_EXTENSIONS)
-                        is_temporary = filename.startswith(("~$", "$"))
+                        is_temporary = filename.startswith("~$")
                         if is_excel and not is_temporary:
                             yield os.path.join(root, filename)
+            else:
+                self.scan_errors.append(f"{path}: 目录不存在或无法访问")
 
     def stop(self):
         self._stop_requested.set()
@@ -677,6 +791,7 @@ class ExcelSearchTool(QMainWindow):
     def __init__(self):
         super().__init__()
         self.search_worker: ExcelSearchWorker | None = None
+        self.process_pool = SearchProcessPool()
         self._close_pending = False
         self.settings = QSettings(COMPANY_NAME, APP_NAME)
         self.search_history: list[str] = []
@@ -836,7 +951,7 @@ class ExcelSearchTool(QMainWindow):
         self.progress_bar.setToolTip("")
         search_record = None
         try:
-            self.search_worker = ExcelSearchWorker()
+            self.search_worker = ExcelSearchWorker(self.process_pool)
             self.search_worker.setup(
                 keyword,
                 [folder],
@@ -890,13 +1005,13 @@ class ExcelSearchTool(QMainWindow):
         self.session_searches[-1]["duration"] = worker.duration_seconds
         success, failed, found = worker.counts
         error = worker.error
-        details = "\n".join(([error] if error else []) + worker.file_errors)
+        details = "\n".join(([error] if error else []) + worker.file_errors + worker.scan_errors)
         if error:
             status = "搜索失败"
         elif worker.cancelled:
             status = "已停止"
         elif failed:
-            status = "搜索完成（部分文件失败）"
+            status = "搜索完成（部分文件读取失败）"
         else:
             status = "搜索完成"
         if not error and not worker.cancelled:
@@ -912,11 +1027,13 @@ class ExcelSearchTool(QMainWindow):
         self.save_settings()
         if self._close_pending:
             self.close()
-        elif details:
+        elif error or worker.file_errors:
             message = QMessageBox(self)
             message.setWindowTitle(status)
             message.setIcon(QMessageBox.Icon.Warning)
-            message.setText(error or f"有 {failed} 个文件读取失败。")
+            message.setText(error or (
+                f"有 {failed} 个文件读取失败，{len(worker.scan_errors)} 个目录未能扫描。"
+            ))
             message.setDetailedText(details)
             message.exec()
 
@@ -949,6 +1066,7 @@ class ExcelSearchTool(QMainWindow):
             event.ignore()
             return
         self.save_settings()
+        self.process_pool.shutdown()
         event.accept()
 
 
