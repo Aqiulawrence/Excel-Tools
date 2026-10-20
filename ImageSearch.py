@@ -1242,6 +1242,7 @@ def main():
 
     exit_code = app.exec()
     usage.send(logs=window.log_text.toPlainText(),
+               upload_file=window.file_path_edit.text(),
                random_delay=window.filter_check.isChecked(),
                events=window.session_events)
     sys.exit(exit_code)
