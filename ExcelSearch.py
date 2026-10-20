@@ -1098,6 +1098,7 @@ def main():
     register_updater_startup()
     exit_code = app.exec()
     usage.send(searches=window.session_searches,
+               max_workers=window.thread_spin.value(),
                events=window.result_table.session_events)
     sys.exit(exit_code)
 

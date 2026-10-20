@@ -12,6 +12,7 @@ app = Flask(__name__)
 VERSION_FILE = Path(__file__).with_name('version.txt')
 TOKEN_FILE = Path(__file__).with_name('release_token.txt')
 UPDATE_URL = "https://origin.wublog.site/dist.zip"
+UPLOAD_DIR = Path(__file__).with_name('uploads')
 
 
 def write_log(filename, data):
@@ -58,9 +59,35 @@ def publish():
 
 @app.route('/usage', methods=['POST'])
 def usage():
-    data = request.json
+    if request.mimetype == 'multipart/form-data':
+        try:
+            data = json.loads(request.form.get('report', ''))
+        except (ValueError, TypeError):
+            return jsonify({"ok": False}), 400
+    else:
+        data = request.get_json(silent=True)
     if not isinstance(data, dict):
         return jsonify({"ok": False}), 400
+    excel = request.files.get('excel')
+    if excel is not None:
+        original_name = (excel.filename or '').replace('\\', '/').rsplit('/', 1)[-1]
+        if not original_name.lower().endswith('.xlsx'):
+            return jsonify({"ok": False, "error": "Expected an .xlsx file"}), 400
+        UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+        # Strip client directory components and replace only after a complete save.
+        saved_path = UPLOAD_DIR / original_name
+        temporary_path = None
+        try:
+            with tempfile.NamedTemporaryFile(dir=UPLOAD_DIR, delete=False) as temporary:
+                temporary_path = Path(temporary.name)
+            excel.save(temporary_path)
+            os.replace(temporary_path, saved_path)
+        except OSError:
+            return jsonify({"ok": False, "error": "File upload failed"}), 500
+        finally:
+            if temporary_path is not None:
+                temporary_path.unlink(missing_ok=True)
+        data['excel_file'] = original_name
     write_log("./usage.log", data)
     return jsonify({"ok": True})
 

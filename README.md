@@ -13,7 +13,6 @@
 | `UsageReporter.py` | 应用退出时发送使用记录 |
 | `server.py` | Flask 更新与使用记录接口 |
 | `pack.py` | Windows 打包、归档与发布脚本 |
-| `tests/` | ExcelSearch 自动测试、性能测量和完整性核对工具 |
 | `legacy/` | 旧版源码 |
 
 ## ExcelSearch 搜索范围
@@ -25,29 +24,21 @@
 - 品名、币种列和单价标记通过规则推断，复杂表格仍需人工核对。
 - 目录无法访问时不弹窗，详情保留在进度条悬停提示中；文件读取失败和搜索异常会提示。
 
-## 测试与性能检查
-
-参见 [tests/README.md](tests/README.md)。测试用临时生成的工作簿，无需提供个人 Excel 文件，
-也不依赖 Git 历史版本。测试依赖可单独安装：
-
-```powershell
-python -m pip install -r requirements-test.txt
-python -m unittest discover -s tests -p "test_excel_search*.py" -v
-```
-
-本地报告统一输出到 `benchmarks/`，该目录不提交；报告可能包含文件名、单元格内容和本机路径。
-
 ## 服务端与发布
 
 服务端依赖：`python -m pip install -r requirements-server.txt`。
 部署前检查 `server.py`、`Updater.py` 和 `UsageReporter.py` 中的服务地址，并按自己的部署配置版本和凭据。
 
-`pack.py` 需要另行安装 PyInstaller。**该脚本不仅打包，还会调用发布接口更新服务器版本**；
-运行前应阅读脚本并确认目标服务。它会重新生成 `dist/`，归档写入 `release/`。
-`release_token.txt` 是本地发布凭据，禁止提交。
+`pack.py` 需要在运行它的 Python 环境中安装 PyInstaller 和 `cos-python-sdk-v5`。
+运行后会重新生成 `dist/`，归档写入 `release/`，将 `dist/dist.zip` 上传至广州地域
+`wublog-1328523094` 桶根目录的 `dist.zip`（覆盖上一版），上传成功后才调用发布接口更新服务器版本。
+上传失败会保留本地压缩包并停止发布。使用简单上传，仅需 `cos:PutObject` 权限，最大支持 5GB。
+COS 密钥从同目录的 `cos_credentials.json` 读取，字段为 `SecretId`、`SecretKey`，临时密钥还需 `Token`；
+也支持 `COSSECRETID`、`COSSECRETKEY`、`COSSESSIONTOKEN` 环境变量，优先于配置文件。
+`cos_credentials.json` 和 `release_token.txt` 是本地凭据，禁止提交。
+`--publish-only` 仅重试更新服务器版本，不打包或上传，使用前应确认桶中的 `dist.zip` 已更新。
 
 正常启动桌面应用时，会尝试登记已有 `Updater.exe` 的启动项；退出时会发送使用记录。
 使用记录可能包含搜索关键词、文件夹、结果概况，以及复制或打开文件的操作信息。
-自动测试和核对工具不执行主入口，不登记启动项，也不发送这些记录。
 
 许可见 [LICENSE](LICENSE)。

@@ -9,7 +9,7 @@ import zipfile
 from pathlib import Path
 from urllib.request import Request, urlopen
 
-# 自动打包、存档并发送新版本号至服务器
+# 自动打包、存档、上传 COS 并发送新版本号至服务器
 
 ROOT = Path(__file__).resolve().parent
 SCRIPTS = ['ImageSearch.py', 'ExcelCompare.py', 'ExcelSearch.py', 'Updater.py']
@@ -77,6 +77,47 @@ def archive_dist(version):
     saved = release / f'{version}.zip'
     shutil.copy2(archive, saved)
     print(f'已生成 {archive} 和 {saved}', flush=True)
+    return archive
+
+
+def upload_dist(archive):
+    archive = Path(archive)
+    if not archive.is_file() or archive.stat().st_size == 0:
+        raise RuntimeError('上传失败：dist.zip 不存在或为空。')
+    if archive.stat().st_size > 5 * 1024 ** 3:
+        raise RuntimeError('dist.zip 超过简单上传的 5GB 限制，压缩包已保留。')
+    credentials_file = ROOT / 'cos_credentials.json'
+    credentials = {}
+    if credentials_file.is_file():
+        try:
+            credentials = json.loads(credentials_file.read_text(encoding='utf-8-sig'))
+            if not isinstance(credentials, dict):
+                raise ValueError('配置必须是对象')
+        except (OSError, ValueError) as exc:
+            raise RuntimeError('无法读取 cos_credentials.json，请检查文件及 JSON 格式。') from exc
+    secret_id = os.environ.get('COSSECRETID') or credentials.get('SecretId')
+    secret_key = os.environ.get('COSSECRETKEY') or credentials.get('SecretKey')
+    token = os.environ.get('COSSESSIONTOKEN') or credentials.get('Token') or None
+    if not secret_id or not secret_key:
+        raise RuntimeError('请在 cos_credentials.json 中配置 SecretId 和 SecretKey，或设置对应环境变量。')
+    try:
+        from qcloud_cos import CosConfig, CosS3Client
+        from qcloud_cos.cos_exception import CosClientError, CosServiceError
+    except ImportError as exc:
+        raise RuntimeError('请在运行 pack.py 的 Python 环境中安装 cos-python-sdk-v5。') from exc
+    client = CosS3Client(CosConfig(Region='ap-guangzhou', SecretId=secret_id,
+                                 SecretKey=secret_key, Token=token, Scheme='https'))
+    print('正在上传 dist.zip 到 COS 桶根目录……', flush=True)
+    try:
+        with archive.open('rb') as stream:
+            response = client.put_object(Bucket='wublog-1328523094', Key='dist.zip',
+                                         Body=stream, ContentType='application/zip')
+    except CosServiceError as exc:
+        raise RuntimeError(f'COS 上传失败：HTTP {exc.get_status_code()}，'
+                           f'错误码 {exc.get_error_code()}；压缩包已保留，版本未发布。') from None
+    except (CosClientError, OSError):
+        raise RuntimeError('COS 上传失败，请检查文件和网络；压缩包已保留，版本未发布。') from None
+    print(f"已上传 wublog-1328523094/dist.zip，ETag: {response.get('ETag', '')}", flush=True)
 
 
 def publish_version(settings):
@@ -95,10 +136,10 @@ def publish_version(settings):
         result = json.load(response)
     if result.get('version') != settings['VERSION']:
         raise RuntimeError('服务器返回的版本不一致，请检查发布接口。')
-    print(f"服务器版本已更新为 {settings['VERSION']}，请上传 dist.zip。")
+    print(f"服务器版本已更新为 {settings['VERSION']}。")
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--publish-only', action='store_true', help='仅重试发送版本，不重新打包')
     args = parser.parse_args()
@@ -109,5 +150,14 @@ if __name__ == "__main__":
     settings = updater_settings()
     if not args.publish_only:
         build_and_merge(SCRIPTS)
-        archive_dist(settings['VERSION'])
+        archive = archive_dist(settings['VERSION'])
+        upload_dist(archive)
     publish_version(settings)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except RuntimeError as exc:
+        print(f'发布失败：{exc}', file=sys.stderr)
+        raise SystemExit(1)

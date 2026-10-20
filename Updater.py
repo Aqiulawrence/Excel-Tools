@@ -10,13 +10,11 @@ import zipfile
 import winreg
 import msvcrt
 
-VERSION = "v3.4.0"
+VERSION = "v3.5.0"
 SERVER_URL = "http://www.wublog.site/update"
 APP_NAME = "Excel-Tools"
 UPDATE_ZIP = "update.zip"
 CHANGE_LOG = """
-1. 显著提升了Excel搜索的速度。
-2. 修改了ExcelCompare.py的界面配色。
 """
 
 # python Updater.py --apply-update "D:\temp" "D:\Excel-Tools\release"

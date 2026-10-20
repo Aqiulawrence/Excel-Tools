@@ -4,3 +4,4 @@
 build
 __pycache__
 release_token.txt
+cos_credentials.json
