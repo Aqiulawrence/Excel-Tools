@@ -12,7 +12,7 @@
 | `Updater.py` | 客户端更新程序 |
 | `UsageReporter.py` | 应用退出时发送使用记录 |
 | `server.py` | Flask 更新与使用记录接口 |
-| `pack.py` | Windows 打包、归档与发布脚本 |
+| `release.py` | Windows 打包、归档与发布脚本 |
 | `legacy/` | 旧版源码 |
 
 ## ExcelSearch 搜索范围
@@ -29,7 +29,7 @@
 服务端依赖：`python -m pip install -r requirements-server.txt`。
 部署前检查 `server.py`、`Updater.py` 和 `UsageReporter.py` 中的服务地址，并按自己的部署配置版本和凭据。
 
-`pack.py` 需要在运行它的 Python 环境中安装 PyInstaller 和 `cos-python-sdk-v5`。
+`release.py` 需要在运行它的 Python 环境中安装 PyInstaller 和 `cos-python-sdk-v5`。
 运行后会重新生成 `dist/`，归档写入 `release/`，将 `dist/dist.zip` 上传至广州地域
 `wublog-1328523094` 桶根目录的 `dist.zip`（覆盖上一版），上传成功后才调用发布接口更新服务器版本。
 上传失败会保留本地压缩包并停止发布。使用简单上传，仅需 `cos:PutObject` 权限，最大支持 5GB。
