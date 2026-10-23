@@ -340,7 +340,7 @@ def search_rows(file_path, sheet_name, rows, search_term, keywords, cancel_event
     # Headers are normally near the top. A bounded scan avoids treating a
     # matching value deep in the sheet as a column header.
     headers = list(islice(iterator, HEADER_SCAN_ROWS))
-    columns = find_keyword_columns(headers, keywords)
+    columns = None
     matches = []
     next_cancel_check = monotonic() + CANCEL_CHECK_INTERVAL_SECONDS
 
@@ -356,6 +356,8 @@ def search_rows(file_path, sheet_name, rows, search_term, keywords, cancel_event
         unit_price_columns = None
         for column, value in enumerate(row):
             if value is not None and search_term in str(value).lower():
+                if columns is None:
+                    columns = find_keyword_columns(headers, keywords)
                 if unit_price_columns is None:
                     unit_price_columns = find_unit_price_columns(row, columns)
                 matches.append(
