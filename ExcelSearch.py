@@ -4,6 +4,7 @@ import concurrent.futures
 import json
 import multiprocessing
 import os
+import re
 import sys
 import threading
 import warnings
@@ -20,28 +21,32 @@ from openpyxl import load_workbook
 from openpyxl.styles.numbers import is_timedelta_format
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.datetime import MAC_EPOCH, WINDOWS_EPOCH, from_excel
-from PyQt6.QtCore import QSettings, QThread, Qt, pyqtSignal
+from PyQt6.QtCore import QObject, QSettings, QThread, QTimer, Qt, pyqtSignal
 from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import (
-    QApplication, QDialog, QDialogButtonBox, QFileDialog, QFormLayout,
+    QApplication, QComboBox, QDialog, QDialogButtonBox, QFileDialog, QFormLayout,
     QGroupBox, QHBoxLayout, QHeaderView, QLabel, QLineEdit, QMainWindow,
-    QMenu, QMessageBox, QProgressBar, QPushButton, QSpinBox,
+    QMenu, QMessageBox, QProgressBar, QPushButton,
     QStyleFactory, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 from xlrd import (
     XL_CELL_BOOLEAN, XL_CELL_DATE, XL_CELL_ERROR, error_text_from_code, open_workbook,
 )
 from UsageReporter import UsageReporter
+from ExcelSearchBenchmark import (
+    Cancelled, DEFAULT_DATABASE, LiveIndexService, StopToken,
+    check_cancel, inventory, path_key,
+)
 
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
 
-VERSION = "2.4"
+VERSION = "3.0"
 APP_NAME = "Excel价格搜索工具 by Sam"
 COMPANY_NAME = "Sam"
 HEADER_SCAN_ROWS = 30
 CANCEL_CHECK_INTERVAL_ROWS = 128
 CANCEL_CHECK_INTERVAL_SECONDS = 0.5
-DEFAULT_MAX_WORKERS = min(8, os.cpu_count() or 4)
+DEFAULT_MAX_WORKERS = 12
 PRICE_MATCH_ABSOLUTE_TOLERANCE = Decimal("1e-9")
 PRICE_MATCH_RELATIVE_TOLERANCE = Decimal("1e-12")
 EXCEL_EXTENSIONS = (".xls", ".xlsx", ".xlsm")
@@ -571,6 +576,9 @@ class ExcelSearchWorker(QThread):
             executor, cancel_event = self.process_pool.acquire(worker_count)
             pending = iter(files)
             futures = {}
+            positions = {path: position for position, path in enumerate(files)}
+            ready_files = {}
+            next_position = 0
             try:
                 while not self.cancelled:
                     while not self.cancelled and len(futures) < worker_count * 2:
@@ -613,9 +621,14 @@ class ExcelSearchWorker(QThread):
                             self.file_errors.append(f"{file_path}: {error}")
                         elif results is not None:
                             succeeded += 1
-                            found += len(results)
-                            ready_results.extend(results)
+                        ready_files[positions[file_path]] = results or []
+                    # Workers may finish out of order; publish in the same
+                    # file/sheet/row/column order as the index query.
+                    while next_position in ready_files:
+                        ready_results.extend(ready_files.pop(next_position))
+                        next_position += 1
                     if ready_results:
+                        found += len(ready_results)
                         self.batch_result_signal.emit(ready_results)
                     self.progress_signal.emit(completed, total_files, found)
             finally:
@@ -635,25 +648,21 @@ class ExcelSearchWorker(QThread):
             self.duration_seconds = round(monotonic() - started_at, 3)
 
     def collect_files(self):
-        def report_scan_error(error):
-            self.scan_errors.append(f"{error.filename or '未知目录'}: {error}")
-
+        seen = set()
         for path in self.search_paths:
             if self.cancelled:
                 return
-            if os.path.isdir(path):
-                for root, _, filenames in os.walk(path, onerror=report_scan_error):
-                    if self.cancelled:
-                        return
-                    for filename in filenames:
-                        if self.cancelled:
-                            return
-                        is_excel = filename.lower().endswith(EXCEL_EXTENSIONS)
-                        is_temporary = filename.startswith("~$")
-                        if is_excel and not is_temporary:
-                            yield os.path.join(root, filename)
-            else:
-                self.scan_errors.append(f"{path}: 目录不存在或无法访问")
+            try:
+                snapshot = inventory(path, self._stop_requested)
+            except Cancelled:
+                return
+            self.scan_errors.extend(snapshot.warnings)
+            for source in snapshot.sources:
+                if self.cancelled:
+                    return
+                if source.key not in seen:
+                    seen.add(source.key)
+                    yield source.path
 
     def stop(self):
         self._stop_requested.set()
@@ -661,6 +670,216 @@ class ExcelSearchWorker(QThread):
     @property
     def cancelled(self):
         return self._stop_requested.is_set()
+
+
+class ExcelLiveIndexService(LiveIndexService):
+    """Reuse the benchmark lifecycle; adapt only query output for the main UI."""
+
+    def log(self, text):
+        # Expose useful work progress, never raw benchmark diagnostics.
+        if text.startswith("扫描文件夹并检查增量变化"):
+            self.emit("progress", ("正在扫描文件夹…", 0, 0))
+        elif match := re.match(r"目录扫描中：(\d+) 个目录，已发现 (\d+) 个 Excel 文件", text):
+            self.emit("progress", (
+                f"正在扫描：{match[1]} 个文件夹，已发现 {match[2]} 个 Excel 文件", 0, 0))
+        elif match := re.match(r"发现 (\d+) 个 Excel 文件", text):
+            total = int(match[1])
+            self.emit("progress", (f"已发现 {total} 个 Excel 文件，正在检查更新…", 0, total))
+        elif match := re.match(r"处理进度：(\d+)/(\d+)，已用 ([\d.]+) 秒", text):
+            current, total = int(match[1]), int(match[2])
+            percentage = int(current / total * 100) if total else 0
+            self.emit("progress", (
+                f"正在更新索引：{current}/{total} 个文件（{percentage}%），已用 {match[3]} 秒", current, total))
+        elif match := re.match(r"后台增量更新：处理 (\d+) 个 Excel 路径", text):
+            total = int(match[1])
+            self.emit("progress", (f"已更新 {total} 个文件", total, total))
+
+    def state(self, text):
+        super().state(text)
+        if text.startswith("持续监听中") and self.last_report is not None:
+            report = self.last_report
+            total = report["counts"]["files"]
+            failed = report["skipped"]
+            suffix = f"，{failed} 个文件暂时无法读取" if failed else ""
+            self.emit("progress", (f"就绪：可搜索 {total} 个文件{suffix}", total, total))
+
+    def _synchronize(self, force=False):
+        prepared = super()._synchronize(force)
+        # The main UI needs row/header context, which the benchmark does not show.
+        # This secondary index avoids scanning a whole workbook for each hit row.
+        self.engine.connection.execute(
+            "CREATE INDEX IF NOT EXISTS es3_cells_location "
+            "ON es3_cells(file_id,sheet_name,row_number,column_number)"
+        )
+        self.engine.connection.commit()
+        return prepared
+
+    def _execute(self, action, options):
+        cancel = options.get("search_cancel", self.operation_cancel)
+        original_cancel = self.engine.cancel
+        try:
+            check_cancel(cancel)
+            return self._execute_search(action, options, cancel)
+        except Cancelled:
+            # Only shutdown cancels the index lifecycle. A cancelled search
+            # returns normally so the inherited loop keeps applying changes.
+            if self.shutdown.is_set():
+                raise
+            return "本次搜索已停止。"
+        finally:
+            self.engine.cancel = original_cancel
+
+    def _execute_search(self, action, options, cancel):
+        started = monotonic()
+        prepared = self._synchronize(force=action == "build")
+        check_cancel(cancel)
+        self.engine.cancel = cancel
+        self.log(f"搜索前监听同步等待 {(monotonic() - started) * 1000:.3f} ms；日常查询不遍历整盘。")
+        connection = self.engine.connection
+        connection.execute("BEGIN")
+        try:
+            file_errors = [f"{row[0]}: {row[1]}" for row in connection.execute(
+                "SELECT path,error FROM es3_files WHERE root_key=? AND status!='ok' ORDER BY path_key",
+                (path_key(self.folder),),
+            )]
+            found = 0
+            backend = ""
+            if action != "build":
+                self.emit("progress", ("正在搜索…", 0, 0))
+                matches, backend = self.engine.search(self.folder, options["term"], limit=None)
+                self.emit("progress", (f"已找到 {matches.count} 条，正在整理结果…", 0, matches.count))
+                previous_sheet = previous_row = None
+                columns = row = unit_prices = None
+                batch = []
+                connection.set_progress_handler(lambda: int(cancel.is_set()), 2000)
+                try:
+                    for path, sheet, number, column, value in matches.preview:
+                        check_cancel(cancel)
+                        if previous_sheet != (path, sheet):
+                            header_rows = {}
+                            for cell in connection.execute(
+                                "SELECT c.row_number,c.column_number,c.value FROM es3_cells c "
+                                "JOIN es3_files f ON f.id=c.file_id "
+                                "WHERE f.root_key=? AND f.path_key=? AND c.sheet_name=? AND c.row_number<=? "
+                                "ORDER BY c.row_number,c.column_number",
+                                (path_key(self.folder), path_key(path), sheet, HEADER_SCAN_ROWS),
+                            ):
+                                values = header_rows.setdefault(cell[0], [])
+                                values.extend([None] * (cell[1] - len(values)))
+                                values[cell[1] - 1] = cell[2]
+                            columns = find_keyword_columns(header_rows.values(), options["keywords"])
+                            previous_sheet = (path, sheet)
+                        if previous_row != (path, sheet, number):
+                            row = []
+                            for cell in connection.execute(
+                                "SELECT c.column_number,c.value FROM es3_cells c "
+                                "JOIN es3_files f ON f.id=c.file_id "
+                                "WHERE f.root_key=? AND f.path_key=? AND c.sheet_name=? AND c.row_number=? "
+                                "ORDER BY c.column_number",
+                                (path_key(self.folder), path_key(path), sheet, number),
+                            ):
+                                row.extend([None] * (cell[0] - len(row)))
+                                row[cell[0] - 1] = cell[1]
+                            unit_prices = find_unit_price_columns(row, columns)
+                            previous_row = (path, sheet, number)
+                        batch.append(build_result(path, sheet, number, column - 1, value, row, columns, unit_prices))
+                        if len(batch) >= 500:
+                            found += len(batch)
+                            self.emit_search_batch(options, batch)
+                            self.emit("progress", (
+                                f"正在显示结果：{found}/{matches.count} 条", found, matches.count))
+                            batch = []
+                    check_cancel(cancel)
+                    if batch:
+                        found += len(batch)
+                        self.emit_search_batch(options, batch)
+                except Exception:
+                    check_cancel(cancel)
+                    raise
+                finally:
+                    connection.set_progress_handler(None, 0)
+            with self.condition:
+                changing = bool(self.pending) or self.rescan
+            if changing:
+                self.log("查询期间又收到文件变化；本次结果对应同步完成时的索引快照，后台将继续更新。")
+            return {"counts": (prepared["counts"]["files"], prepared["skipped"], found),
+                    "file_errors": file_errors, "backend": backend}
+        finally:
+            connection.rollback()
+
+    def emit_search_batch(self, options, batch):
+        if "search_cancel" in options:
+            self.emit("search_batch", (options["search_cancel"], batch))
+        else:
+            self.emit("batch", batch)
+
+
+class ExcelIndexSearchTask(QObject):
+    """UI-side request; SQLite and watcher work stay on the benchmark service thread."""
+
+    progress_signal = pyqtSignal(int, int, int)
+    batch_result_signal = pyqtSignal(list)
+    finished = pyqtSignal()
+
+    def __init__(self, enqueue, action="search"):
+        super().__init__()
+        self.enqueue = enqueue
+        self.action = action
+        self.service = None
+        self._stop_requested = False
+        self.search_cancel = StopToken(threading.Event())
+        self._finished = False
+        self.counts = (0, 0, 0)
+        self.error = ""
+        self.file_errors = []
+        self.scan_errors = []
+        self.duration_seconds = 0.0
+
+    def setup(self, search_term, search_paths, max_workers, keywords):
+        self.search_term = search_term.lower().strip()
+        self.search_paths = list(search_paths)
+        self.keywords = clean_keywords(keywords)
+
+    def start(self):
+        self.started_at = monotonic()
+        self.enqueue(self)
+
+    def dispatch(self, service):
+        if self.cancelled or self._finished:
+            return
+        self.service = service
+        self.search_cancel.shutdown = service.shutdown
+        service.request(self.action, term=self.search_term, keywords=self.keywords,
+                        search_cancel=self.search_cancel)
+
+    def complete(self, outcome):
+        if self._finished:
+            return
+        self._finished = True
+        self.duration_seconds = round(monotonic() - self.started_at, 3)
+        if isinstance(outcome, dict):
+            self.counts = outcome["counts"]
+            self.file_errors = outcome["file_errors"]
+        elif not self.cancelled:
+            self.error = str(outcome)
+        self.finished.emit()
+
+    def add_batch(self, results):
+        if not self.cancelled and not self._finished:
+            success, failed, found = self.counts
+            self.counts = (success, failed, found + len(results))
+            self.batch_result_signal.emit(results)
+
+    def stop(self):
+        if self._finished:
+            return
+        self._stop_requested = True
+        self.search_cancel.set()
+        self.complete(None)
+
+    @property
+    def cancelled(self):
+        return self._stop_requested
 
 
 class ResultTableWidget(QTableWidget):
@@ -790,11 +1009,27 @@ class ResultTableWidget(QTableWidget):
 
 
 class ExcelSearchTool(QMainWindow):
+    index_event_signal = pyqtSignal(int, str, object)
+
     def __init__(self):
         super().__init__()
-        self.search_worker: ExcelSearchWorker | None = None
+        self.search_worker: ExcelSearchWorker | ExcelIndexSearchTask | None = None
         self.process_pool = SearchProcessPool()
         self._close_pending = False
+        self.index_service = None
+        self.index_generation = 0
+        self.index_database = DEFAULT_DATABASE
+        self.index_state = "正在准备搜索…"
+        self.index_progress = (self.index_state, 0, 0)
+        self._keep_search_summary = False
+        self._queued_index_task = None
+        self._index_restart_timer = QTimer(self)
+        self._index_restart_timer.setSingleShot(True)
+        self._index_restart_timer.timeout.connect(self.restart_index_service)
+        self._index_close_timer = QTimer(self)
+        self._index_close_timer.setInterval(80)
+        self._index_close_timer.timeout.connect(self.finish_pending_close)
+        self.index_event_signal.connect(self.handle_index_event, Qt.ConnectionType.QueuedConnection)
         self.settings = QSettings(COMPANY_NAME, APP_NAME)
         self.search_history: list[str] = []
         self.session_searches: list[dict[str, str | float]] = []
@@ -803,7 +1038,11 @@ class ExcelSearchTool(QMainWindow):
         self.resize(700, 550)
         self.init_ui()
         self.load_settings()
+        self.search_mode_combo.currentIndexChanged.connect(self.search_mode_changed)
+        self.search_mode_changed()
         self.center_window()
+        self.folder_input.textChanged.connect(self.schedule_index_service)
+        self.schedule_index_service(delay=0)
 
     def init_ui(self):
         central = QWidget()
@@ -858,20 +1097,21 @@ class ExcelSearchTool(QMainWindow):
         self.folder_input.setReadOnly(True)
         row.addWidget(self.folder_input)
 
-        folder_button = QPushButton("选择文件夹")
-        folder_button.clicked.connect(self.select_folder)
-        row.addWidget(folder_button)
+        self.folder_button = QPushButton("选择文件夹")
+        self.folder_button.clicked.connect(self.select_folder)
+        row.addWidget(self.folder_button)
 
         return row
 
     def create_action_row(self):
         row = QHBoxLayout()
-        row.addWidget(QLabel("并发文件数"))
+        row.addWidget(QLabel("搜索方式"))
 
-        self.thread_spin = QSpinBox()
-        self.thread_spin.setRange(1, 16)
-        self.thread_spin.setValue(DEFAULT_MAX_WORKERS)
-        row.addWidget(self.thread_spin)
+        self.search_mode_combo = QComboBox()
+        self.search_mode_combo.addItem("索引搜索", "index")
+        self.search_mode_combo.addItem("常规搜索", "regular")
+        self.search_mode_combo.setToolTip("推荐使用索引搜索")
+        row.addWidget(self.search_mode_combo)
         row.addStretch()
 
         self.search_btn = QPushButton("开始搜索")
@@ -893,12 +1133,12 @@ class ExcelSearchTool(QMainWindow):
         if path := self.settings.value("last_search_path", ""):
             if os.path.isdir(path):
                 self.folder_input.setText(path)
-        thread_count = self.settings.value(
-            "thread_count",
-            DEFAULT_MAX_WORKERS,
-            type=int,
-        )
-        self.thread_spin.setValue(thread_count)
+        mode = self.search_mode_combo.findData(self.settings.value("search_mode", "index"))
+        self.search_mode_combo.setCurrentIndex(max(0, mode))
+        # Preserve the old concurrency preference for the unchanged scan engine.
+        self.regular_max_workers = max(1, min(16, self.settings.value(
+            "thread_count", DEFAULT_MAX_WORKERS, type=int,
+        )))
         self.search_history = list(self.settings.value("search_history", []))
 
         try:
@@ -910,12 +1150,130 @@ class ExcelSearchTool(QMainWindow):
             pass
 
     def save_settings(self):
-        self.settings.setValue("thread_count", self.thread_spin.value())
+        self.settings.setValue("search_mode", self.search_mode_combo.currentData())
         self.settings.setValue("search_history", self.search_history[-20:])
         self.settings.setValue(
             "custom_keywords",
             json.dumps(self.custom_keywords, ensure_ascii=False),
         )
+
+    def schedule_index_service(self, *args, delay=400):
+        if self._close_pending:
+            return
+        if self.search_worker is None:
+            self.result_table.clear_results()
+        self._keep_search_summary = False
+        self.index_generation += 1
+        self._index_restart_timer.stop()
+        if self.index_service is not None:
+            self.index_service.stop()
+        self.set_index_state("正在准备搜索…")
+        self._index_restart_timer.start(delay)
+
+    def restart_index_service(self):
+        if self._close_pending:
+            return
+        if self.index_service is not None and self.index_service.thread.is_alive():
+            self._index_restart_timer.start(40)
+            return
+        folder = self.folder_input.text().strip()
+        if not os.path.isdir(folder):
+            self.set_index_state("请选择搜索文件夹")
+            return
+        generation = self.index_generation
+        try:
+            self.index_service = ExcelLiveIndexService(
+                folder, self.index_database,
+                lambda kind, value: self.index_event_signal.emit(generation, kind, value),
+            )
+            self.index_service.start()
+        except Exception as exc:
+            error = f"{type(exc).__name__}: {exc}"
+            self.set_index_state("搜索准备失败，请重新选择文件夹")
+            if self._queued_index_task is not None:
+                task, self._queued_index_task = self._queued_index_task, None
+                task.complete(error)
+            return
+        if self._queued_index_task is not None:
+            task, self._queued_index_task = self._queued_index_task, None
+            task.dispatch(self.index_service)
+
+    def enqueue_index_search(self, task):
+        service = self.index_service
+        folder = self.folder_input.text().strip()
+        if (service is not None and service.thread.is_alive() and not service.shutdown.is_set()
+                and not self._index_restart_timer.isActive()
+                and path_key(service.folder) == path_key(folder)):
+            task.dispatch(service)
+        else:
+            self._queued_index_task = task
+            self._index_restart_timer.start(0)
+
+    def handle_index_event(self, generation, kind, value):
+        if generation != self.index_generation:
+            return
+        task = self.search_worker if isinstance(self.search_worker, ExcelIndexSearchTask) else None
+        if kind == "progress":
+            self.index_progress = value
+            if (task is not None and not task.cancelled
+                    or self.search_worker is None and not self._keep_search_summary
+                    and self.search_mode_combo.currentData() == "index"):
+                text, current, total = value
+                if task is not None and text.startswith("就绪"):
+                    return
+                self.progress_bar.setValue(int(current / total * 100) if total else 0)
+                self.progress_bar.setFormat(text)
+        elif kind == "live":
+            text = str(value)
+            if text.startswith("持续监听中"):
+                self.set_index_state("就绪")
+            elif "已停止" in text:
+                self.set_index_state("已暂停，下次搜索时继续准备")
+            elif "未完成" in text or "待恢复" in text:
+                self.set_index_state("正在重新准备搜索，请稍候…")
+            else:
+                self.set_index_state("正在准备搜索，请稍候…")
+        elif kind == "search_batch" and task is not None:
+            cancel, results = value
+            if cancel is task.search_cancel:
+                task.add_batch(results)
+        elif kind == "done" and task is not None:
+            if isinstance(value, dict) and value.get("search_cancel") is task.search_cancel:
+                task.complete(value["outcome"])
+        elif kind == "stopped":
+            if task is not None:
+                task.complete("索引服务已停止。")
+            if self._close_pending:
+                self.finish_pending_close()
+
+    def set_index_state(self, text):
+        self.index_state = text
+        self.index_progress = (text, 0, 0)
+        task = self.search_worker
+        if isinstance(task, ExcelIndexSearchTask) and not task.cancelled:
+            self.progress_bar.setFormat("正在搜索…" if text == "就绪" else text)
+        elif task is None and self.search_worker is None and not self._keep_search_summary:
+            self.progress_bar.setValue(0)
+            self.progress_bar.setFormat(
+                text if self.search_mode_combo.currentData() == "index" else "就绪"
+            )
+
+    def search_mode_changed(self):
+        if self.search_worker is not None or self._keep_search_summary:
+            return
+        if self.search_mode_combo.currentData() == "regular":
+            self.progress_bar.setValue(0)
+            self.progress_bar.setFormat("就绪")
+        else:
+            text, current, total = self.index_progress
+            self.progress_bar.setValue(int(current / total * 100) if total else 0)
+            self.progress_bar.setFormat(text)
+
+    def finish_pending_close(self):
+        if (self._close_pending and self.search_worker is None
+                and (self.index_service is None or not self.index_service.thread.is_alive())):
+            self._index_close_timer.stop()
+            self.close()
 
     def select_folder(self):
         if folder := QFileDialog.getExistingDirectory(self, "选择文件夹"):
@@ -929,21 +1287,27 @@ class ExcelSearchTool(QMainWindow):
             self.custom_keywords = dialog.get_keywords()
             self.save_settings()
 
-    def start_search(self):
+    def start_search(self, action="search"):
+        if isinstance(action, bool):
+            action = "search"
         if self.search_worker is not None or self._close_pending:
             return
         keyword = self.keyword_input.text().strip()
         folder = self.folder_input.text().strip()
-        if not keyword:
+        if action == "search" and not keyword:
             QMessageBox.warning(self, "提示", "请输入搜索关键词")
             return
         if not os.path.isdir(folder):
             QMessageBox.warning(self, "提示", "请选择有效的文件夹")
             return
-        if keyword not in self.search_history:
+        if action == "search" and keyword not in self.search_history:
             self.search_history.append(keyword)
         self.result_table.clear_results()
+        self._keep_search_summary = False
         self.search_btn.setEnabled(False)
+        self.search_mode_combo.setEnabled(False)
+        self.folder_button.setEnabled(False)
+        self.folder_input.setEnabled(False)
         self.keyword_input.setEnabled(False)
         for button in self.keyword_buttons:
             button.setEnabled(False)
@@ -953,11 +1317,14 @@ class ExcelSearchTool(QMainWindow):
         self.progress_bar.setToolTip("")
         search_record = None
         try:
-            self.search_worker = ExcelSearchWorker(self.process_pool)
+            if action == "build" or self.search_mode_combo.currentData() == "index":
+                self.search_worker = ExcelIndexSearchTask(self.enqueue_index_search, action)
+            else:
+                self.search_worker = ExcelSearchWorker(self.process_pool)
             self.search_worker.setup(
                 keyword,
                 [folder],
-                self.thread_spin.value(),
+                self.regular_max_workers,
                 self.custom_keywords,
             )
             self.search_worker.progress_signal.connect(self.update_progress)
@@ -965,7 +1332,7 @@ class ExcelSearchTool(QMainWindow):
             self.search_worker.finished.connect(self.search_finished)
             search_record = {
                 "keyword": keyword, "folder": folder, "duration": 0.0,
-                "overview": "准备搜索"}
+                "overview": "准备搜索" if action == "search" else "手动更新索引"}
             self.session_searches.append(search_record)
             self.search_worker.start()
         except Exception as exc:
@@ -980,9 +1347,9 @@ class ExcelSearchTool(QMainWindow):
 
     def stop_search(self):
         if self.search_worker is not None:
-            self.search_worker.stop()
             self.stop_btn.setEnabled(False)
             self.progress_bar.setFormat("正在停止…")
+            self.search_worker.stop()
 
     def update_progress(self, current, total, found):
         if self.search_worker is None or self.search_worker.cancelled:
@@ -995,6 +1362,9 @@ class ExcelSearchTool(QMainWindow):
 
     def restore_search_controls(self):
         self.search_btn.setEnabled(True)
+        self.search_mode_combo.setEnabled(True)
+        self.folder_button.setEnabled(True)
+        self.folder_input.setEnabled(True)
         self.keyword_input.setEnabled(True)
         for button in self.keyword_buttons:
             button.setEnabled(True)
@@ -1016,12 +1386,16 @@ class ExcelSearchTool(QMainWindow):
             status = "搜索完成（部分文件读取失败）"
         else:
             status = "搜索完成"
+        if isinstance(worker, ExcelIndexSearchTask) and worker.action == "build":
+            status = "索引更新失败" if error else "索引更新已停止" if worker.cancelled else "索引更新完成"
         if not error and not worker.cancelled:
             self.progress_bar.setValue(100)
         self.progress_bar.setFormat(f"{status}：找到 {found} 条（成功：{success}，失败：{failed}）")
         self.progress_bar.setToolTip(details)
         self.session_searches[-1]["overview"] = self.progress_bar.format()
+        self._keep_search_summary = True
         self.search_worker = None
+        self._queued_index_task = None
         worker.deleteLater()
         self.restore_search_controls()
         # if found and not error and not worker.cancelled and not self._close_pending:
@@ -1029,13 +1403,11 @@ class ExcelSearchTool(QMainWindow):
         self.save_settings()
         if self._close_pending:
             self.close()
-        elif error or worker.file_errors:
+        elif error and not worker.cancelled:
             message = QMessageBox(self)
             message.setWindowTitle(status)
             message.setIcon(QMessageBox.Icon.Warning)
-            message.setText(error or (
-                f"有 {failed} 个文件读取失败，{len(worker.scan_errors)} 个目录未能扫描。"
-            ))
+            message.setText(error)
             message.setDetailedText(details)
             message.exec()
 
@@ -1062,10 +1434,18 @@ class ExcelSearchTool(QMainWindow):
         self.save_settings()
 
     def closeEvent(self, event):
+        self._close_pending = True
+        self._index_restart_timer.stop()
+        if self.index_service is not None:
+            self.index_service.stop()
         if self.search_worker is not None:
-            self._close_pending = True
             self.stop_search()
             event.ignore()
+            self._index_close_timer.start()
+            return
+        if self.index_service is not None and self.index_service.thread.is_alive():
+            event.ignore()
+            self._index_close_timer.start()
             return
         self.save_settings()
         self.process_pool.shutdown()
@@ -1100,7 +1480,7 @@ def main():
     register_updater_startup()
     exit_code = app.exec()
     usage.send(searches=window.session_searches,
-               max_workers=window.thread_spin.value(),
+               max_workers=window.regular_max_workers,
                events=window.result_table.session_events)
     sys.exit(exit_code)
 
