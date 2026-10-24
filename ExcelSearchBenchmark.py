@@ -84,6 +84,7 @@ class Inventory:
     root: str
     sources: list[Source] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
+    inaccessible: list[str] = field(default_factory=list)
 
 def inventory(folder, cancel=None, log=None):
     if not str(folder).strip():
@@ -97,6 +98,8 @@ def inventory(folder, cancel=None, log=None):
 
     def walk_error(error):
         result.warnings.append(f"跳过目录：{error.filename}；{error}")
+        if error.filename:
+            result.inaccessible.append(path_key(error.filename))
 
     for current, directories, names in os.walk(root, onerror=walk_error, followlinks=False):
         check_cancel(cancel)
@@ -329,7 +332,8 @@ class SearchEngine:
             check_cancel(self.cancel)
             old = previous.get(source.key)
             same = old is not None and (old["size"], old["mtime_ns"]) == (source.size, source.mtime_ns)
-            if same and not source.error and (old["status"] == "ok" or not retry_errors):
+            if (same and not source.error and old["status"] != "inaccessible"
+                    and (old["status"] == "ok" or not retry_errors)):
                 reused += 1
             else:
                 try:
@@ -350,8 +354,19 @@ class SearchEngine:
                 self.log(f"处理进度：{position}/{len(snapshot.sources)}，已用 {time.perf_counter() - started:.1f} 秒")
                 last_progress = time.monotonic()
         current_keys = {source.key for source in snapshot.sources}
-        removed = set(previous) - current_keys
+        inaccessible = {
+            key for key in previous
+            if any(key == folder or key.startswith(os.path.join(folder, ""))
+                   for folder in snapshot.inaccessible)
+        }
+        removed = set(previous) - current_keys - inaccessible
         with self.connection:
+            for key in inaccessible:
+                check_cancel(self.cancel)
+                self.connection.execute(
+                    "UPDATE es3_files SET status='inaccessible',error=? WHERE root_key=? AND path_key=?",
+                    ("所在目录暂时无法访问；保留缓存，恢复后重新核对。", root_key, key),
+                )
             for key in removed:
                 check_cancel(self.cancel)
                 self.connection.execute("DELETE FROM es3_files WHERE root_key=? AND path_key=?", (root_key, key))
@@ -360,7 +375,7 @@ class SearchEngine:
             "SELECT count(*) AS files,coalesce(sum(sheets),0) AS sheets,"
             "coalesce(sum(rows),0) AS rows,coalesce(sum(cells),0) AS cells "
             "FROM es3_files WHERE root_key=? AND status='ok'", (root_key,)).fetchone())
-        failed = self.connection.execute("SELECT count(*) FROM es3_files WHERE root_key=? AND status='error'",
+        failed = self.connection.execute("SELECT count(*) FROM es3_files WHERE root_key=? AND status!='ok'",
                                          (root_key,)).fetchone()[0]
         elapsed = time.perf_counter() - started
         self.log(f"索引可用：成功 {counts['files']} 个，跳过 {failed} 个；更新 {updated} 个，"
@@ -702,6 +717,13 @@ class LiveIndexService:
             self.requests.append((action, options))
             self.condition.notify_all()
 
+    def _emit_done(self, options, outcome):
+        # Optional request identity lets clients ignore a cancelled request's
+        # late completion while another search is already queued.
+        if "search_cancel" in options:
+            outcome = {"search_cancel": options["search_cancel"], "outcome": outcome}
+        self.emit("done", outcome)
+
     def cancel(self):
         self.operation_cancel.set()
         with self.condition:
@@ -737,11 +759,12 @@ class LiveIndexService:
             "coalesce(sum(rows),0) AS rows,coalesce(sum(cells),0) AS cells "
             "FROM es3_files WHERE root_key=? AND status='ok'", (key,)).fetchone())
         failed = self.engine.connection.execute(
-            "SELECT count(*) FROM es3_files WHERE root_key=? AND status='error'", (key,)).fetchone()[0]
+            "SELECT count(*) FROM es3_files WHERE root_key=? AND status!='ok'", (key,)).fetchone()[0]
         self.last_report = {"seconds": elapsed, "counts": counts, "skipped": failed, "ready": True}
         return self.last_report
 
     def _set_retry(self, path, attempt=0):
+        path = path_key(path)
         if attempt < 3:
             self.retries[path] = (time.monotonic() + (1, 3, 10)[attempt], attempt + 1)
         else:
@@ -749,6 +772,7 @@ class LiveIndexService:
 
     def _update_file(self, path, attempt=0):
         check_cancel(self.operation_cancel)
+        path = path_key(path)
         key = path_key(self.folder)
         connection = self.engine.connection
         source = Source(path)
@@ -779,6 +803,7 @@ class LiveIndexService:
         previous = [row[0] for row in self.engine.connection.execute(
             "SELECT path FROM es3_files WHERE root_key=?", (path_key(self.folder),))]
         files = set()
+        inaccessible = set()
         for path in paths:
             check_cancel(self.operation_cancel)
             prefix = path_key(path) + os.sep
@@ -788,12 +813,24 @@ class LiveIndexService:
                 if os.path.isdir(path):
                     snapshot = inventory(path, self.operation_cancel)
                     files.update(source.path for source in snapshot.sources)
+                    inaccessible.update(snapshot.inaccessible)
                     for warning in snapshot.warnings[:10]:
                         self.log(warning)
             elif path.lower().endswith(EXTENSIONS):
                 files.add(path)
         for path in sorted(files):
-            self._update_file(path)
+            normalized = path_key(path)
+            if any(normalized == folder or normalized.startswith(os.path.join(folder, ""))
+                   for folder in inaccessible):
+                check_cancel(self.operation_cancel)
+                with self.engine.connection:
+                    self.engine.connection.execute(
+                        "UPDATE es3_files SET status='inaccessible',error=? WHERE root_key=? AND path_key=?",
+                        ("所在目录暂时无法访问；保留缓存，恢复后重新核对。", path_key(self.folder), normalized),
+                    )
+                self.retries.pop(normalized, None)
+            else:
+                self._update_file(normalized)
         if files:
             self.log(f"后台增量更新：处理 {len(files)} 个 Excel 路径。")
 
@@ -813,10 +850,16 @@ class LiveIndexService:
             try:
                 if full_scan:
                     self.last_report = self.engine.prepare(self.folder, retry_errors=True)
+                    inaccessible = self.engine.connection.execute(
+                        "SELECT path FROM es3_files WHERE root_key=? AND status='inaccessible'",
+                        (path_key(self.folder),),
+                    )
+                    for row in inaccessible:
+                        self.retries.pop(path_key(row[0]), None)
                     failed = self.engine.connection.execute(
                         "SELECT path FROM es3_files WHERE root_key=? AND status='error'", (path_key(self.folder),))
                     for row in failed:
-                        if row[0] not in self.retries:
+                        if path_key(row[0]) not in self.retries:
                             self._set_retry(row[0])
                 else:
                     self._apply_paths(paths)
@@ -874,7 +917,7 @@ class LiveIndexService:
                     with self.condition:
                         needs_sync = self.rescan or bool(self.pending)
                     if action:
-                        self.emit("done", self._execute(action, options))
+                        self._emit_done(options, self._execute(action, options))
                     elif needs_sync:
                         if self.shutdown.wait(0.15):
                             break
@@ -893,7 +936,7 @@ class LiveIndexService:
                     self.state("更新已停止；下次搜索前会继续同步，当前不标记为最新。")
                     self.rescan = True
                     if action:
-                        self.emit("done", str(exc))
+                        self._emit_done(options, str(exc))
                     with self.condition:
                         while not self.shutdown.is_set() and not self.requests:
                             self.condition.wait(0.1)
@@ -906,7 +949,7 @@ class LiveIndexService:
                         self.engine.__exit__(None, None, None)
                         self.engine = None
                     if action:
-                        self.emit("done", f"搜索/更新未完成：{exc}")
+                        self._emit_done(options, f"搜索/更新未完成：{exc}")
                     deadline = time.monotonic() + 3
                     with self.condition:
                         while not self.shutdown.is_set() and not self.requests and time.monotonic() < deadline:
