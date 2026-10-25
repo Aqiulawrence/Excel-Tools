@@ -10,12 +10,11 @@ import zipfile
 import winreg
 import msvcrt
 
-VERSION = "v3.7.0"
+VERSION = "v3.7.1"
 SERVER_URL = "http://www.wublog.site/update"
 APP_NAME = "Excel-Tools"
 UPDATE_ZIP = "update.zip"
 CHANGE_LOG = """
-1. 添加了索引搜索模式，搜索速度提升数万倍，达到亚毫秒级。
 """
 
 # python Updater.py --apply-update "D:\temp" "D:\Excel-Tools\release"
