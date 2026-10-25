@@ -141,7 +141,9 @@ def publish_version(settings):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--publish-only', action='store_true', help='仅重试发送版本，不重新打包')
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--publish-only', action='store_true', help='仅重试发送版本，不重新打包')
+    mode.add_argument('--build-only', action='store_true', help='仅打包和存档，不上传或发布版本')
     args = parser.parse_args()
     if not args.publish_only and input('请先确认版本号是否修改：').strip().lower() not in ('', 'y', 'yes'):
         print('已取消打包。')
@@ -151,6 +153,8 @@ def main():
     if not args.publish_only:
         build_and_merge(SCRIPTS)
         archive = archive_dist(settings['VERSION'])
+        if args.build_only:
+            return
         upload_dist(archive)
     publish_version(settings)
 
