@@ -101,22 +101,45 @@ def inventory(folder, cancel=None, log=None):
         if error.filename:
             result.inaccessible.append(path_key(error.filename))
 
-    for current, directories, names in os.walk(root, onerror=walk_error, followlinks=False):
+    pending = [root]
+    while pending:
         check_cancel(cancel)
+        current = pending.pop()
+        directories, files = [], []
+        try:
+            with os.scandir(current) as entries:
+                for entry in entries:
+                    check_cancel(cancel)
+                    try:
+                        is_directory = entry.is_dir()
+                    except OSError:
+                        # Match os.walk: an unclassifiable entry is a file.
+                        is_directory = False
+                    if is_directory:
+                        if entry.name.casefold() not in SYSTEM_DIRS:
+                            directories.append(entry)
+                    elif (not entry.name.startswith("~$")
+                          and entry.name.lower().endswith(EXTENSIONS)):
+                        files.append(entry)
+        except OSError as exc:
+            walk_error(exc)
+            continue
         directory_count += 1
         if log is not None and time.monotonic() - last_progress >= 0.5:
             log(f"目录扫描中：{directory_count} 个目录，已发现 {len(result.sources)} 个 Excel 文件…")
             last_progress = time.monotonic()
-        # Windows protected folders are outside the useful Excel search scope.
-        directories[:] = sorted(d for d in directories if d.casefold() not in SYSTEM_DIRS)
-        for name in names:
+        # Keep sorted depth-first traversal without following directory symlinks.
+        pending.extend(entry.path for entry in sorted(
+            directories, key=lambda entry: entry.name, reverse=True
+        ) if not os.path.islink(entry.path))
+        for entry in files:
             check_cancel(cancel)
-            if name.startswith("~$") or not name.lower().endswith(EXTENSIONS):
-                continue
-            path = os.path.join(current, name)
-            source = Source(path)
+            source = Source(entry.path)
             try:
-                source.size, source.mtime_ns = signature(path)
+                # Windows directory enumeration already supplies this metadata.
+                # Keep DirEntry instead of issuing another path-based os.stat.
+                stat = entry.stat()
+                source.size, source.mtime_ns = stat.st_size, stat.st_mtime_ns
             except OSError as exc:
                 source.error = f"{type(exc).__name__}: {exc}"
             result.sources.append(source)

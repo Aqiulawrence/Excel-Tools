@@ -1,6 +1,7 @@
 /dist
 /images
 /release
+/tests
 build
 __pycache__
 release_token.txt
