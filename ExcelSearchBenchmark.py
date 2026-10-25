@@ -34,7 +34,7 @@ BASE = Path(__file__).resolve().parent
 if (BASE / "_speedtest_deps").is_dir():
     sys.path.append(str(BASE / "_speedtest_deps"))
 
-DEFAULT_DATABASE = BASE / "ExcelSearch-v3.sqlite3"
+DEFAULT_DATABASE = BASE / "ExcelSearch-index.sqlite3"
 
 EXTENSIONS = (".xlsx", ".xlsm", ".xls")
 
@@ -62,7 +62,7 @@ def database_path(database=None):
     return path
 
 def fresh_database():
-    return DEFAULT_DATABASE.parent / f"index-v3-{uuid.uuid4().hex}.sqlite3"
+    return DEFAULT_DATABASE.parent / f"index-{uuid.uuid4().hex}.sqlite3"
 
 def signature(path):
     stat = os.stat(path)
@@ -195,37 +195,37 @@ def workbook_sheets(path):
         book.close()
 
 SCHEMA = """
-CREATE TABLE IF NOT EXISTS es3_roots (
+CREATE TABLE IF NOT EXISTS es_roots (
     root_key TEXT PRIMARY KEY, path TEXT NOT NULL, updated_ns INTEGER NOT NULL DEFAULT 0
 );
-CREATE TABLE IF NOT EXISTS es3_files (
+CREATE TABLE IF NOT EXISTS es_files (
     id INTEGER PRIMARY KEY, root_key TEXT NOT NULL, path_key TEXT NOT NULL,
     path TEXT NOT NULL, size INTEGER, mtime_ns INTEGER, status TEXT NOT NULL,
     error TEXT NOT NULL DEFAULT '', sheets INTEGER NOT NULL DEFAULT 0,
     rows INTEGER NOT NULL DEFAULT 0, cells INTEGER NOT NULL DEFAULT 0,
     UNIQUE(root_key, path_key),
-    FOREIGN KEY(root_key) REFERENCES es3_roots(root_key)
+    FOREIGN KEY(root_key) REFERENCES es_roots(root_key)
 );
-CREATE TABLE IF NOT EXISTS es3_cells (
+CREATE TABLE IF NOT EXISTS es_cells (
     id INTEGER PRIMARY KEY, file_id INTEGER NOT NULL,
     sheet_order INTEGER NOT NULL, sheet_name TEXT NOT NULL,
     row_number INTEGER NOT NULL, column_number INTEGER NOT NULL,
     value TEXT NOT NULL, value_lower TEXT NOT NULL,
-    FOREIGN KEY(file_id) REFERENCES es3_files(id) ON DELETE CASCADE
+    FOREIGN KEY(file_id) REFERENCES es_files(id) ON DELETE CASCADE
 );
-CREATE INDEX IF NOT EXISTS es3_cells_file ON es3_cells(file_id);
+CREATE INDEX IF NOT EXISTS es_cells_file ON es_cells(file_id);
 """
 
 FTS_SCHEMA = """
-CREATE VIRTUAL TABLE IF NOT EXISTS es3_fts USING fts5(
-    value_lower, content='es3_cells', content_rowid='id',
+CREATE VIRTUAL TABLE IF NOT EXISTS es_fts USING fts5(
+    value_lower, content='es_cells', content_rowid='id',
     tokenize='trigram case_sensitive 1'
 );
-CREATE TRIGGER IF NOT EXISTS es3_cell_insert AFTER INSERT ON es3_cells BEGIN
-    INSERT INTO es3_fts(rowid, value_lower) VALUES (new.id, new.value_lower);
+CREATE TRIGGER IF NOT EXISTS es_cell_insert AFTER INSERT ON es_cells BEGIN
+    INSERT INTO es_fts(rowid, value_lower) VALUES (new.id, new.value_lower);
 END;
-CREATE TRIGGER IF NOT EXISTS es3_cell_delete AFTER DELETE ON es3_cells BEGIN
-    INSERT INTO es3_fts(es3_fts, rowid, value_lower) VALUES ('delete', old.id, old.value_lower);
+CREATE TRIGGER IF NOT EXISTS es_cell_delete AFTER DELETE ON es_cells BEGIN
+    INSERT INTO es_fts(es_fts, rowid, value_lower) VALUES ('delete', old.id, old.value_lower);
 END;
 """
 
@@ -264,12 +264,12 @@ class SearchEngine:
             self.connection.execute("PRAGMA cache_size=-16384")
             self.connection.executescript(SCHEMA)
             had_fts = self.connection.execute(
-                "SELECT 1 FROM sqlite_master WHERE name='es3_fts'"
+                "SELECT 1 FROM sqlite_master WHERE name='es_fts'"
             ).fetchone()
             try:
                 self.connection.executescript(FTS_SCHEMA)
                 if not had_fts:
-                    self.connection.execute("INSERT INTO es3_fts(es3_fts) VALUES ('rebuild')")
+                    self.connection.execute("INSERT INTO es_fts(es_fts) VALUES ('rebuild')")
                 self.fts = True
             except sqlite3.OperationalError as exc:
                 if "no such module" not in str(exc) and "tokenizer" not in str(exc):
@@ -288,14 +288,14 @@ class SearchEngine:
 
     def _file_record(self, root_key, source, status, error=""):
         self.connection.execute(
-            "INSERT INTO es3_files(root_key,path_key,path,size,mtime_ns,status,error) "
+            "INSERT INTO es_files(root_key,path_key,path,size,mtime_ns,status,error) "
             "VALUES (?,?,?,?,?,?,?) ON CONFLICT(root_key,path_key) DO UPDATE SET "
             "path=excluded.path,size=excluded.size,mtime_ns=excluded.mtime_ns,"
             "status=excluded.status,error=excluded.error,sheets=0,rows=0,cells=0",
             (root_key, source.key, source.path, source.size, source.mtime_ns, status, error),
         )
         return self.connection.execute(
-            "SELECT id FROM es3_files WHERE root_key=? AND path_key=?", (root_key, source.key)
+            "SELECT id FROM es_files WHERE root_key=? AND path_key=?", (root_key, source.key)
         ).fetchone()[0]
 
     def _index_file(self, root_key, source):
@@ -304,10 +304,10 @@ class SearchEngine:
             raise OSError(source.error)
         with self.connection:
             file_id = self._file_record(root_key, source, "ok")
-            self.connection.execute("DELETE FROM es3_cells WHERE file_id=?", (file_id,))
+            self.connection.execute("DELETE FROM es_cells WHERE file_id=?", (file_id,))
             sheet_count = row_count = cell_count = 0
             batch = []
-            insert_sql = ("INSERT INTO es3_cells(file_id,sheet_order,sheet_name,row_number,"
+            insert_sql = ("INSERT INTO es_cells(file_id,sheet_order,sheet_name,row_number,"
                           "column_number,value,value_lower) VALUES (?,?,?,?,?,?,?)")
             with workbook_sheets(source.path) as sheets:
                 for sheet_order, (name, rows) in enumerate(sheets):
@@ -329,7 +329,7 @@ class SearchEngine:
                     self.connection.executemany(insert_sql, batch)
             if signature(source.path) != (source.size, source.mtime_ns):
                 raise SourceChanged("文件在读取期间发生变化，将在下次更新时重试。")
-            self.connection.execute("UPDATE es3_files SET sheets=?,rows=?,cells=? WHERE id=?",
+            self.connection.execute("UPDATE es_files SET sheets=?,rows=?,cells=? WHERE id=?",
                                     (sheet_count, row_count, cell_count, file_id))
 
     def prepare(self, folder, retry_errors=False):
@@ -343,11 +343,11 @@ class SearchEngine:
         if len(snapshot.warnings) > 30:
             self.log(f"另有 {len(snapshot.warnings) - 30} 个目录访问失败。")
         with self.connection:
-            self.connection.execute("INSERT INTO es3_roots(root_key,path) VALUES (?,?) "
+            self.connection.execute("INSERT INTO es_roots(root_key,path) VALUES (?,?) "
                                     "ON CONFLICT(root_key) DO UPDATE SET path=excluded.path",
                                     (root_key, snapshot.root))
         previous = {row["path_key"]: row for row in self.connection.execute(
-            "SELECT * FROM es3_files WHERE root_key=?", (root_key,))}
+            "SELECT * FROM es_files WHERE root_key=?", (root_key,))}
         updated = reused = 0
         self.log(f"发现 {len(snapshot.sources)} 个 Excel 文件。")
         last_progress = time.monotonic()
@@ -371,7 +371,7 @@ class SearchEngine:
                     error = f"{type(exc).__name__}: {exc}"
                     with self.connection:
                         file_id = self._file_record(root_key, source, "error", error)
-                        self.connection.execute("DELETE FROM es3_cells WHERE file_id=?", (file_id,))
+                        self.connection.execute("DELETE FROM es_cells WHERE file_id=?", (file_id,))
                     self.log(f"跳过文件：{source.path}；{error}")
             if time.monotonic() - last_progress >= 0.5 or position == len(snapshot.sources):
                 self.log(f"处理进度：{position}/{len(snapshot.sources)}，已用 {time.perf_counter() - started:.1f} 秒")
@@ -387,18 +387,18 @@ class SearchEngine:
             for key in inaccessible:
                 check_cancel(self.cancel)
                 self.connection.execute(
-                    "UPDATE es3_files SET status='inaccessible',error=? WHERE root_key=? AND path_key=?",
+                    "UPDATE es_files SET status='inaccessible',error=? WHERE root_key=? AND path_key=?",
                     ("所在目录暂时无法访问；保留缓存，恢复后重新核对。", root_key, key),
                 )
             for key in removed:
                 check_cancel(self.cancel)
-                self.connection.execute("DELETE FROM es3_files WHERE root_key=? AND path_key=?", (root_key, key))
-            self.connection.execute("UPDATE es3_roots SET updated_ns=? WHERE root_key=?", (time.time_ns(), root_key))
+                self.connection.execute("DELETE FROM es_files WHERE root_key=? AND path_key=?", (root_key, key))
+            self.connection.execute("UPDATE es_roots SET updated_ns=? WHERE root_key=?", (time.time_ns(), root_key))
         counts = dict(self.connection.execute(
             "SELECT count(*) AS files,coalesce(sum(sheets),0) AS sheets,"
             "coalesce(sum(rows),0) AS rows,coalesce(sum(cells),0) AS cells "
-            "FROM es3_files WHERE root_key=? AND status='ok'", (root_key,)).fetchone())
-        failed = self.connection.execute("SELECT count(*) FROM es3_files WHERE root_key=? AND status!='ok'",
+            "FROM es_files WHERE root_key=? AND status='ok'", (root_key,)).fetchone())
+        failed = self.connection.execute("SELECT count(*) FROM es_files WHERE root_key=? AND status!='ok'",
                                          (root_key,)).fetchone()[0]
         elapsed = time.perf_counter() - started
         self.log(f"索引可用：成功 {counts['files']} 个，跳过 {failed} 个；更新 {updated} 个，"
@@ -415,10 +415,10 @@ class SearchEngine:
         lowered = term.lower()
         use_fts = self.fts and len(lowered) >= 3 and "\x00" not in lowered
         select = ("SELECT f.path,c.sheet_name,c.row_number,c.column_number,c.value "
-                  "FROM es3_cells c JOIN es3_files f ON f.id=c.file_id ")
+                  "FROM es_cells c JOIN es_files f ON f.id=c.file_id ")
         if use_fts:
-            select += "JOIN es3_fts ON es3_fts.rowid=c.id "
-            where = "es3_fts MATCH ? AND "
+            select += "JOIN es_fts ON es_fts.rowid=c.id "
+            where = "es_fts MATCH ? AND "
             parameters = ['"' + lowered.replace('"', '""') + '"']
         else:
             where, parameters = "", []
@@ -441,7 +441,7 @@ class SearchEngine:
     def scan_snapshot(self, folder, term):
         matches = Matches(limit=0)
         errors = []
-        files = list(self.connection.execute("SELECT * FROM es3_files WHERE root_key=? AND status='ok' ORDER BY path_key",
+        files = list(self.connection.execute("SELECT * FROM es_files WHERE root_key=? AND status='ok' ORDER BY path_key",
                                               (path_key(folder),)))
         for source in files:
             check_cancel(self.cancel)
@@ -780,9 +780,9 @@ class LiveIndexService:
         counts = dict(self.engine.connection.execute(
             "SELECT count(*) AS files,coalesce(sum(sheets),0) AS sheets,"
             "coalesce(sum(rows),0) AS rows,coalesce(sum(cells),0) AS cells "
-            "FROM es3_files WHERE root_key=? AND status='ok'", (key,)).fetchone())
+            "FROM es_files WHERE root_key=? AND status='ok'", (key,)).fetchone())
         failed = self.engine.connection.execute(
-            "SELECT count(*) FROM es3_files WHERE root_key=? AND status!='ok'", (key,)).fetchone()[0]
+            "SELECT count(*) FROM es_files WHERE root_key=? AND status!='ok'", (key,)).fetchone()[0]
         self.last_report = {"seconds": elapsed, "counts": counts, "skipped": failed, "ready": True}
         return self.last_report
 
@@ -803,7 +803,7 @@ class LiveIndexService:
             source.size, source.mtime_ns = signature(path)
         except FileNotFoundError:
             with connection:
-                connection.execute("DELETE FROM es3_files WHERE root_key=? AND path_key=?", (key, path_key(path)))
+                connection.execute("DELETE FROM es_files WHERE root_key=? AND path_key=?", (key, path_key(path)))
             self.retries.pop(path, None)
             return
         except OSError as exc:
@@ -816,7 +816,7 @@ class LiveIndexService:
         except Exception as exc:
             with connection:
                 file_id = self.engine._file_record(key, source, "error", f"{type(exc).__name__}: {exc}")
-                connection.execute("DELETE FROM es3_cells WHERE file_id=?", (file_id,))
+                connection.execute("DELETE FROM es_cells WHERE file_id=?", (file_id,))
             self.log(f"文件暂不可读：{path}；{exc}")
             self._set_retry(path, attempt)
 
@@ -824,7 +824,7 @@ class LiveIndexService:
         if not paths:
             return
         previous = [row[0] for row in self.engine.connection.execute(
-            "SELECT path FROM es3_files WHERE root_key=?", (path_key(self.folder),))]
+            "SELECT path FROM es_files WHERE root_key=?", (path_key(self.folder),))]
         files = set()
         inaccessible = set()
         for path in paths:
@@ -848,7 +848,7 @@ class LiveIndexService:
                 check_cancel(self.operation_cancel)
                 with self.engine.connection:
                     self.engine.connection.execute(
-                        "UPDATE es3_files SET status='inaccessible',error=? WHERE root_key=? AND path_key=?",
+                        "UPDATE es_files SET status='inaccessible',error=? WHERE root_key=? AND path_key=?",
                         ("所在目录暂时无法访问；保留缓存，恢复后重新核对。", path_key(self.folder), normalized),
                     )
                 self.retries.pop(normalized, None)
@@ -874,13 +874,13 @@ class LiveIndexService:
                 if full_scan:
                     self.last_report = self.engine.prepare(self.folder, retry_errors=True)
                     inaccessible = self.engine.connection.execute(
-                        "SELECT path FROM es3_files WHERE root_key=? AND status='inaccessible'",
+                        "SELECT path FROM es_files WHERE root_key=? AND status='inaccessible'",
                         (path_key(self.folder),),
                     )
                     for row in inaccessible:
                         self.retries.pop(path_key(row[0]), None)
                     failed = self.engine.connection.execute(
-                        "SELECT path FROM es3_files WHERE root_key=? AND status='error'", (path_key(self.folder),))
+                        "SELECT path FROM es_files WHERE root_key=? AND status='error'", (path_key(self.folder),))
                     for row in failed:
                         if path_key(row[0]) not in self.retries:
                             self._set_retry(row[0])
