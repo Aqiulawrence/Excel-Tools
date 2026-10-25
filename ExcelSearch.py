@@ -678,11 +678,14 @@ class ExcelLiveIndexService(LiveIndexService):
     def log(self, text):
         # Expose useful work progress, never raw benchmark diagnostics.
         if text.startswith("扫描文件夹并检查增量变化"):
+            self._scan_started = monotonic()
             self.emit("progress", ("正在扫描文件夹…", 0, 0))
         elif match := re.match(r"目录扫描中：(\d+) 个目录，已发现 (\d+) 个 Excel 文件", text):
             self.emit("progress", (
                 f"正在扫描：{match[1]} 个文件夹，已发现 {match[2]} 个 Excel 文件", 0, 0))
         elif match := re.match(r"发现 (\d+) 个 Excel 文件", text):
+            self._index_started = monotonic()
+            self._scan_seconds = self._index_started - self._scan_started
             total = int(match[1])
             self.emit("progress", (f"已发现 {total} 个 Excel 文件，正在检查更新…", 0, total))
         elif match := re.match(r"处理进度：(\d+)/(\d+)，已用 ([\d.]+) 秒", text):
@@ -693,6 +696,8 @@ class ExcelLiveIndexService(LiveIndexService):
         elif match := re.match(r"后台增量更新：处理 (\d+) 个 Excel 路径", text):
             total = int(match[1])
             self.emit("progress", (f"已更新 {total} 个文件", total, total))
+        elif text.startswith("索引可用："):
+            self.emit("index_time", f"{self._scan_seconds:.2f}+{monotonic() - self._index_started:.2f}")
 
     def state(self, text):
         super().state(text)
@@ -1033,6 +1038,7 @@ class ExcelSearchTool(QMainWindow):
         self.settings = QSettings(COMPANY_NAME, APP_NAME)
         self.search_history: list[str] = []
         self.session_searches: list[dict[str, str | float]] = []
+        self.index_time = ""
         self.custom_keywords = clean_keywords(DEFAULT_KEYWORDS)
         self.setWindowTitle(f"{APP_NAME} v{VERSION}")
         self.resize(700, 550)
@@ -1210,6 +1216,10 @@ class ExcelSearchTool(QMainWindow):
             self._index_restart_timer.start(0)
 
     def handle_index_event(self, generation, kind, value):
+        if kind == "index_time":
+            if not self.index_time:
+                self.index_time = value
+            return
         if generation != self.index_generation:
             return
         task = self.search_worker if isinstance(self.search_worker, ExcelIndexSearchTask) else None
@@ -1480,7 +1490,7 @@ def main():
     register_updater_startup()
     exit_code = app.exec()
     usage.send(searches=window.session_searches,
-               max_workers=window.regular_max_workers,
+               index_time=window.index_time,
                events=window.result_table.session_events)
     sys.exit(exit_code)
 
