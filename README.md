@@ -13,6 +13,7 @@
 | `UsageReporter.py` | 应用退出时发送使用记录 |
 | `server.py` | Flask 更新与使用记录接口 |
 | `release.py` | Windows 打包、归档与发布脚本 |
+| `.secrets/` | 本地发布令牌及 COS 凭据，不提交至 Git |
 | `legacy/` | 旧版源码 |
 
 ## ExcelSearch 搜索范围
@@ -42,9 +43,10 @@
 运行后会重新生成 `dist/`，归档写入 `release/`，将 `dist/dist.zip` 上传至广州地域
 `wublog-1328523094` 桶根目录的 `dist.zip`（覆盖上一版），上传成功后才调用发布接口更新服务器版本。
 上传失败会保留本地压缩包并停止发布。使用简单上传，仅需 `cos:PutObject` 权限，最大支持 5GB。
-COS 密钥从同目录的 `cos_credentials.json` 读取，字段为 `SecretId`、`SecretKey`，临时密钥还需 `Token`；
+COS 密钥从 `release.py` 所在目录下的 `.secrets/cos_credentials.json` 读取，字段为 `SecretId`、`SecretKey`，临时密钥还需 `Token`；
 也支持 `COSSECRETID`、`COSSECRETKEY`、`COSSESSIONTOKEN` 环境变量，优先于配置文件。
-`cos_credentials.json` 和 `release_token.txt` 是本地凭据，禁止提交。
+发布令牌从 `.secrets/release_token.txt` 读取。服务端也需在 `server.py` 所在目录下创建 `.secrets/release_token.txt`，填写相同令牌。
+`.secrets/` 内的文件是本地凭据，已通过 `.gitignore` 排除，禁止提交或随应用分发。
 `--publish-only` 仅重试更新服务器版本，不打包或上传，使用前应确认桶中的 `dist.zip` 已更新。
 
 正常启动桌面应用时，会尝试登记已有 `Updater.exe` 的启动项；退出时会发送使用记录。

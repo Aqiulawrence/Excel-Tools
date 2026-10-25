@@ -12,6 +12,7 @@ from urllib.request import Request, urlopen
 # 自动打包、存档、上传 COS 并发送新版本号至服务器
 
 ROOT = Path(__file__).resolve().parent
+SECRETS_DIR = ROOT / '.secrets'
 SCRIPTS = ['ImageSearch.py', 'ExcelCompare.py', 'ExcelSearch.py', 'Updater.py']
 
 
@@ -86,7 +87,7 @@ def upload_dist(archive):
         raise RuntimeError('上传失败：dist.zip 不存在或为空。')
     if archive.stat().st_size > 5 * 1024 ** 3:
         raise RuntimeError('dist.zip 超过简单上传的 5GB 限制，压缩包已保留。')
-    credentials_file = ROOT / 'cos_credentials.json'
+    credentials_file = SECRETS_DIR / 'cos_credentials.json'
     credentials = {}
     if credentials_file.is_file():
         try:
@@ -94,17 +95,17 @@ def upload_dist(archive):
             if not isinstance(credentials, dict):
                 raise ValueError('配置必须是对象')
         except (OSError, ValueError) as exc:
-            raise RuntimeError('无法读取 cos_credentials.json，请检查文件及 JSON 格式。') from exc
+            raise RuntimeError('无法读取 .secrets/cos_credentials.json，请检查文件及 JSON 格式。') from exc
     secret_id = os.environ.get('COSSECRETID') or credentials.get('SecretId')
     secret_key = os.environ.get('COSSECRETKEY') or credentials.get('SecretKey')
     token = os.environ.get('COSSESSIONTOKEN') or credentials.get('Token') or None
     if not secret_id or not secret_key:
-        raise RuntimeError('请在 cos_credentials.json 中配置 SecretId 和 SecretKey，或设置对应环境变量。')
+        raise RuntimeError('请在 .secrets/cos_credentials.json 中配置 SecretId 和 SecretKey，或设置对应环境变量。')
     try:
         from qcloud_cos import CosConfig, CosS3Client
         from qcloud_cos.cos_exception import CosClientError, CosServiceError
     except ImportError as exc:
-        raise RuntimeError('请在运行 pack.py 的 Python 环境中安装 cos-python-sdk-v5。') from exc
+        raise RuntimeError('请在运行 release.py 的 Python 环境中安装 cos-python-sdk-v5。') from exc
     client = CosS3Client(CosConfig(Region='ap-guangzhou', SecretId=secret_id,
                                  SecretKey=secret_key, Token=token, Scheme='https'))
     print('正在上传 dist.zip 到 COS 桶根目录……', flush=True)
@@ -121,13 +122,13 @@ def upload_dist(archive):
 
 
 def publish_version(settings):
-    token_file = ROOT / 'release_token.txt'
+    token_file = SECRETS_DIR / 'release_token.txt'
     try:
         token = token_file.read_text(encoding='utf-8-sig').strip()
     except OSError as e:
-        raise RuntimeError('压缩包已保留；请在 pack.py 同目录创建 release_token.txt 并填写令牌。') from e
+        raise RuntimeError('压缩包已保留；请在 release.py 所在目录的 .secrets/release_token.txt 中填写令牌。') from e
     if not token:
-        raise RuntimeError('release_token.txt 中的令牌不能为空。')
+        raise RuntimeError('.secrets/release_token.txt 中的令牌不能为空。')
     url = settings['SERVER_URL'].rsplit('/', 1)[0] + '/publish'
     request = Request(url, data=json.dumps({'version': settings['VERSION']}).encode('utf-8'),
                       headers={'Authorization': f'Bearer {token}',
