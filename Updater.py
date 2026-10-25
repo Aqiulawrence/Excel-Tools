@@ -10,7 +10,7 @@ import zipfile
 import winreg
 import msvcrt
 
-VERSION = "v3.7.1"
+VERSION = "v3.7.5"
 SERVER_URL = "http://www.wublog.site/update"
 APP_NAME = "Excel-Tools"
 UPDATE_ZIP = "update.zip"
@@ -84,12 +84,32 @@ def run_new_updater(new_updater_path, temp_dir):
     subprocess.Popen(cmd)
     sys.exit(0)
 
+INDEX_DATABASE_FILES = {
+    "excelsearch-index.sqlite3",
+    "excelsearch-index.sqlite3-wal",
+    "excelsearch-index.sqlite3-shm",
+    "excelsearch-index.sqlite3-journal",
+}
+
+
+def is_index_database_file(relative_path):
+    return (len(relative_path.parts) == 2
+            and relative_path.parts[0].casefold() == "_internal"
+            and relative_path.name.casefold() in INDEX_DATABASE_FILES)
+
+
 def clear_internal_directory(target_path):
     internal_path = target_path / "_internal"
 
     for attempt in range(3600):  # 文件被占用时最多等待1小时
         try:
-            shutil.rmtree(internal_path)
+            for item in internal_path.iterdir():
+                if item.name.casefold() in INDEX_DATABASE_FILES and item.is_file():
+                    continue
+                if item.is_dir() and not item.is_symlink():
+                    shutil.rmtree(item)
+                else:
+                    item.unlink()
             break
         except FileNotFoundError:
             break
@@ -108,13 +128,15 @@ def apply_update():
     # 等待其他进程关闭
     wait_for_close()
 
-    # 只清理旧版本的_internal目录，其他文件在复制时同名覆盖
+    # 清理旧依赖，保留 _internal 内的搜索索引及 SQLite 日志。
     target_path = Path(target_dir)
     clear_internal_directory(target_path)
 
     for item in Path(temp_dir).rglob("*"):
         if item.is_file():
             rel_path = item.relative_to(temp_dir)
+            if is_index_database_file(rel_path):
+                continue
             target = target_path / rel_path
             target.parent.mkdir(parents=True, exist_ok=True)
 
