@@ -1898,7 +1898,7 @@ class ResultTableWidget(QTableWidget):
         self.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
 
-        self.doubleClicked.connect(self.open_excel_file)
+        self.doubleClicked.connect(lambda: self.open_excel_file(action="double_click"))
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
 
@@ -1973,9 +1973,9 @@ class ResultTableWidget(QTableWidget):
         self.session_events.append({"action": action, "file_path": result.file_path,
                                     **details})
 
-    def open_excel_file(self):
+    def open_excel_file(self, *, action="open_file"):
         if result := self.selected_result():
-            self.record_action("open_file", result)
+            self.record_action(action, result)
             if not os.path.isfile(result.file_path):
                 QMessageBox.warning(self, "打开失败", f"文件不存在：\n{result.file_path}")
                 return

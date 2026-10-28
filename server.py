@@ -13,6 +13,7 @@ VERSION_FILE = Path(__file__).with_name('version.txt')
 TOKEN_FILE = Path(__file__).resolve().parent / '.secrets' / 'release_token.txt'
 UPDATE_URL = "https://origin.wublog.site/dist.zip"
 UPLOAD_DIR = Path(__file__).with_name('uploads')
+DEVELOPER_DEVICE = 'DESKTOP-56FFO6L'
 
 
 def write_log(filename, data):
@@ -23,7 +24,9 @@ def write_log(filename, data):
 
 @app.route('/update', methods=['POST'])
 def update():
-    write_log("./update.log", request.json)
+    data = request.json
+    if not isinstance(data, dict) or data.get('device') != DEVELOPER_DEVICE:
+        write_log("./update.log", data)
     return jsonify({
         "version": VERSION_FILE.read_text(encoding='utf-8').strip(),
         "url": UPDATE_URL
@@ -88,7 +91,8 @@ def usage():
             if temporary_path is not None:
                 temporary_path.unlink(missing_ok=True)
         data['excel_file'] = original_name
-    write_log("./usage.log", data)
+    log_file = "./developer_usage.log" if data.get('device') == DEVELOPER_DEVICE else "./usage.log"
+    write_log(log_file, data)
     return jsonify({"ok": True})
 
 

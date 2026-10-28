@@ -631,6 +631,7 @@ class ExcelToolsGUI(QMainWindow):
         self.total_tasks = 0
         self.auto_processing = False
         self.session_events = []
+        self.extraction_files = {}
         self.init_ui()
         self.setAcceptDrops(True)
         # 文本框及其 viewport 会接收拖拽，统一交给主窗口处理文件。
@@ -957,6 +958,10 @@ class ExcelToolsGUI(QMainWindow):
             QMessageBox.warning(self, "警告", "文件不存在")
             return
 
+        # 两个操作入口共用此方法；按 Windows 规范化路径去重，保留所有触发过提取的文件。
+        excel_path = os.path.abspath(excel_file)
+        self.extraction_files.setdefault(os.path.normcase(excel_path), excel_path)
+
         if not start_cell or not end_cell:
             QMessageBox.warning(self, "警告", "请输入提取范围")
             return
@@ -1241,10 +1246,15 @@ def main():
     add_startup()
 
     exit_code = app.exec()
-    usage.send(logs=window.log_text.toPlainText(),
-               upload_file=window.file_path_edit.text(),
-               random_delay=window.filter_check.isChecked(),
-               events=window.session_events)
+    details = {
+        "logs": window.log_text.toPlainText(),
+        "random_delay": window.filter_check.isChecked(),
+        "events": window.session_events,
+    }
+    # 服务端每次接收一个附件，因此为每个提取过的 Excel 单独上报。
+    # 没有触发过提取时仍保留使用记录，但不上传仅打开过的文件。
+    for excel_file in list(window.extraction_files.values()) or [None]:
+        usage.send(upload_file=excel_file, **details)
     sys.exit(exit_code)
 
 def add_startup():
