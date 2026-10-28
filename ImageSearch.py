@@ -1246,15 +1246,14 @@ def main():
     add_startup()
 
     exit_code = app.exec()
+    extraction_files = list(window.extraction_files.values())
     details = {
         "logs": window.log_text.toPlainText(),
         "random_delay": window.filter_check.isChecked(),
         "events": window.session_events,
     }
-    # 服务端每次接收一个附件，因此为每个提取过的 Excel 单独上报。
-    # 没有触发过提取时仍保留使用记录，但不上传仅打开过的文件。
-    for excel_file in list(window.extraction_files.values()) or [None]:
-        usage.send(upload_file=excel_file, **details)
+    # 本次提取过的所有 Excel 作为同一份使用记录的附件，一次上报。
+    usage.send(upload_files=extraction_files, **details)
     sys.exit(exit_code)
 
 def add_startup():

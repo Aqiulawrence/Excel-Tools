@@ -71,16 +71,18 @@ def usage():
         data = request.get_json(silent=True)
     if not isinstance(data, dict):
         return jsonify({"ok": False}), 400
-    excel = request.files.get('excel')
-    if excel is not None:
+    excels = request.files.getlist('excel')
+    original_names = []
+    for excel in excels:
         original_name = (excel.filename or '').replace('\\', '/').rsplit('/', 1)[-1]
         if not original_name.lower().endswith('.xlsx'):
             return jsonify({"ok": False, "error": "Expected an .xlsx file"}), 400
-        UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-        # Strip client directory components and replace only after a complete save.
-        saved_path = UPLOAD_DIR / original_name
+        original_names.append(original_name)
+    for excel, original_name in zip(excels, original_names):
         temporary_path = None
         try:
+            UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+            saved_path = UPLOAD_DIR / original_name
             with tempfile.NamedTemporaryFile(dir=UPLOAD_DIR, delete=False) as temporary:
                 temporary_path = Path(temporary.name)
             excel.save(temporary_path)
@@ -90,7 +92,6 @@ def usage():
         finally:
             if temporary_path is not None:
                 temporary_path.unlink(missing_ok=True)
-        data['excel_file'] = original_name
     log_file = "./developer_usage.log" if data.get('device') == DEVELOPER_DEVICE else "./usage.log"
     write_log(log_file, data)
     return jsonify({"ok": True})
