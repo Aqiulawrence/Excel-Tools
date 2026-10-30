@@ -10,7 +10,7 @@ from pathlib import Path
 app = Flask(__name__)
 
 VERSION_FILE = Path(__file__).with_name('version.txt')
-TOKEN_FILE = Path(__file__).resolve().parent / '.secrets' / 'release_token.txt'
+TOKEN_FILE = Path(__file__).with_name('release_token.txt')
 UPDATE_URL = "https://origin.wublog.site/dist.zip"
 UPLOAD_DIR = Path(__file__).with_name('uploads')
 DEVELOPER_DEVICE = 'DESKTOP-56FFO6L'

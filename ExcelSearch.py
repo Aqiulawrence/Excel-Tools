@@ -2009,7 +2009,7 @@ class ResultTableWidget(QTableWidget):
         copy_action = menu.addAction("复制")
         copy_action.triggered.connect(self.copy_cell_content)
         menu.addSeparator()
-        open_file_action = menu.addAction("打开文件并定位单元格")
+        open_file_action = menu.addAction("打开文件")
         open_file_action.triggered.connect(self.open_excel_file)
         location_action = menu.addAction("打开文件所在目录")
         location_action.triggered.connect(self.open_file_location)
