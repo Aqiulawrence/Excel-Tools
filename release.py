@@ -1,7 +1,7 @@
 import ast
-import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -11,9 +11,28 @@ from urllib.request import Request, urlopen
 
 # 自动打包、存档、上传 COS 并发送新版本号至服务器
 
+# 发布时只需修改这里的版本号，然后运行本程序
+VERSION = "v3.7.8"
+
 ROOT = Path(__file__).resolve().parent
 SECRETS_DIR = ROOT / '.secrets'
 SCRIPTS = ['ImageSearch.py', 'ExcelCompare.py', 'ExcelSearch.py', 'Updater.py']
+
+
+def sync_updater_version():
+    if not isinstance(VERSION, str) or not re.fullmatch(r'v[0-9]+\.[0-9]+\.[0-9]+', VERSION):
+        raise RuntimeError('请将 release.py 的 VERSION 设置为 v3.7.8 这样的版本号。')
+    path = ROOT / 'Updater.py'
+    source = path.read_bytes()
+    updated, count = re.subn(
+        rb'^(VERSION[ \t]*=[ \t]*)[\'"][^\'"\r\n]*[\'"]',
+        lambda match: match[1] + json.dumps(VERSION).encode('utf-8'),
+        source, flags=re.MULTILINE)
+    if count != 1:
+        raise RuntimeError('无法唯一定位 Updater.py 中的 VERSION，已停止发布。')
+    if updated != source:
+        path.write_bytes(updated)
+    print(f'本次发布版本：{VERSION}', flush=True)
 
 
 def updater_settings():
@@ -141,22 +160,12 @@ def publish_version(settings):
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    mode = parser.add_mutually_exclusive_group()
-    mode.add_argument('--publish-only', action='store_true', help='仅重试发送版本，不重新打包')
-    mode.add_argument('--build-only', action='store_true', help='仅打包和存档，不上传或发布版本')
-    args = parser.parse_args()
-    if not args.publish_only and input('请先确认版本号是否修改：').strip().lower() not in ('', 'y', 'yes'):
-        print('已取消打包。')
-        raise SystemExit(0)
     os.chdir(ROOT)
+    sync_updater_version()
     settings = updater_settings()
-    if not args.publish_only:
-        build_and_merge(SCRIPTS)
-        archive = archive_dist(settings['VERSION'])
-        if args.build_only:
-            return
-        upload_dist(archive)
+    build_and_merge(SCRIPTS)
+    archive = archive_dist(settings['VERSION'])
+    upload_dist(archive)
     publish_version(settings)
 
 

@@ -10,12 +10,10 @@ import zipfile
 import winreg
 import msvcrt
 
-VERSION = "v3.7.7"
+VERSION = "v3.7.8"
 SERVER_URL = "http://www.wublog.site/update"
 APP_NAME = "Excel-Tools"
 UPDATE_ZIP = "update.zip"
-CHANGE_LOG = """
-"""
 
 # python Updater.py --apply-update "D:\temp" "D:\Excel-Tools\release"
 exes = ["ExcelCompare.exe", "ExcelSearch.exe", "ImageSearch.exe"]
@@ -163,7 +161,7 @@ def main():
 
     # 检查更新
     update_info = check_update()
-    if not update_info or update_info["version"] <= VERSION:
+    if not update_info or tuple(map(int, update_info["version"].lstrip("v").split("."))) <= tuple(map(int, VERSION.lstrip("v").split("."))):
         sys.exit(0)
 
     # 下载

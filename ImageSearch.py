@@ -878,6 +878,7 @@ class ExcelToolsGUI(QMainWindow):
     def setup_connections(self):
         # 文件操作
         self.select_file_btn.clicked.connect(self.select_excel_file)
+        self.open_file_btn.clicked.connect(lambda checked=False: self.record_action("打开文件"))
         self.open_file_btn.clicked.connect(self.open_excel_file)
         self.file_path_edit.textChanged.connect(self.on_excel_file_changed)
 
