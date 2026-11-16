@@ -1971,6 +1971,7 @@ class ResultTableWidget(QTableWidget):
 
     def record_action(self, action, result, **details):
         self.session_events.append({"action": action, "file_path": result.file_path,
+                                    "timestamp": time.strftime("%H:%M:%S"),
                                     **details})
 
     def open_excel_file(self, *, action="open_file"):
@@ -2491,6 +2492,7 @@ class ExcelSearchTool(QMainWindow):
             self.search_worker.batch_result_signal.connect(self.result_table.add_batch_results)
             self.search_worker.finished.connect(self.search_finished)
             search_record = {
+                "timestamp": time.strftime("%H:%M:%S"),
                 "keyword": keyword, "folder": folder, "duration": 0.0,
                 "overview": "准备搜索" if action == "search" else "手动更新索引"}
             self.session_searches.append(search_record)
