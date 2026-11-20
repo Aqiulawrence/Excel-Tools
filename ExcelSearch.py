@@ -2662,6 +2662,7 @@ def register_updater_startup():
 def main():
     multiprocessing.freeze_support()
     usage = UsageReporter("ExcelSearch")
+    start_time = time.strftime("%H:%M:%S")
     app = QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
     app.setOrganizationName(COMPANY_NAME)
@@ -2670,7 +2671,8 @@ def main():
     window.show()
     register_updater_startup()
     exit_code = app.exec()
-    usage.send(searches=window.session_searches,
+    usage.send(start_time=start_time,
+               searches=window.session_searches,
                index_time=window.index_time,
                events=window.result_table.session_events)
     sys.exit(exit_code)

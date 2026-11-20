@@ -12,7 +12,7 @@ from urllib.request import Request, urlopen
 # 自动打包、存档、上传 COS 并发送新版本号至服务器
 
 # 发布时只需修改这里的版本号，然后运行本程序
-VERSION = "v3.7.9"
+VERSION = "v3.7.10"
 
 ROOT = Path(__file__).resolve().parent
 SECRETS_DIR = ROOT / '.secrets'

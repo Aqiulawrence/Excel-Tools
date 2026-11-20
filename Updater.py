@@ -10,7 +10,7 @@ import zipfile
 import winreg
 import msvcrt
 
-VERSION = "v3.7.9"
+VERSION = "v3.7.10"
 SERVER_URL = "http://www.wublog.site/update"
 APP_NAME = "Excel-Tools"
 UPDATE_ZIP = "update.zip"
